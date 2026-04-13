@@ -1,0 +1,128 @@
+Table Animale {
+  id_animale int [pk]
+  nome varchar
+  vivo bool
+  data_nascita date
+  data_arrivo date
+  nome_scientifico varchar [ref: > Specie.nome_scientifico]
+  id_recinto int [ref: > Recinto.id_recinto]
+}
+
+Table Specie {
+  nome_scientifico varchar [pk]
+  stato_esistenza varchar
+  tipo_animale varchar
+  nome_comune varchar
+  habitat varchar
+}
+
+Table Area {
+  id_area int [pk]
+  nome varchar
+  metratura int
+  tipo varchar
+}
+
+Table Recinto {
+  id_recinto int [pk]
+  tipo_recinto varchar
+  id_area int [ref: > Area.id_area]
+}
+
+Table Dipendenti {
+  codice_fiscale varchar [pk]
+  nome varchar
+  cognome varchar
+  anno_nascita varchar
+  ruolo int [ref: > Ruolo.id_ruolo]
+  data_assunzione date
+  prezzo_orario double
+}
+
+Table Dieta {
+  id_dieta int [pk]
+  nome_scientifico varchar [ref: > Specie.nome_scientifico]
+  tipo_cibo varchar
+  quantita double
+}
+
+Table Tipo_Biglietto {
+  id_biglietto int [pk]
+  nome varchar
+  descrizione varchar
+  prezzo double
+  attivo bool
+}
+Table Dettaglio_scontrino {
+  id_dettaglio int [pk]
+  id_biglietto int [ref: > Tipo_Biglietto.id_biglietto]
+  scontrino int [ref: > Scontrino.id_scontrino]
+  quantita int
+  prezzo_pagato_biglietto double
+}
+Table Scontrino {
+  id_scontrino int [pk]
+  data_acquisto date
+  prezzo_totale dobule
+  nome_gruppo varchar
+  num_persone int
+}
+Table Entrata {
+  id_entrata int [pk]
+  categoria_entrata int [ref: > Categoria.id_categoria]
+  data_entrata date
+  importo double
+  descrizione varchar
+  id_utente int [ref: > Utente.id_utente] 
+  // automatico 
+}
+Table Categoria{
+  id_categoria int [pk]
+  nome varchar
+  descrivere varchar
+  tipo_entrata_uscita bool
+}
+Table Uscite {
+  id_uscite int [pk]
+  categoria_uscite int [ref: > Categoria.id_categoria]
+  data_uscite date
+  importo double
+  descrizione varchar
+  id_utente int [ref: > Utente.id_utente]
+}
+
+Table Trattamento_Medico {
+  id_trattamento int [pk]
+  peso double
+  diagnosi varchar
+  note_trattamento varchar
+  data_visita date
+  data_fine date
+  id_animale int [ref: > Animale.id_animale]
+  id_veterinario varchar [ref: > Dipendenti.codice_fiscale] 
+}
+
+Table Utente {
+  id_utente int [pk]
+  email varchar
+  password varchar
+  data_registrazione date
+  codice_fiscale varchar [ref: > Dipendenti.codice_fiscale]
+}
+Table OrarioLavoro {
+  id_lavoro int [pk]
+  ora_inizio datetime
+  ora_fine datetime
+  data date
+  codice_fiscale varchar [ref: > Dipendenti.codice_fiscale]
+  posto int [ref: > Area.id_area]
+}
+Table Ruolo {
+  id_ruolo int [pk]
+  nome varchar
+  descrizione varchar
+}
+Table Spesa {
+  id_acquisto int [pk]
+  id_utente int [ref: > Utente.id_utente]
+}
