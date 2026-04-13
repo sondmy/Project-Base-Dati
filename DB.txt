@@ -18,7 +18,7 @@ Table Habitat {
 
 Table Tipi_Cibo {
   id_tipo_cibo int [pk]
-  nome varchar [not null]        // "carnivoro", "erbivoro", "onnivoro", ecc.
+  nome varchar [not null]        // "carne", "verdure", "pesce", "frutta", ecc.
   descrizione varchar
 }
 
@@ -29,6 +29,7 @@ Table Specie {
   id_stato_esistenza int [ref: > Stati_Esistenza.id_stato]
   id_tipo_animale int [ref: > Tipi_Animale.id_tipo]
   id_habitat int [ref: > Habitat.id_habitat]
+  quantita_kg_giorno  double  [not null]
   id_tipo_cibo int [ref: > Tipi_Cibo.id_tipo_cibo]  //-- spostato da Diete
 }
 
