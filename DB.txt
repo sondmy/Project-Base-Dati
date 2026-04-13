@@ -1,19 +1,20 @@
 Table Animali {
   id_animale int [pk]
-  nome varchar
-  vivo bool
+  nome varchar [not null]
+  vivo bool [not null]
   data_nascita date
   data_arrivo date
-  nome_scientifico varchar [ref: > Specie.nome_scientifico]
-  id_recinto int [ref: > Recinti.id_recinto]
+  id_specie int [ref: > Specie.id_specie] //[not null]
+  id_recinto int [ref: > Recinti.id_recinto] //[not null]
 }
 
 Table Specie {
-  nome_scientifico varchar [pk]
-  stato_esistenza varchar
-  tipo_animale varchar
-  nome_comune varchar
-  habitat varchar
+  id_specie int [pk]
+  nome_scientifico varchar [not null]
+  stato_esistenza enum //in via estinzione ecc..
+  tipo_animale enum
+  nome_comune varchar [not null]
+  habitat enum
 }
 
 Table Aree {
@@ -25,33 +26,34 @@ Table Aree {
 
 Table Recinti {
   id_recinto int [pk]
-  tipo_recinto varchar
-  id_area int [ref: > Aree.id_area]
+  tipo_recinto varchar [not null]
+  id_area int [ref: > Aree.id_area] //[not null]
 }
 
 Table Dipendenti {
-  codice_fiscale varchar [pk]
-  nome varchar
-  cognome varchar
-  anno_nascita date
-  ruolo int [ref: > Ruoli.id_ruolo]
-  data_assunzione date
-  prezzo_orario double
+  id_dipendente int [pk]
+  codice_fiscale varchar [unique] //[not null]
+  nome varchar [not null]
+  cognome varchar [not null]
+  compleanno date
+  id_mansione int [ref: > Mansioni.id_mansione] //[not null]
+  data_assunzione date [not null]
+  prezzo_orario double [not null]
 }
 
 Table Diete {
   id_dieta int [pk]
-  nome_scientifico varchar [ref: > Specie.nome_scientifico]
-  tipo_cibo varchar
-  quantita double
+  id_animale int [ref: > Animali.id_animale]
+  tipo_cibo enum //carnivoro onnivoro ecc...
+  //quantita double
 }
 
 Table Tipo_Biglietti {
   id_biglietto int [pk]
-  nome varchar
+  nome varchar [not null]
   descrizione varchar
-  prezzo double
-  attivo bool
+  prezzo double [not null]
+  attivo bool [not null]
 }
 Table Dettaglio_scontrini {
   id_dettaglio int [pk]
@@ -62,29 +64,35 @@ Table Dettaglio_scontrini {
 }
 Table Scontrini {
   id_scontrino int [pk]
-  data_acquisto date
-  prezzo_totale double
+  data_acquisto datetime [not null]
+  //prezzo_totale double ricavabile dettaglio scontrini
   nome_gruppo varchar
   num_persone int
+  id_utente int [ref: > Utenti.id_utente] //[not null]
 }
 Table Entrate {
   id_entrata int [pk]
-  categoria_entrata int [ref: > Categorie.id_categoria]
+  categoria_entrata int [ref: > Categorie_entrate.id_categoria]
   data_entrata date
   importo double
   descrizione varchar
   id_utente int [ref: > Utenti.id_utente] 
   // automatico 
 }
-Table Categorie{
-  id_categoria int [pk]
-  nome varchar
-  descrizione varchar
-  tipo_entrata_uscita bool
+Table Categorie_entrate {
+  id_categoria  int [pk]
+  nome          varchar [not null]
+  descrizione   varchar
+}
+
+Table Categorie_uscite {
+  id_categoria  int [pk]
+  nome          varchar [not null]
+  descrizione   varchar
 }
 Table Uscite {
   id_uscite int [pk]
-  categoria_uscite int [ref: > Categorie.id_categoria]
+  categoria_uscite int [ref: > Categorie_uscite.id_categoria]
   data_uscite date
   importo double
   descrizione varchar
@@ -96,27 +104,32 @@ Table Visite_Mediche {
   peso double
   diagnosi varchar
   note_trattamento varchar
-  data_visita date
+  data_visita date [not null]
   data_fine date
-  id_animale int [ref: > Animali.id_animale]
-  id_veterinario varchar [ref: > Dipendenti.codice_fiscale] 
+  id_animale int [ref: > Animali.id_animale] //[not null]
+  id_veterinario int [ref: > Dipendenti.id_dipendente] //[not null]
 }
 
 Table Utenti {
   id_utente int [pk]
-  email varchar
-  password varchar
+  email varchar [not null]
+  password_hash varchar [not null]
   data_registrazione date
-  id_ruolo int [ref: > Ruoli.id_ruolo]
-  codice_fiscale varchar [ref: > Dipendenti.codice_fiscale]
+  id_ruolo int [ref: > Ruoli.id_ruolo] //[not null]
+  id_dipendente int [ref: > Dipendenti.id_dipendente]
 }
 Table Turni {
   id_lavoro int [pk]
   ora_inizio datetime
   ora_fine datetime
   //data ricavabile da datetime sopra
-  codice_fiscale varchar [ref: > Dipendenti.codice_fiscale]
+  id_dipendente int [ref: > Dipendenti.id_dipendente]
   posto int [ref: > Aree.id_area]
+}
+Table Mansioni {
+  id_mansione int [pk]
+  nome varchar
+  descrizione varchar
 }
 Table Ruoli {
   id_ruolo int [pk]
@@ -126,6 +139,9 @@ Table Ruoli {
 Table Spese {
   id_acquisto int [pk]
   id_utente int [ref: > Utenti.id_utente]
+  id_fornitore int [ref: > Fornitori.id_fornitore]
+  importo double
+  data datetime
 }
 Table Permessi {
   id_permesso int [pk]
@@ -141,4 +157,12 @@ Table Ruoli_Permesso {
   indexes {
     (id_ruolo, id_permesso) [pk]
   }
+}
+Table Fornitori{
+  id_fornitore int [pk]
+  nome_azienda varchar
+  descrizione varchar
+  // non abbiamo inserito tipologie di prodotti perche il nostro focus è sullo zoo non sui fornitori
+  indirizzo varchar
+  iban varchar
 }
