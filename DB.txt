@@ -1,25 +1,26 @@
-// TABELLE ENUM 
 Table Stati_Esistenza {
-  id_stato      int     [pk]
-  nome          varchar [not null]
-  descrizione   varchar
-}
-Table Tipi_Animale {
-  id_tipo       int     [pk]
-  nome          varchar [not null]
-  descrizione   varchar
-}
-Table Habitat {
-  id_habitat    int     [pk]
-  nome          varchar [not null]
-  descrizione   varchar
-}
-Table Tipi_Cibo {
-  id_tipo_cibo  int     [pk]
-  nome          varchar [not null]   // "carne", "verdure", "pesce", "frutta", ecc.
-  descrizione   varchar
+  id_stato int [pk]
+  nome varchar [not null]        // "in via di estinzione", "vulnerabile", ecc.
+  descrizione varchar
 }
 
+Table Tipi_Animale {
+  id_tipo int [pk]
+  nome varchar [not null]        // "mammifero", "rettile", ecc.
+  descrizione varchar
+}
+
+Table Habitat {
+  id_habitat int [pk]
+  nome varchar [not null]        // "savana", "foresta tropicale", ecc.
+  descrizione varchar
+}
+
+Table Tipi_Cibo {
+  id_tipo_cibo int [pk]
+  nome varchar [not null]        // "carne", "verdure", "pesce", "frutta", ecc.
+  descrizione varchar
+}
 Table Tipi_Area {
   id_tipo_area  int     [pk]
   nome          varchar [not null]   // "tropicale", "savana", "ghiacciaio", ecc.
@@ -43,44 +44,25 @@ Table Tipi_Mansione {
   nome          varchar [not null] // Ruoli/mansioni del personale (veterinario, manutentore, guida, contabilità, ecc.)
   descrizione   varchar
 }
-// ANIMALI
 
-// Specie animale con stato di conservazione, tipo e habitat naturale
-Table Specie {
-  id_specie           int     [pk]
-  nome_scientifico    varchar [not null]
-  nome_comune         varchar [not null]
-  id_stato_esistenza  int     [ref: > Stati_Esistenza.id_stato, not null]
-  id_tipo_animale     int     [ref: > Tipi_Animale.id_tipo, not null]
-  id_habitat          int     [ref: > Habitat.id_habitat, not null]
-}
-
-// Dieta giornaliera per specie — usata per calcolare gli ordini di cibo
 Table Diete_Specie {
   id_specie         int    [ref: > Specie.id_specie, not null]
   id_tipo_cibo      int    [ref: > Tipi_Cibo.id_tipo_cibo, not null]
   quantita_kg_giorno double [not null]
-  note              varchar
-
   indexes {
     (id_specie, id_tipo_cibo) [pk]
   }
 }
 
-// Singoli animali presenti nel parco
-Table Animali {
-  id_animale    int     [pk]
-  nome          varchar [not null]
-  vivo          bool    [not null]
-  data_nascita  date
-  data_arrivo   date
-  id_specie     int     [ref: > Specie.id_specie, not null]
-  id_recinto    int     [ref: > Recinti.id_recinto, not null]
+Table Specie {
+  id_specie int [pk]
+  nome_scientifico varchar [not null]
+  nome_comune varchar [not null]
+  id_stato_esistenza int [ref: > Stati_Esistenza.id_stato]
+  id_tipo_animale int [ref: > Tipi_Animale.id_tipo]
+  id_habitat int [ref: > Habitat.id_habitat]
 }
 
-// STRUTTURA DEL PARCO
-
-// Macro-aree del parco (zona tropicale, savana, ghiacciaio, ecc.)
 Table Aree {
   id_area       int     [pk]
   nome          varchar [not null]
@@ -88,161 +70,107 @@ Table Aree {
   id_tipo_area  int     [ref: > Tipi_Area.id_tipo_area, not null]
 }
 
-// Recinti all'interno delle aree — ogni animale sta in un solo recinto
 Table Recinti {
   id_recinto        int [pk]
   id_tipo_recinto   int [ref: > Tipi_Recinto.id_tipo_recinto, not null]
   id_area           int [ref: > Aree.id_area, not null]
 }
 
-// PERSONALE
+Table Animali {
+  id_animale int [pk]
+  nome varchar [not null]
+  vivo bool [not null]
+  data_nascita date
+  data_arrivo date
+  id_specie int [ref: > Specie.id_specie, not null]
+  id_recinto int [ref: > Recinti.id_recinto, not null]
+}
 
-// Dipendenti del parco — ogni dipendente ha una sola mansione
 Table Dipendenti {
-  id_dipendente   int     [pk]
-  codice_fiscale  varchar [unique, not null]
-  nome            varchar [not null]
-  cognome         varchar [not null]
-  compleanno      date
-  id_mansione     int     [ref: > Tipi_Mansione.id_tipo_mansione, not null]
-  data_assunzione date    [not null]
-  prezzo_orario   double  [not null]
+  id_dipendente int [pk]
+  codice_fiscale varchar [unique, not null]
+  nome varchar [not null]
+  cognome varchar [not null]
+  compleanno date
+  id_mansione int [ref: > Tipi_Mansione.id_tipo_mansione, not null]
+  data_assunzione date [not null]
+  prezzo_orario double [not null]
 }
 
-// Turni di lavoro per area — con vincolo implicito ora_fine > ora_inizio
 Table Turni {
-  id_turno      int      [pk]
-  ora_inizio    datetime [not null]
-  ora_fine      datetime [not null]   // CHECK: ora_fine > ora_inizio
-  id_dipendente int      [ref: > Dipendenti.id_dipendente, not null]
-  id_area       int      [ref: > Aree.id_area, not null]
+  id_turno int [pk]
+  ora_inizio datetime [not null]
+  ora_fine datetime [not null]
+  id_dipendente int [ref: > Dipendenti.id_dipendente, not null]
+  id_area int [ref: > Aree.id_area, not null]
 }
 
-// PERMESSI E UTENTI
-
-// Account online collegato 1:1 a un dipendente
-// I permessi si derivano dalla mansione del dipendente associato
 Table Utenti {
-  id_utente          int     [pk]
-  email              varchar [unique, not null]
-  password_hash      varchar [not null]
+  id_utente int [pk]
+  email varchar [unique, not null]
+  password_hash varchar [not null]
   data_registrazione date
-  id_dipendente      int     [unique, ref: > Dipendenti.id_dipendente, not null]
+  id_dipendente int [ref: > Dipendenti.id_dipendente]  // nullable: non tutti gli utenti sono dipendenti
 }
 
-
-// VETERINARIO
-
-// Visite mediche (routine o per malattia) — eseguite da un dipendente veterinario
 Table Visite_Mediche {
-  id_visita         int    [pk]
-  peso              double              // nullable: non sempre rilevato
-  diagnosi          varchar
-  note_trattamento  varchar
-  data_visita       date   [not null]
-  data_fine         date
-  id_animale        int    [ref: > Animali.id_animale, not null]
-  id_veterinario    int    [ref: > Dipendenti.id_dipendente, not null]
+  id_visita int [pk]
+  peso double                        // storico, ricavato in VIEW per l'ultimo
+  diagnosi varchar
+  note_trattamento varchar
+  data_visita date [not null]
+  data_fine date
+  id_animale int [ref: > Animali.id_animale, not null]
+  id_veterinario int [ref: > Dipendenti.id_dipendente, not null]
 }
 
-// VIEW consigliata — peso più recente per ogni animale:
-// CREATE VIEW Peso_Attuale_Animali AS
-//   SELECT DISTINCT ON (id_animale) id_animale, peso, data_visita
-//   FROM Visite_Mediche
-//   WHERE peso IS NOT NULL
-//   ORDER BY id_animale, data_visita DESC;
-
-
-// BIGLIETTERIA
-
-// Tipologie di biglietto (intero, ridotto, famiglia, ecc.)
 Table Tipi_Biglietti {
-  id_biglietto  int     [pk]
-  nome          varchar [not null]
-  descrizione   varchar
-  prezzo        double  [not null]
-  attivo        bool    [not null]
+  id_biglietto int [pk]
+  nome varchar [not null]
+  descrizione varchar
+  prezzo double [not null]
+  attivo bool [not null]
 }
 
-// Scontrino di acquisto (può contenere più tipologie di biglietto)
 Table Scontrini {
-  id_scontrino  int      [pk]
+  id_scontrino int [pk]
   data_acquisto datetime [not null]
-  nome_gruppo   varchar
-  num_persone   int
+  nome_gruppo varchar
+  num_persone int
+  id_utente int [ref: > Utenti.id_utente, not null]
 }
 
-// Righe dello scontrino — una riga per tipologia di biglietto acquistata
 Table Dettaglio_Scontrini {
-  id_dettaglio              int    [pk]
-  id_scontrino              int    [ref: > Scontrini.id_scontrino, not null]
-  id_biglietto              int    [ref: > Tipi_Biglietti.id_biglietto, not null]
-  quantita                  int    [not null]
-  prezzo_pagato_biglietto   double [not null]   // snapshot del prezzo al momento dell'acquisto
+  id_dettaglio int [pk]
+  id_scontrino int [ref: > Scontrini.id_scontrino, not null]
+  id_biglietto int [ref: > Tipi_Biglietti.id_biglietto, not null]
+  quantita int [not null]
+  prezzo_pagato_biglietto double [not null]  // storico: prezzo al momento dell'acquisto
 }
 
-// FORNITORI E ORDINI
+Table Categorie_Transazioni {
+  id_categoria int [pk]
+  nome varchar [not null]
+  descrizione varchar
+  tipo enum [not null]   // 'ENTRATA' | 'USCITA' (evita categorie usate nel verso sbagliato)
+}
 
 Table Fornitori {
-  id_fornitore  int     [pk]
-  nome_azienda  varchar [not null]
-  descrizione   varchar
-  indirizzo     varchar
-  iban          varchar
+  id_fornitore int [pk]
+  nome_azienda varchar [not null]
+  descrizione varchar
+  indirizzo varchar
+  iban varchar
 }
 
-// NUOVO: cosa fornisce ogni fornitore (cibo, medicine, attrezzatura, ecc.)
-Table Fornitori_Tipi {
-  id_fornitore      int [ref: > Fornitori.id_fornitore]
-  id_tipo_fornitura int [ref: > Tipi_Fornitura.id_tipo_fornitura]
-
-  indexes {
-    (id_fornitore, id_tipo_fornitura) [pk]
-  }
-}
-
-// NUOVO: ordine emesso verso un fornitore (cibo per manutentore, medicine per veterinario)
-Table Ordini_Fornitori {
-  id_ordine       int     [pk]
-  data_ordine     date    [not null]
-  data_consegna   date
-  stato           varchar [not null]   // "in_attesa", "confermato", "consegnato", "annullato"
-  id_fornitore    int     [ref: > Fornitori.id_fornitore, not null]
-  id_utente       int     [ref: > Utenti.id_utente, not null]
-}
-
-// NUOVO: righe dell'ordine — quantità e prezzo per ogni tipo di cibo/prodotto ordinato
-Table Dettaglio_Ordini {
-  id_dettaglio    int    [pk]
-  id_ordine       int    [ref: > Ordini_Fornitori.id_ordine, not null]
-  id_tipo_cibo    int    [ref: > Tipi_Cibo.id_tipo_cibo, not null]
-  quantita_kg     double [not null]
-  prezzo_unitario double [not null]
-}
-
-
-// CONTABILITÀ
-
-// Categorie contabili — tipo: "ENTRATA" o "USCITA" (CHECK constraint nel DDL)
-Table Categorie_Transazioni {
-  id_categoria  int     [pk]
-  nome          varchar [not null]
-  descrizione   varchar
-  tipo          varchar [not null]   // CHECK: tipo IN ('ENTRATA', 'USCITA')
-}
-
-// Transazioni economiche del parco
-// Entrate: collegate a uno scontrino (vendita biglietti) o generiche
-// Uscite: collegate a un fornitore e/o a un ordine
-// CHECK nel DDL: NOT (id_scontrino IS NOT NULL AND id_fornitore IS NOT NULL)
 Table Transazioni {
-  id_transazione  int      [pk]
-  importo         double   [not null]
-  data            datetime [not null]
-  descrizione     varchar
-  id_categoria    int      [ref: > Categorie_Transazioni.id_categoria, not null]
-  id_utente       int      [ref: > Utenti.id_utente, not null]
-  id_fornitore    int      [ref: > Fornitori.id_fornitore]     // nullable: solo per uscite
-  id_scontrino    int      [ref: > Scontrini.id_scontrino]     // nullable: solo per entrate
-  id_ordine       int      [ref: > Ordini_Fornitori.id_ordine] // NUOVO: traccia l'ordine che ha generato la spesa
+  id_transazione int [pk]
+  tipo enum [not null]               // 'ENTRATA' | 'USCITA'
+  importo double [not null]          // sempre positivo
+  data datetime [not null]
+  descrizione varchar
+  id_categoria int [ref: > Categorie_Transazioni.id_categoria, not null]
+  id_utente int [ref: > Utenti.id_utente, not null]
+  id_fornitore int [ref: > Fornitori.id_fornitore]  // nullable: solo per uscite verso fornitori
+  id_scontrino int [ref: > Scontrini.id_scontrino]  // nullable: solo per entrate da biglietteria
 }
