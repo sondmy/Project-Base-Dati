@@ -56,11 +56,7 @@ Table Animali {
   id_recinto int [ref: > Recinti.id_recinto, not null]
 }
 
-Table Mansioni {
-  id_mansione int [pk]
-  nome varchar [not null]
-  descrizione varchar
-}
+
 
 Table Dipendenti {
   id_dipendente int [pk]
@@ -68,7 +64,7 @@ Table Dipendenti {
   nome varchar [not null]
   cognome varchar [not null]
   compleanno date
-  id_mansione int [ref: > Mansioni.id_mansione, not null]
+  id_mansione int [ref: > Ruoli.id_ruolo, not null]
   data_assunzione date [not null]
   prezzo_orario double [not null]
 }
@@ -107,7 +103,7 @@ Table Utenti {
   email varchar [unique, not null]
   password_hash varchar [not null]
   data_registrazione date
-  id_ruolo int [ref: > Ruoli.id_ruolo, not null]
+  id_ruolo int [ref: > Ruoli_Permessi.id_permesso, not null] // tutte e 2 
   id_dipendente int [ref: > Dipendenti.id_dipendente]  // nullable: non tutti gli utenti sono dipendenti
 }
 
@@ -135,7 +131,6 @@ Table Scontrini {
   data_acquisto datetime [not null]
   nome_gruppo varchar
   num_persone int
-  id_utente int [ref: > Utenti.id_utente, not null]
 }
 
 Table Dettaglio_Scontrini {
