@@ -45,7 +45,7 @@ Table Tipi_Mansione {
   descrizione   varchar
 }
 
-Table Diete_Specie {
+Table _Specie {
   id_specie         int    [ref: > Specie.id_specie, not null]
   id_tipo_cibo      int    [ref: > Tipi_Cibo.id_tipo_cibo, not null]
   quantita_kg_giorno double [not null]
@@ -82,10 +82,17 @@ Table Animali {
   vivo bool [not null]
   data_nascita date
   data_arrivo date
+  data_uscita date
   id_specie int [ref: > Specie.id_specie, not null]
   id_recinto int [ref: > Recinti.id_recinto, not null]
 }
-
+Table Storici_Stipendo{
+  id_storico int [pk]
+  id_dipendente int [ref: > Dipendenti.id_dipendente]
+  prezzo_orario double
+  data_inizio date
+  data_fine date 
+}
 Table Dipendenti {
   id_dipendente int [pk]
   codice_fiscale varchar [unique, not null]
