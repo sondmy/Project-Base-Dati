@@ -58,7 +58,7 @@ Table "TIPO_FORNITURA" {
   }
 }
 
-Table "TIPO_BIGLIETTI" {
+Table "TIPO_BIGLIETTO" {
   "id_biglietto" INTEGER(10) [not null]
   "nome" VARCHAR(50) [not null]
   "descrizione" VARCHAR(250)
@@ -66,7 +66,7 @@ Table "TIPO_BIGLIETTI" {
   "attivo" BOOLEAN(1) [not null]
 
   Indexes {
-    id_biglietto [pk, name: "PK_TIPO_BIGLIETTI"]
+    id_biglietto [pk, name: "PK_TIPO_BIGLIETTO"]
   }
 }
 
@@ -96,6 +96,7 @@ Table "CATEGORIA_TRANSAZIONE" {
   "id_categoria" INTEGER(10) [not null]
   "nome" VARCHAR(50) [not null]
   "descrizione" VARCHAR(250)
+  "tipo" CHAR(1) [not null, note: 'E = entrata, U = uscita']
 
   Indexes {
     id_categoria [pk, name: "PK_CATEGORIA_TRANSAZIONE"]
@@ -229,18 +230,20 @@ Table "VISITA_MEDICA" {
 
 Table "UTENTE" {
   "id_utente" INTEGER(10) [not null]
-  "email" VARCHAR(50) [not null]
+  "email" VARCHAR(100) [not null]
   "password_hash" VARCHAR(250) [not null]
   "data_registrazione" DATE [not null]
   "id_dipendente" INTEGER(10) [not null]
+  "ruolo" VARCHAR(20) [not null, default: 'operatore', note: 'admin / cassiere / operatore']
 
   Indexes {
     id_utente [pk, name: "PK_UTENTE"]
     email [unique, name: "UQ_UTENTE_EMAIL"]
+    id_dipendente [unique, name: "UQ_UTENTE_DIP"]
   }
 }
 
-Table "FORNITORI" {
+Table "FORNITORE" {
   "id_fornitore" INTEGER(10) [not null]
   "nome_azienda" VARCHAR(50) [not null]
   "descrizione" VARCHAR(250)
@@ -249,11 +252,11 @@ Table "FORNITORI" {
   "id_tipo_fornitura" INTEGER(10) [not null]
 
   Indexes {
-    id_fornitore [pk, name: "PK_FORNITORI"]
+    id_fornitore [pk, name: "PK_FORNITORE"]
   }
 }
 
-Table "SCONTRINI" {
+Table "SCONTRINO" {
   "id_scontrino" INTEGER(10) [not null]
   "data_acquisto" DATE [not null]
   "nome_gruppo" VARCHAR(50)
@@ -261,11 +264,11 @@ Table "SCONTRINI" {
   "id_utente" INTEGER(10) [not null]
 
   Indexes {
-    id_scontrino [pk, name: "PK_SCONTRINI"]
+    id_scontrino [pk, name: "PK_SCONTRINO"]
   }
 }
 
-Table "DETTAGLIO_SCONTRINI" {
+Table "DETTAGLIO_SCONTRINO" {
   "id_dettaglio" INTEGER(10) [not null]
   "quantita" NUMERIC(10) [not null]
   "prezzo_pagato_biglietto" NUMERIC(10,2) [not null]
@@ -273,11 +276,11 @@ Table "DETTAGLIO_SCONTRINI" {
   "id_scontrino" INTEGER(10) [not null]
 
   Indexes {
-    id_dettaglio [pk, name: "PK_DETTAGLIO_SCONTRINI"]
+    id_dettaglio [pk, name: "PK_DETTAGLIO_SCONTRINO"]
   }
 }
 
-Table "TRANSAZIONI" {
+Table "TRANSAZIONE" {
   "id_transazione" INTEGER(10) [not null]
   "tipo" CHAR(1) [not null]
   "importo" NUMERIC(10,2) [not null]
@@ -289,7 +292,7 @@ Table "TRANSAZIONI" {
   "id_scontrino" INTEGER(10)
 
   Indexes {
-    id_transazione [pk, name: "PK_TRANSAZIONI"]
+    id_transazione [pk, name: "PK_TRANSAZIONE"]
   }
 }
 
@@ -326,21 +329,21 @@ Ref "FKvisita":"DIPENDENTE"."id_dipendente" < "VISITA_MEDICA"."id_veterinario"
 
 Ref "FKaccesso":"DIPENDENTE"."id_dipendente" < "UTENTE"."id_dipendente"
 
-Ref "FKspecializzazione":"TIPO_FORNITURA"."id_tipo_fornitura" < "FORNITORI"."id_tipo_fornitura"
+Ref "FKspecializzazione":"TIPO_FORNITURA"."id_tipo_fornitura" < "FORNITORE"."id_tipo_fornitura"
 
-Ref "FKgenerazione":"UTENTE"."id_utente" < "SCONTRINI"."id_utente"
+Ref "FKgenerazione":"UTENTE"."id_utente" < "SCONTRINO"."id_utente"
 
-Ref "FKtariffa":"TIPO_BIGLIETTI"."id_biglietto" < "DETTAGLIO_SCONTRINI"."id_biglietto"
+Ref "FKtariffa":"TIPO_BIGLIETTO"."id_biglietto" < "DETTAGLIO_SCONTRINO"."id_biglietto"
 
-Ref "FKcomposizione":"SCONTRINI"."id_scontrino" < "DETTAGLIO_SCONTRINI"."id_scontrino"
+Ref "FKcomposizione":"SCONTRINO"."id_scontrino" < "DETTAGLIO_SCONTRINO"."id_scontrino"
 
-Ref "FKimputazione":"CATEGORIA_TRANSAZIONE"."id_categoria" < "TRANSAZIONI"."id_categoria"
+Ref "FKimputazione":"CATEGORIA_TRANSAZIONE"."id_categoria" < "TRANSAZIONE"."id_categoria"
 
-Ref "FKcreazione":"UTENTE"."id_utente" < "TRANSAZIONI"."id_utente"
+Ref "FKcreazione":"UTENTE"."id_utente" < "TRANSAZIONE"."id_utente"
 
-Ref "FKfornitura":"FORNITORI"."id_fornitore" < "TRANSAZIONI"."id_fornitore"
+Ref "FKfornitura":"FORNITORE"."id_fornitore" < "TRANSAZIONE"."id_fornitore"
 
-Ref "FKincasso":"SCONTRINI"."id_scontrino" < "TRANSAZIONI"."id_scontrino"
+Ref "FKincasso":"SCONTRINO"."id_scontrino" < "TRANSAZIONE"."id_scontrino"
 
 Ref "FKcoll_animale":"ANIMALE"."id_animale" < "STORICO_COLLOCAZIONE"."id_animale"
 Ref "FKcoll_recinto":"RECINTO"."id_recinto" < "STORICO_COLLOCAZIONE"."id_recinto"
