@@ -148,7 +148,7 @@ CREATE TABLE ANIMALE (
     id_animale      INTEGER     NOT NULL,
     nome            VARCHAR(50) NOT NULL,
     sesso           CHAR(1)     NOT NULL CHECK (sesso IN ('M', 'F', 'I')),
-    vivo            BOOLEAN     NOT NULL DEFAULT TRUE,
+    attivo            BOOLEAN     NOT NULL DEFAULT TRUE,
     data_nascita    DATE,
     data_arrivo     DATE,
     data_uscita     DATE,
@@ -161,7 +161,7 @@ CREATE TABLE ANIMALE (
         (data_uscita IS NULL OR data_arrivo IS NULL OR data_uscita >= data_arrivo)
     )
 );
-COMMENT ON COLUMN ANIMALE.vivo      IS 'TRUE = animale presente e vivo, FALSE = deceduto o uscito dallo zoo';
+COMMENT ON COLUMN ANIMALE.attivo      IS 'TRUE = animale presente e attivo, FALSE = deceduto o uscito dallo zoo';
 COMMENT ON COLUMN ANIMALE.data_uscita IS 'Data di uscita dallo zoo (cessione, decesso, trasferimento)';
 
 CREATE TABLE STORICO_COLLOCAZIONE (
@@ -355,7 +355,7 @@ BEGIN
             'Il dipendente % non è un veterinario. Solo i veterinari possono eseguire visite mediche.',
             NEW.id_veterinario;
     END IF;
-    IF NOT EXISTS (SELECT 1 FROM ANIMALE WHERE id_animale = NEW.id_animale AND vivo = TRUE) THEN
+    IF NOT EXISTS (SELECT 1 FROM ANIMALE WHERE id_animale = NEW.id_animale AND attivo = TRUE) THEN
         RAISE EXCEPTION 'L''animale % non è più in vita o è uscito dallo zoo.', NEW.id_animale;
     END IF;
     RETURN NEW;
