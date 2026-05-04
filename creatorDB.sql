@@ -1,15 +1,5 @@
--- ============================================================
---  ZOO DATABASE SCHEMA
---  PostgreSQL
--- ============================================================
-
 -- Estensione necessaria per i constraint EXCLUDE (no-overlap)
 CREATE EXTENSION IF NOT EXISTS btree_gist;
-
-
--- ============================================================
---  TABELLE DI LOOKUP
--- ============================================================
 
 CREATE TABLE STATO_ESISTENZA (
     id_stato    INTEGER         NOT NULL,
@@ -20,7 +10,6 @@ CREATE TABLE STATO_ESISTENZA (
 COMMENT ON TABLE  STATO_ESISTENZA          IS 'Stato di conservazione della specie (es. estinto, vulnerabile, in pericolo)';
 COMMENT ON COLUMN STATO_ESISTENZA.nome     IS 'Nome dello stato (es. LC, VU, EN, CR, EW, EX)';
 
-
 CREATE TABLE HABITAT (
     id_habitat  INTEGER         NOT NULL,
     nome        VARCHAR(50)     NOT NULL,
@@ -28,7 +17,6 @@ CREATE TABLE HABITAT (
     CONSTRAINT PK_HABITAT PRIMARY KEY (id_habitat)
 );
 COMMENT ON TABLE HABITAT IS 'Habitat naturale di una specie (es. foresta tropicale, savana, artico)';
-
 
 CREATE TABLE FAMIGLIA_SPECIE (
     id_famiglia_specie  INTEGER     NOT NULL,
@@ -38,9 +26,6 @@ CREATE TABLE FAMIGLIA_SPECIE (
 );
 COMMENT ON TABLE FAMIGLIA_SPECIE IS 'Famiglia tassonomica della specie (es. Felidae, Canidae)';
 
-
-
-
 CREATE TABLE TIPO_AREA (
     id_tipo_area    INTEGER     NOT NULL,
     nome            VARCHAR(50) NOT NULL,
@@ -48,7 +33,6 @@ CREATE TABLE TIPO_AREA (
     CONSTRAINT PK_TIPO_AREA PRIMARY KEY (id_tipo_area)
 );
 COMMENT ON TABLE TIPO_AREA IS 'Tipologia di area dello zoo (es. zoo, veterinaria, amministrativa)';
-
 
 CREATE TABLE TIPO_RECINTO (
     id_tipo_recinto INTEGER     NOT NULL,
@@ -58,7 +42,6 @@ CREATE TABLE TIPO_RECINTO (
 );
 COMMENT ON TABLE TIPO_RECINTO IS 'Tipologia strutturale del recinto (es. gabbia, vasca, voliera)';
 
-
 CREATE TABLE TIPO_MANSIONE (
     id_tipo_mansione    INTEGER     NOT NULL,
     nome                VARCHAR(50) NOT NULL,
@@ -66,7 +49,6 @@ CREATE TABLE TIPO_MANSIONE (
     CONSTRAINT PK_TIPO_MANSIONE PRIMARY KEY (id_tipo_mansione)
 );
 COMMENT ON TABLE TIPO_MANSIONE IS 'Ruolo lavorativo del dipendente (es. veterinario, guardiano, amministratore)';
-
 
 CREATE TABLE TIPO_CIBO (
     id_tipo_cibo    INTEGER     NOT NULL,
@@ -76,7 +58,6 @@ CREATE TABLE TIPO_CIBO (
 );
 COMMENT ON TABLE TIPO_CIBO IS 'Categoria alimentare usata nelle diete (es. carne, pesce, vegetali)';
 
-
 CREATE TABLE TIPO_FORNITURA (
     id_tipo_fornitura   INTEGER     NOT NULL,
     nome                VARCHAR(50) NOT NULL,
@@ -84,7 +65,6 @@ CREATE TABLE TIPO_FORNITURA (
     CONSTRAINT PK_TIPO_FORNITURA PRIMARY KEY (id_tipo_fornitura)
 );
 COMMENT ON TABLE TIPO_FORNITURA IS 'Categoria merceologica del fornitore (es. alimentari, farmaceutici, manutenzione)';
-
 
 CREATE TABLE TIPO_BIGLIETTO (
     id_biglietto    INTEGER         NOT NULL,
@@ -97,7 +77,6 @@ CREATE TABLE TIPO_BIGLIETTO (
 );
 COMMENT ON COLUMN TIPO_BIGLIETTO.attivo IS 'TRUE = biglietto in vendita, FALSE = ritirato dal catalogo';
 
-
 CREATE TABLE CATEGORIA_TRANSAZIONE (
     id_categoria    INTEGER     NOT NULL,
     nome            VARCHAR(50) NOT NULL,
@@ -107,11 +86,6 @@ CREATE TABLE CATEGORIA_TRANSAZIONE (
     CONSTRAINT chk_categoria_tipo       CHECK (tipo IN ('E', 'U'))
 );
 COMMENT ON COLUMN CATEGORIA_TRANSAZIONE.tipo IS 'E = entrata (incasso), U = uscita (spesa)';
-
-
--- ============================================================
---  SPECIE E DIETA
--- ============================================================
 
 CREATE TABLE SPECIE (
     id_specie           INTEGER     NOT NULL,
@@ -126,7 +100,6 @@ CREATE TABLE SPECIE (
     CONSTRAINT FKcategoria          FOREIGN KEY (id_famiglia_specie) REFERENCES FAMIGLIA_SPECIE(id_famiglia_specie)
 );
 
-
 CREATE TABLE DIETA (
     id_specie           INTEGER         NOT NULL,
     id_tipo_cibo        INTEGER         NOT NULL,
@@ -136,11 +109,6 @@ CREATE TABLE DIETA (
     CONSTRAINT FKdieta_tipocibo     FOREIGN KEY (id_tipo_cibo)  REFERENCES TIPO_CIBO(id_tipo_cibo),
     CONSTRAINT chk_dieta_quantita   CHECK (quantita_kg_giorno > 0)
 );
-
-
--- ============================================================
---  AREE E RECINTI
--- ============================================================
 
 CREATE TABLE AREA (
     id_area         INTEGER         NOT NULL,
@@ -152,9 +120,8 @@ CREATE TABLE AREA (
     CONSTRAINT chk_area_metratura   CHECK (metratura > 0)
 );
 
-
 CREATE TABLE RECINTO (
-    id_recinto          INTEGER     NOT NULL,
+    id_recinto          SERIAL, --incrementa automaticamente
     capienza_massima    NUMERIC(10) NOT NULL,
     id_tipo_recinto     INTEGER     NOT NULL,
     id_area             INTEGER     NOT NULL,
@@ -163,15 +130,24 @@ CREATE TABLE RECINTO (
     CONSTRAINT FKubicazione         FOREIGN KEY (id_area)           REFERENCES AREA(id_area),
     CONSTRAINT chk_capienza         CHECK (capienza_massima > 0)
 );
-
-
--- ============================================================
---  ANIMALI E STORICO COLLOCAZIONE
--- ============================================================
+CREATE OR REPLACE FUNCTION trg_check_capienza() RETURNS TRIGGER AS $$
+DECLARE v_count INTEGER; v_max INTEGER;
+BEGIN
+  SELECT capienza_massima INTO v_max FROM RECINTO WHERE id_recinto = NEW.id_recinto;
+  SELECT COUNT(*) INTO v_count FROM STORICO_COLLOCAZIONE
+    WHERE id_recinto = NEW.id_recinto AND data_fine IS NULL;
+  IF v_count >= v_max THEN
+    RAISE EXCEPTION 'Recinto % ha raggiunto la capienza massima (%)', NEW.id_recinto, v_max;
+  END IF;
+  RETURN NEW;
+END; $$ LANGUAGE plpgsql;
+CREATE TRIGGER trg_capienza BEFORE INSERT ON STORICO_COLLOCAZIONE
+  FOR EACH ROW EXECUTE FUNCTION trg_check_capienza();
 
 CREATE TABLE ANIMALE (
     id_animale      INTEGER     NOT NULL,
     nome            VARCHAR(50) NOT NULL,
+    sesso           CHAR(1)     NOT NULL CHECK (sesso IN ('M', 'F', 'I')),
     vivo            BOOLEAN     NOT NULL DEFAULT TRUE,
     data_nascita    DATE,
     data_arrivo     DATE,
@@ -187,7 +163,6 @@ CREATE TABLE ANIMALE (
 );
 COMMENT ON COLUMN ANIMALE.vivo      IS 'TRUE = animale presente e vivo, FALSE = deceduto o uscito dallo zoo';
 COMMENT ON COLUMN ANIMALE.data_uscita IS 'Data di uscita dallo zoo (cessione, decesso, trasferimento)';
-
 
 CREATE TABLE STORICO_COLLOCAZIONE (
     id_storico      INTEGER NOT NULL,
@@ -208,11 +183,6 @@ CREATE TABLE STORICO_COLLOCAZIONE (
 COMMENT ON TABLE  STORICO_COLLOCAZIONE IS 'Storico delle collocazioni di ogni animale nei recinti nel tempo';
 COMMENT ON COLUMN STORICO_COLLOCAZIONE.data_fine IS 'NULL = collocazione attualmente attiva';
 
-
--- ============================================================
---  DIPENDENTI E STIPENDI
--- ============================================================
-
 CREATE TABLE DIPENDENTE (
     id_dipendente       INTEGER     NOT NULL,
     codice_fiscale      VARCHAR(16) NOT NULL,
@@ -227,7 +197,6 @@ CREATE TABLE DIPENDENTE (
     CONSTRAINT chk_cf_length        CHECK (LENGTH(codice_fiscale) = 16)
 );
 COMMENT ON COLUMN DIPENDENTE.codice_fiscale IS 'Codice fiscale italiano, sempre 16 caratteri';
-
 
 CREATE TABLE STORICO_STIPENDIO (
     id_storico      INTEGER         NOT NULL,
@@ -247,11 +216,6 @@ CREATE TABLE STORICO_STIPENDIO (
 );
 COMMENT ON COLUMN STORICO_STIPENDIO.data_fine IS 'NULL = tariffa oraria attualmente in vigore';
 
-
--- ============================================================
---  TURNI
--- ============================================================
-
 CREATE TABLE TURNO (
     id_turno        INTEGER     NOT NULL,
     ora_inizio      TIMESTAMP   NOT NULL,
@@ -268,11 +232,6 @@ CREATE TABLE TURNO (
         tsrange(ora_inizio, ora_fine) WITH &&
     )
 );
-
-
--- ============================================================
---  VISITE MEDICHE
--- ============================================================
 
 CREATE TABLE VISITA_MEDICA (
     id_visita           INTEGER         NOT NULL,
@@ -292,15 +251,10 @@ CREATE TABLE VISITA_MEDICA (
 COMMENT ON COLUMN VISITA_MEDICA.id_veterinario IS 'FK verso DIPENDENTE — deve essere un dipendente con mansione veterinario';
 COMMENT ON COLUMN VISITA_MEDICA.data_fine      IS 'NULL = trattamento ancora in corso';
 
-
--- ============================================================
---  UTENTI (solo dipendenti con accesso al gestionale)
--- ============================================================
-
 CREATE TABLE UTENTE (
     id_utente           INTEGER      NOT NULL,
     email               VARCHAR(100) NOT NULL,
-    password_hash       VARCHAR(250) NOT NULL,
+    password_hash       VARCHAR(512) NOT NULL,
     data_registrazione  DATE         NOT NULL,
     id_dipendente       INTEGER      NOT NULL,
     ruolo               VARCHAR(20)  NOT NULL DEFAULT 'operatore',
@@ -315,10 +269,6 @@ COMMENT ON COLUMN UTENTE.id_dipendente  IS 'Ogni dipendente può avere al massim
 COMMENT ON COLUMN UTENTE.ruolo          IS 'admin = accesso completo, cassiere = biglietteria e incassi, operatore = consultazione';
 
 
--- ============================================================
---  FORNITORE
--- ============================================================
-
 CREATE TABLE FORNITORE (
     id_fornitore        INTEGER      NOT NULL,
     nome_azienda        VARCHAR(50)  NOT NULL,
@@ -328,28 +278,22 @@ CREATE TABLE FORNITORE (
     id_tipo_fornitura   INTEGER      NOT NULL,
     CONSTRAINT PK_FORNITORE         PRIMARY KEY (id_fornitore),
     CONSTRAINT FKspecializzazione   FOREIGN KEY (id_tipo_fornitura) REFERENCES TIPO_FORNITURA(id_tipo_fornitura),
-    CONSTRAINT chk_iban_length      CHECK (iban IS NULL OR LENGTH(iban) BETWEEN 15 AND 34)
+    CONSTRAINT chk_iban_length      CHECK (iban IS NULL OR LENGTH(iban) BETWEEN 15 AND 34 AND iban ~ '^[A-Z]{2}[0-9]{2}[A-Z0-9]+$')
 );
 COMMENT ON COLUMN FORNITORE.iban IS 'IBAN internazionale, lunghezza variabile tra 15 e 34 caratteri';
-
-
--- ============================================================
---  BIGLIETTERIA: SCONTRINO E DETTAGLI
--- ============================================================
 
 CREATE TABLE SCONTRINO (
     id_scontrino    INTEGER     NOT NULL,
     data_acquisto   DATE        NOT NULL,
-    nome_gruppo     VARCHAR(50),
-    num_persone     INTEGER,
+    nome_gruppo     VARCHAR(50) NOT NULL,
+    num_persone     INTEGER NOT NULL,
     id_utente       INTEGER     NOT NULL,
     CONSTRAINT PK_SCONTRINO         PRIMARY KEY (id_scontrino),
     CONSTRAINT FKgenerazione        FOREIGN KEY (id_utente) REFERENCES UTENTE(id_utente),
-    CONSTRAINT chk_num_persone      CHECK (num_persone IS NULL OR num_persone > 0)
+    CONSTRAINT chk_num_persone      CHECK (num_persone > 0)
 );
 COMMENT ON COLUMN SCONTRINO.nome_gruppo  IS 'Nome del gruppo scolastico o comitiva, se applicabile';
 COMMENT ON COLUMN SCONTRINO.num_persone  IS 'Numero totale di persone del gruppo, se applicabile';
-
 
 CREATE TABLE DETTAGLIO_SCONTRINO (
     id_dettaglio            INTEGER         NOT NULL,
@@ -364,11 +308,6 @@ CREATE TABLE DETTAGLIO_SCONTRINO (
     CONSTRAINT chk_det_prezzo           CHECK (prezzo_pagato_biglietto >= 0)
 );
 COMMENT ON COLUMN DETTAGLIO_SCONTRINO.prezzo_pagato_biglietto IS 'Prezzo storicizzato al momento dell acquisto, indipendente dal listino attuale';
-
-
--- ============================================================
---  TRANSAZIONI FINANZIARIE
--- ============================================================
 
 CREATE TABLE TRANSAZIONE (
     id_transazione  INTEGER         NOT NULL,
@@ -415,6 +354,9 @@ BEGIN
         RAISE EXCEPTION
             'Il dipendente % non è un veterinario. Solo i veterinari possono eseguire visite mediche.',
             NEW.id_veterinario;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM ANIMALE WHERE id_animale = NEW.id_animale AND vivo = TRUE) THEN
+        RAISE EXCEPTION 'L''animale % non è più in vita o è uscito dallo zoo.', NEW.id_animale;
     END IF;
     RETURN NEW;
 END;
