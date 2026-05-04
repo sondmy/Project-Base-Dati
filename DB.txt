@@ -92,14 +92,13 @@ Table "FAMIGLIA_SPECIE" {
 
 
 
-Table "CATEGORIE_TRANSAZIONI" {
+Table "CATEGORIA_TRANSAZIONE" {
   "id_categoria" INTEGER(10) [not null]
   "nome" VARCHAR(50) [not null]
   "descrizione" VARCHAR(250)
-  "tipo" CHAR(1) [not null] 
 
   Indexes {
-    id_categoria [pk, name: "PK_CATEGORIE_TRANSAZIONI"]
+    id_categoria [pk, name: "PK_CATEGORIA_TRANSAZIONE"]
   }
 }
 
@@ -150,8 +149,8 @@ Table "RECINTO" {
 
 Table "STORICO_COLLOCAZIONE" {
   "id_storico"     INTEGER(10)
-  "id_animale"     NUMERIC(10) [not null]
-  "id_recinto"     NUMERIC(10) [not null]
+  "id_animale"     INTEGER(10) [not null]
+  "id_recinto"     INTEGER(10) [not null]
   "data_inizio"    DATE [not null]
   "data_fine"      DATE
 
@@ -335,7 +334,7 @@ Ref "FKtariffa":"TIPO_BIGLIETTI"."id_biglietto" < "DETTAGLIO_SCONTRINI"."id_bigl
 
 Ref "FKcomposizione":"SCONTRINI"."id_scontrino" < "DETTAGLIO_SCONTRINI"."id_scontrino"
 
-Ref "FKimputazione":"CATEGORIE_TRANSAZIONI"."id_categoria" < "TRANSAZIONI"."id_categoria"
+Ref "FKimputazione":"CATEGORIA_TRANSAZIONE"."id_categoria" < "TRANSAZIONI"."id_categoria"
 
 Ref "FKcreazione":"UTENTE"."id_utente" < "TRANSAZIONI"."id_utente"
 
