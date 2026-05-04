@@ -1,183 +1,347 @@
-Table Stati_Esistenza {
-  id_stato int [pk]
-  nome varchar [not null]        // "in via di estinzione", "vulnerabile", ecc.
-  descrizione varchar
-}
+Table "STATO_ESISTENZA" {
+  "id_stato" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
 
-Table Tipi_Animale {
-  id_tipo int [pk]
-  nome varchar [not null]        // "mammifero", "rettile", ecc.
-  descrizione varchar
-}
-
-Table Habitat {
-  id_habitat int [pk]
-  nome varchar [not null]        // "savana", "foresta tropicale", ecc.
-  descrizione varchar
-}
-
-Table Tipi_Cibo {
-  id_tipo_cibo int [pk]
-  nome varchar [not null]        // "carne", "verdure", "pesce", "frutta", ecc.
-  descrizione varchar
-}
-Table Tipi_Area {
-  id_tipo_area  int     [pk]
-  nome          varchar [not null]   // "tropicale", "savana", "ghiacciaio", ecc.
-  descrizione   varchar
-}
-
-Table Tipi_Recinto {
-  id_tipo_recinto int   [pk]
-  nome            varchar [not null] // "voliera", "acquario", "terrario", ecc.
-  descrizione     varchar
-}
-
-Table Tipi_Fornitura {
-  id_tipo_fornitura int [pk]
-  nome              varchar [not null]
-  descrizione       varchar
-}
-
-Table Tipi_Mansione {
-  id_tipo_mansione   int     [pk]
-  nome          varchar [not null] // Ruoli/mansioni del personale (veterinario, manutentore, guida, contabilità, ecc.)
-  descrizione   varchar
-}
-
-Table _Specie {
-  id_specie         int    [ref: > Specie.id_specie, not null]
-  id_tipo_cibo      int    [ref: > Tipi_Cibo.id_tipo_cibo, not null]
-  quantita_kg_giorno double [not null]
-  indexes {
-    (id_specie, id_tipo_cibo) [pk]
+  Indexes {
+    id_stato [pk, name: "PK_STATO_ESISTENZA"]
   }
 }
 
-Table Specie {
-  id_specie int [pk]
-  nome_scientifico varchar [not null]
-  nome_comune varchar [not null]
-  id_stato_esistenza int [ref: > Stati_Esistenza.id_stato]
-  id_tipo_animale int [ref: > Tipi_Animale.id_tipo]
-  id_habitat int [ref: > Habitat.id_habitat]
+Table "TIPO_AREA" {
+  "id_tipo_area" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+
+  Indexes {
+    id_tipo_area [pk, name: "PK_TIPO_AREA"]
+  }
 }
 
-Table Aree {
-  id_area       int     [pk]
-  nome          varchar [not null]
-  metratura     int
-  id_tipo_area  int     [ref: > Tipi_Area.id_tipo_area, not null]
+Table "TIPO_RECINTO" {
+  "id_tipo_recinto" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+
+  Indexes {
+    id_tipo_recinto [pk, name: "PK_TIPO_RECINTO"]
+  }
 }
 
-Table Recinti {
-  id_recinto        int [pk]
-  id_tipo_recinto   int [ref: > Tipi_Recinto.id_tipo_recinto, not null]
-  id_area           int [ref: > Aree.id_area, not null]
+Table "TIPO_MANSIONE" {
+  "id_tipo_mansione" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+
+  Indexes {
+    id_tipo_mansione [pk, name: "PK_TIPO_MANSIONE"]
+  }
 }
 
-Table Animali {
-  id_animale int [pk]
-  nome varchar [not null]
-  vivo bool [not null]
-  data_nascita date
-  data_arrivo date
-  data_uscita date
-  id_specie int [ref: > Specie.id_specie, not null]
-  id_recinto int [ref: > Recinti.id_recinto, not null]
-}
-Table Storici_Stipendo{
-  id_storico int [pk]
-  id_dipendente int [ref: > Dipendenti.id_dipendente]
-  prezzo_orario double
-  data_inizio date
-  data_fine date 
-}
-Table Dipendenti {
-  id_dipendente int [pk]
-  codice_fiscale varchar [unique, not null]
-  nome varchar [not null]
-  cognome varchar [not null]
-  compleanno date
-  id_mansione int [ref: > Tipi_Mansione.id_tipo_mansione, not null]
-  data_assunzione date [not null]
-  prezzo_orario double [not null]
+Table "TIPO_CIBO" {
+  "id_tipo_cibo" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+
+  Indexes {
+    id_tipo_cibo [pk, name: "PK_TIPO_CIBO"]
+  }
 }
 
-Table Turni {
-  id_turno int [pk]
-  ora_inizio datetime [not null]
-  ora_fine datetime [not null]
-  id_dipendente int [ref: > Dipendenti.id_dipendente, not null]
-  id_area int [ref: > Aree.id_area, not null]
+Table "TIPO_FORNITURA" {
+  "id_tipo_fornitura" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+
+  Indexes {
+    id_tipo_fornitura [pk, name: "PK_TIPO_FORNITURA"]
+  }
 }
 
-Table Utenti {
-  id_utente int [pk]
-  email varchar [unique, not null]
-  password_hash varchar [not null]
-  data_registrazione date
-  id_dipendente int [ref: > Dipendenti.id_dipendente]  // nullable: non tutti gli utenti sono dipendenti
+Table "TIPO_BIGLIETTI" {
+  "id_biglietto" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+  "prezzo" NUMERIC(10,2) [not null]
+  "attivo" BOOLEAN(1) [not null]
+
+  Indexes {
+    id_biglietto [pk, name: "PK_TIPO_BIGLIETTI"]
+  }
 }
 
-Table Visite_Mediche {
-  id_visita int [pk]
-  peso double                        // storico, ricavato in VIEW per l'ultimo
-  diagnosi varchar
-  note_trattamento varchar
-  data_visita date [not null]
-  data_fine date
-  id_animale int [ref: > Animali.id_animale, not null]
-  id_veterinario int [ref: > Dipendenti.id_dipendente, not null]
+Table "HABITAT" {
+  "id_habitat" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+
+  Indexes {
+    id_habitat [pk, name: "PK_HABITAT"]
+  }
 }
 
-Table Tipi_Biglietti {
-  id_biglietto int [pk]
-  nome varchar [not null]
-  descrizione varchar
-  prezzo double [not null]
-  attivo bool [not null]
+Table "FAMIGLIA_SPECIE" {
+  "id_famiglia_specie" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+
+  Indexes {
+    id_famiglia_specie [pk, name: "PK_FAMIGLIA_SPECIE"]
+  }
 }
 
-Table Scontrini {
-  id_scontrino int [pk]
-  data_acquisto datetime [not null]
-  nome_gruppo varchar
-  num_persone int
-  id_utente int [ref: > Utenti.id_utente, not null]
+
+
+Table "CATEGORIE_TRANSAZIONI" {
+  "id_categoria" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+  "tipo" CHAR(1) [not null] 
+
+  Indexes {
+    id_categoria [pk, name: "PK_CATEGORIE_TRANSAZIONI"]
+  }
 }
 
-Table Dettaglio_Scontrini {
-  id_dettaglio int [pk]
-  id_scontrino int [ref: > Scontrini.id_scontrino, not null]
-  id_biglietto int [ref: > Tipi_Biglietti.id_biglietto, not null]
-  quantita int [not null]
-  prezzo_pagato_biglietto double [not null]  // storico: prezzo al momento dell'acquisto
+Table "SPECIE" {
+  "id_specie" INTEGER(10) [not null]
+  "nome_scientifico" VARCHAR(50) [not null]
+  "nome_comune" VARCHAR(50) [not null]
+  "id_stato" INTEGER(10) [not null]
+  "id_habitat" INTEGER(10) [not null]
+  "id_famiglia_specie" INTEGER(10) [not null]
+
+  Indexes {
+    id_specie [pk, name: "PK_SPECIE"]
+  }
 }
 
-Table Categorie_Transazioni {
-  id_categoria int [pk]
-  nome varchar [not null]
-  descrizione varchar
-  tipo enum [not null]   // 'ENTRATA' | 'USCITA' (evita categorie usate nel verso sbagliato)
+Table "DIETA" {
+  "id_specie" INTEGER(10) [not null]
+  "id_tipo_cibo" INTEGER(10) [not null]
+  "quantita_kg_giorno" NUMERIC(10,2) [not null]
+
+  Indexes {
+    (id_specie, id_tipo_cibo) [pk, name: "PK_DIETA"]
+  }
 }
 
-Table Fornitori {
-  id_fornitore int [pk]
-  nome_azienda varchar [not null]
-  descrizione varchar
-  indirizzo varchar
-  iban varchar
+Table "AREA" {
+  "id_area" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "metratura" NUMERIC(10) [not null]
+  "id_tipo_area" INTEGER(10) [not null]
+
+  Indexes {
+    id_area [pk, name: "PK_AREA"]
+  }
 }
 
-Table Transazioni {
-  id_transazione int [pk]
-  tipo enum [not null]               // 'ENTRATA' | 'USCITA'
-  importo double [not null]          // sempre positivo
-  data datetime [not null]
-  descrizione varchar
-  id_categoria int [ref: > Categorie_Transazioni.id_categoria, not null]
-  id_utente int [ref: > Utenti.id_utente, not null]
-  id_fornitore int [ref: > Fornitori.id_fornitore]  // nullable: solo per uscite verso fornitori
-  id_scontrino int [ref: > Scontrini.id_scontrino]  // nullable: solo per entrate da biglietteria
+Table "RECINTO" {
+  "id_recinto" INTEGER(10) [not null]
+  "capienza_massima" NUMERIC(10) [not null]
+  "id_tipo_recinto" INTEGER(10) [not null]
+  "id_area" INTEGER(10) [not null]
+
+  Indexes {
+    id_recinto [pk, name: "PK_RECINTO"]
+  }
 }
+
+Table "STORICO_COLLOCAZIONE" {
+  "id_storico"     INTEGER(10)
+  "id_animale"     NUMERIC(10) [not null]
+  "id_recinto"     NUMERIC(10) [not null]
+  "data_inizio"    DATE [not null]
+  "data_fine"      DATE
+
+  Indexes {
+    id_storico [pk, name: "PK_STORICO"]
+  }
+}
+
+Table "ANIMALE" {
+  "id_animale" INTEGER(10) [not null]
+  "nome" VARCHAR(50) [not null]
+  "vivo" BOOLEAN(1) [not null]
+  "data_nascita" DATE
+  "data_arrivo" DATE
+  "data_uscita" DATE
+  "id_specie" INTEGER(10) [not null]
+
+  Indexes {
+    id_animale [pk, name: "PK_ANIMALE"]
+  }
+}
+
+Table "DIPENDENTE" {
+  "id_dipendente" INTEGER(10) [not null]
+  "codice_fiscale" VARCHAR(50) [not null]
+  "nome" VARCHAR(50) [not null]
+  "cognome" VARCHAR(50) [not null]
+  "compleanno" DATE
+  "data_assunzione" DATE [not null]
+  "id_tipo_mansione" INTEGER(10) [not null]
+
+  Indexes {
+    id_dipendente [pk, name: "PK_DIPENDENTE"]
+    codice_fiscale [unique, name: "UQ_DIPENDENTE_CF"]
+  }
+}
+
+Table "STORICO_STIPENDIO" {
+  "id_storico" INTEGER(10) [not null]
+  "id_dipendente" INTEGER(10) [not null]
+  "prezzo_orario" NUMERIC(10,2) [not null]
+  "data_inizio" DATE [not null]
+  "data_fine" DATE
+
+  Indexes {
+    id_storico [pk, name: "PK_STORICO_STIPENDIO"]
+  }
+}
+
+Table "TURNO" {
+  "id_turno" INTEGER(10) [not null]
+  "ora_inizio" TIMESTAMP [not null]
+  "ora_fine" TIMESTAMP [not null]
+  "id_dipendente" INTEGER(10) [not null]
+  "id_area" INTEGER(10) [not null]
+
+  Indexes {
+    id_turno [pk, name: "PK_TURNO"]
+  }
+}
+
+Table "VISITA_MEDICA" {
+  "id_visita" INTEGER(10) [not null]
+  "peso" NUMERIC(10,2)
+  "diagnosi" VARCHAR(250)
+  "note_trattamento" VARCHAR(250)
+  "data_visita" DATE [not null]
+  "data_fine" DATE
+  "id_animale" INTEGER(10) [not null]
+  "id_veterinario" INTEGER(10) [not null]
+
+  Indexes {
+    id_visita [pk, name: "PK_VISITA_MEDICA"]
+  }
+}
+
+Table "UTENTE" {
+  "id_utente" INTEGER(10) [not null]
+  "email" VARCHAR(50) [not null]
+  "password_hash" VARCHAR(250) [not null]
+  "data_registrazione" DATE [not null]
+  "id_dipendente" INTEGER(10) [not null]
+
+  Indexes {
+    id_utente [pk, name: "PK_UTENTE"]
+    email [unique, name: "UQ_UTENTE_EMAIL"]
+  }
+}
+
+Table "FORNITORI" {
+  "id_fornitore" INTEGER(10) [not null]
+  "nome_azienda" VARCHAR(50) [not null]
+  "descrizione" VARCHAR(250)
+  "indirizzo" VARCHAR(100)
+  "iban" VARCHAR(50)
+  "id_tipo_fornitura" INTEGER(10) [not null]
+
+  Indexes {
+    id_fornitore [pk, name: "PK_FORNITORI"]
+  }
+}
+
+Table "SCONTRINI" {
+  "id_scontrino" INTEGER(10) [not null]
+  "data_acquisto" DATE [not null]
+  "nome_gruppo" VARCHAR(50)
+  "num_persone" INTEGER(10)
+  "id_utente" INTEGER(10) [not null]
+
+  Indexes {
+    id_scontrino [pk, name: "PK_SCONTRINI"]
+  }
+}
+
+Table "DETTAGLIO_SCONTRINI" {
+  "id_dettaglio" INTEGER(10) [not null]
+  "quantita" NUMERIC(10) [not null]
+  "prezzo_pagato_biglietto" NUMERIC(10,2) [not null]
+  "id_biglietto" INTEGER(10) [not null]
+  "id_scontrino" INTEGER(10) [not null]
+
+  Indexes {
+    id_dettaglio [pk, name: "PK_DETTAGLIO_SCONTRINI"]
+  }
+}
+
+Table "TRANSAZIONI" {
+  "id_transazione" INTEGER(10) [not null]
+  "tipo" CHAR(1) [not null]
+  "importo" NUMERIC(10,2) [not null]
+  "data" DATE [not null]
+  "descrizione" VARCHAR(250)
+  "id_categoria" INTEGER(10) [not null]
+  "id_utente" INTEGER(10) [not null]
+  "id_fornitore" INTEGER(10)
+  "id_scontrino" INTEGER(10)
+
+  Indexes {
+    id_transazione [pk, name: "PK_TRANSAZIONI"]
+  }
+}
+
+Ref "FKconservazione":"STATO_ESISTENZA"."id_stato" < "SPECIE"."id_stato"
+
+Ref "FKprovenienza":"HABITAT"."id_habitat" < "SPECIE"."id_habitat"
+
+Ref "FKcategoria":"FAMIGLIA_SPECIE"."id_famiglia_specie" < "SPECIE"."id_famiglia_specie"
+
+Ref "FKdieta_specie":"SPECIE"."id_specie" < "DIETA"."id_specie"
+
+Ref "FKdieta_tipocibo":"TIPO_CIBO"."id_tipo_cibo" < "DIETA"."id_tipo_cibo"
+
+Ref "FKcaratterizzazione":"TIPO_AREA"."id_tipo_area" < "AREA"."id_tipo_area"
+
+Ref "FKtipologia":"TIPO_RECINTO"."id_tipo_recinto" < "RECINTO"."id_tipo_recinto"
+
+Ref "FKubicazione":"AREA"."id_area" < "RECINTO"."id_area"
+
+Ref "FKappartenenza":"SPECIE"."id_specie" < "ANIMALE"."id_specie"
+
+
+Ref "FKruolo":"TIPO_MANSIONE"."id_tipo_mansione" < "DIPENDENTE"."id_tipo_mansione"
+
+Ref "FKretribuzione":"DIPENDENTE"."id_dipendente" < "STORICO_STIPENDIO"."id_dipendente"
+
+Ref "FKturno_dipendente":"DIPENDENTE"."id_dipendente" < "TURNO"."id_dipendente"
+
+Ref "FKturno_area":"AREA"."id_area" < "TURNO"."id_area"
+
+Ref "FKreferto":"ANIMALE"."id_animale" < "VISITA_MEDICA"."id_animale"
+
+Ref "FKvisita":"DIPENDENTE"."id_dipendente" < "VISITA_MEDICA"."id_veterinario"
+
+Ref "FKaccesso":"DIPENDENTE"."id_dipendente" < "UTENTE"."id_dipendente"
+
+Ref "FKspecializzazione":"TIPO_FORNITURA"."id_tipo_fornitura" < "FORNITORI"."id_tipo_fornitura"
+
+Ref "FKgenerazione":"UTENTE"."id_utente" < "SCONTRINI"."id_utente"
+
+Ref "FKtariffa":"TIPO_BIGLIETTI"."id_biglietto" < "DETTAGLIO_SCONTRINI"."id_biglietto"
+
+Ref "FKcomposizione":"SCONTRINI"."id_scontrino" < "DETTAGLIO_SCONTRINI"."id_scontrino"
+
+Ref "FKimputazione":"CATEGORIE_TRANSAZIONI"."id_categoria" < "TRANSAZIONI"."id_categoria"
+
+Ref "FKcreazione":"UTENTE"."id_utente" < "TRANSAZIONI"."id_utente"
+
+Ref "FKfornitura":"FORNITORI"."id_fornitore" < "TRANSAZIONI"."id_fornitore"
+
+Ref "FKincasso":"SCONTRINI"."id_scontrino" < "TRANSAZIONI"."id_scontrino"
+
+Ref "FKcoll_animale":"ANIMALE"."id_animale" < "STORICO_COLLOCAZIONE"."id_animale"
+Ref "FKcoll_recinto":"RECINTO"."id_recinto" < "STORICO_COLLOCAZIONE"."id_recinto"
