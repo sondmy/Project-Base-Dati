@@ -164,7 +164,7 @@ Table "ANIMALE" {
   "id_animale" INTEGER(10) [not null]
   "nome" VARCHAR(50) [not null]
   "sesso" CHAR(1) [not null, note: 'M / F / I']
-  "vivo" BOOLEAN(1) [not null]
+  "attivo" BOOLEAN(1) [not null]
   "data_nascita" DATE
   "data_arrivo" DATE
   "data_uscita" DATE
