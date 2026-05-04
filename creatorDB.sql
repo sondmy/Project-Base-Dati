@@ -86,27 +86,27 @@ CREATE TABLE TIPO_FORNITURA (
 COMMENT ON TABLE TIPO_FORNITURA IS 'Categoria merceologica del fornitore (es. alimentari, farmaceutici, manutenzione)';
 
 
-CREATE TABLE TIPO_BIGLIETTI (
+CREATE TABLE TIPO_BIGLIETTO (
     id_biglietto    INTEGER         NOT NULL,
     nome            VARCHAR(50)     NOT NULL,
     descrizione     VARCHAR(250),
     prezzo          NUMERIC(10,2)   NOT NULL,
     attivo          BOOLEAN         NOT NULL DEFAULT TRUE,
-    CONSTRAINT PK_TIPO_BIGLIETTI    PRIMARY KEY (id_biglietto),
+    CONSTRAINT PK_TIPO_BIGLIETTO    PRIMARY KEY (id_biglietto),
     CONSTRAINT chk_biglietto_prezzo CHECK (prezzo >= 0)
 );
-COMMENT ON COLUMN TIPO_BIGLIETTI.attivo IS 'TRUE = biglietto in vendita, FALSE = ritirato dal catalogo';
+COMMENT ON COLUMN TIPO_BIGLIETTO.attivo IS 'TRUE = biglietto in vendita, FALSE = ritirato dal catalogo';
 
 
-CREATE TABLE CATEGORIE_TRANSAZIONI (
+CREATE TABLE CATEGORIA_TRANSAZIONE (
     id_categoria    INTEGER     NOT NULL,
     nome            VARCHAR(50) NOT NULL,
     descrizione     VARCHAR(250),
     tipo            CHAR(1)     NOT NULL,
-    CONSTRAINT PK_CATEGORIE_TRANSAZIONI PRIMARY KEY (id_categoria),
+    CONSTRAINT PK_CATEGORIA_TRANSAZIONE PRIMARY KEY (id_categoria),
     CONSTRAINT chk_categoria_tipo       CHECK (tipo IN ('E', 'U'))
 );
-COMMENT ON COLUMN CATEGORIE_TRANSAZIONI.tipo IS 'E = entrata (incasso), U = uscita (spesa)';
+COMMENT ON COLUMN CATEGORIA_TRANSAZIONE.tipo IS 'E = entrata (incasso), U = uscita (spesa)';
 
 
 -- ============================================================
@@ -123,7 +123,7 @@ CREATE TABLE SPECIE (
     CONSTRAINT PK_SPECIE            PRIMARY KEY (id_specie),
     CONSTRAINT FKconservazione      FOREIGN KEY (id_stato)           REFERENCES STATO_ESISTENZA(id_stato),
     CONSTRAINT FKprovenienza        FOREIGN KEY (id_habitat)         REFERENCES HABITAT(id_habitat),
-    CONSTRAINT FKcategoria          FOREIGN KEY (id_famiglia_specie) REFERENCES FAMIGLIA_SPECIE(id_famiglia_specie),
+    CONSTRAINT FKcategoria          FOREIGN KEY (id_famiglia_specie) REFERENCES FAMIGLIA_SPECIE(id_famiglia_specie)
 );
 
 
@@ -303,71 +303,74 @@ CREATE TABLE UTENTE (
     password_hash       VARCHAR(250) NOT NULL,
     data_registrazione  DATE         NOT NULL,
     id_dipendente       INTEGER      NOT NULL,
-    CONSTRAINT PK_UTENTE        PRIMARY KEY (id_utente),
-    CONSTRAINT UQ_UTENTE_EMAIL  UNIQUE (email),
-    CONSTRAINT FKaccesso        FOREIGN KEY (id_dipendente) REFERENCES DIPENDENTE(id_dipendente),
-    CONSTRAINT UQ_UTENTE_DIP    UNIQUE (id_dipendente)
+    ruolo               VARCHAR(20)  NOT NULL DEFAULT 'operatore',
+    CONSTRAINT PK_UTENTE            PRIMARY KEY (id_utente),
+    CONSTRAINT UQ_UTENTE_EMAIL      UNIQUE (email),
+    CONSTRAINT FKaccesso            FOREIGN KEY (id_dipendente) REFERENCES DIPENDENTE(id_dipendente),
+    CONSTRAINT UQ_UTENTE_DIP        UNIQUE (id_dipendente),
+    CONSTRAINT chk_utente_ruolo     CHECK (ruolo IN ('admin', 'cassiere', 'operatore'))
 );
-COMMENT ON TABLE  UTENTE              IS 'Account di accesso al gestionale — solo per dipendenti autorizzati';
-COMMENT ON COLUMN UTENTE.id_dipendente IS 'Ogni dipendente può avere al massimo un account (vincolo UNIQUE)';
+COMMENT ON TABLE  UTENTE               IS 'Account di accesso al gestionale — solo per dipendenti autorizzati';
+COMMENT ON COLUMN UTENTE.id_dipendente  IS 'Ogni dipendente può avere al massimo un account (vincolo UNIQUE)';
+COMMENT ON COLUMN UTENTE.ruolo          IS 'admin = accesso completo, cassiere = biglietteria e incassi, operatore = consultazione';
 
 
 -- ============================================================
---  FORNITORI
+--  FORNITORE
 -- ============================================================
 
-CREATE TABLE FORNITORI (
+CREATE TABLE FORNITORE (
     id_fornitore        INTEGER      NOT NULL,
     nome_azienda        VARCHAR(50)  NOT NULL,
     descrizione         VARCHAR(250),
     indirizzo           VARCHAR(100),
     iban                VARCHAR(34),
     id_tipo_fornitura   INTEGER      NOT NULL,
-    CONSTRAINT PK_FORNITORI         PRIMARY KEY (id_fornitore),
+    CONSTRAINT PK_FORNITORE         PRIMARY KEY (id_fornitore),
     CONSTRAINT FKspecializzazione   FOREIGN KEY (id_tipo_fornitura) REFERENCES TIPO_FORNITURA(id_tipo_fornitura),
     CONSTRAINT chk_iban_length      CHECK (iban IS NULL OR LENGTH(iban) BETWEEN 15 AND 34)
 );
-COMMENT ON COLUMN FORNITORI.iban IS 'IBAN internazionale, lunghezza variabile tra 15 e 34 caratteri';
+COMMENT ON COLUMN FORNITORE.iban IS 'IBAN internazionale, lunghezza variabile tra 15 e 34 caratteri';
 
 
 -- ============================================================
---  BIGLIETTERIA: SCONTRINI E DETTAGLI
+--  BIGLIETTERIA: SCONTRINO E DETTAGLI
 -- ============================================================
 
-CREATE TABLE SCONTRINI (
+CREATE TABLE SCONTRINO (
     id_scontrino    INTEGER     NOT NULL,
     data_acquisto   DATE        NOT NULL,
     nome_gruppo     VARCHAR(50),
     num_persone     INTEGER,
     id_utente       INTEGER     NOT NULL,
-    CONSTRAINT PK_SCONTRINI         PRIMARY KEY (id_scontrino),
+    CONSTRAINT PK_SCONTRINO         PRIMARY KEY (id_scontrino),
     CONSTRAINT FKgenerazione        FOREIGN KEY (id_utente) REFERENCES UTENTE(id_utente),
     CONSTRAINT chk_num_persone      CHECK (num_persone IS NULL OR num_persone > 0)
 );
-COMMENT ON COLUMN SCONTRINI.nome_gruppo  IS 'Nome del gruppo scolastico o comitiva, se applicabile';
-COMMENT ON COLUMN SCONTRINI.num_persone  IS 'Numero totale di persone del gruppo, se applicabile';
+COMMENT ON COLUMN SCONTRINO.nome_gruppo  IS 'Nome del gruppo scolastico o comitiva, se applicabile';
+COMMENT ON COLUMN SCONTRINO.num_persone  IS 'Numero totale di persone del gruppo, se applicabile';
 
 
-CREATE TABLE DETTAGLIO_SCONTRINI (
+CREATE TABLE DETTAGLIO_SCONTRINO (
     id_dettaglio            INTEGER         NOT NULL,
     quantita                INTEGER         NOT NULL,
     prezzo_pagato_biglietto NUMERIC(10,2)   NOT NULL,
     id_biglietto            INTEGER         NOT NULL,
     id_scontrino            INTEGER         NOT NULL,
-    CONSTRAINT PK_DETTAGLIO_SCONTRINI   PRIMARY KEY (id_dettaglio),
-    CONSTRAINT FKtariffa                FOREIGN KEY (id_biglietto)  REFERENCES TIPO_BIGLIETTI(id_biglietto),
-    CONSTRAINT FKcomposizione           FOREIGN KEY (id_scontrino)  REFERENCES SCONTRINI(id_scontrino),
+    CONSTRAINT PK_DETTAGLIO_SCONTRINO   PRIMARY KEY (id_dettaglio),
+    CONSTRAINT FKtariffa                FOREIGN KEY (id_biglietto)  REFERENCES TIPO_BIGLIETTO(id_biglietto),
+    CONSTRAINT FKcomposizione           FOREIGN KEY (id_scontrino)  REFERENCES SCONTRINO(id_scontrino),
     CONSTRAINT chk_det_quantita         CHECK (quantita > 0),
     CONSTRAINT chk_det_prezzo           CHECK (prezzo_pagato_biglietto >= 0)
 );
-COMMENT ON COLUMN DETTAGLIO_SCONTRINI.prezzo_pagato_biglietto IS 'Prezzo storicizzato al momento dell acquisto, indipendente dal listino attuale';
+COMMENT ON COLUMN DETTAGLIO_SCONTRINO.prezzo_pagato_biglietto IS 'Prezzo storicizzato al momento dell acquisto, indipendente dal listino attuale';
 
 
 -- ============================================================
 --  TRANSAZIONI FINANZIARIE
 -- ============================================================
 
-CREATE TABLE TRANSAZIONI (
+CREATE TABLE TRANSAZIONE (
     id_transazione  INTEGER         NOT NULL,
     tipo            CHAR(1)         NOT NULL,
     importo         NUMERIC(10,2)   NOT NULL,
@@ -377,11 +380,11 @@ CREATE TABLE TRANSAZIONI (
     id_utente       INTEGER         NOT NULL,
     id_fornitore    INTEGER,
     id_scontrino    INTEGER,
-    CONSTRAINT PK_TRANSAZIONI           PRIMARY KEY (id_transazione),
-    CONSTRAINT FKimputazione            FOREIGN KEY (id_categoria)  REFERENCES CATEGORIE_TRANSAZIONI(id_categoria),
+    CONSTRAINT PK_TRANSAZIONE           PRIMARY KEY (id_transazione),
+    CONSTRAINT FKimputazione            FOREIGN KEY (id_categoria)  REFERENCES CATEGORIA_TRANSAZIONE(id_categoria),
     CONSTRAINT FKcreazione              FOREIGN KEY (id_utente)     REFERENCES UTENTE(id_utente),
-    CONSTRAINT FKfornitura              FOREIGN KEY (id_fornitore)  REFERENCES FORNITORI(id_fornitore),
-    CONSTRAINT FKincasso                FOREIGN KEY (id_scontrino)  REFERENCES SCONTRINI(id_scontrino),
+    CONSTRAINT FKfornitura              FOREIGN KEY (id_fornitore)  REFERENCES FORNITORE(id_fornitore),
+    CONSTRAINT FKincasso                FOREIGN KEY (id_scontrino)  REFERENCES SCONTRINO(id_scontrino),
     CONSTRAINT chk_transazione_tipo     CHECK (tipo IN ('E', 'U')),
     CONSTRAINT chk_transazione_importo  CHECK (importo > 0),
     -- Coerenza: entrata → ha scontrino, nessun fornitore | uscita → ha fornitore, nessun scontrino
@@ -391,4 +394,145 @@ CREATE TABLE TRANSAZIONI (
         (tipo = 'U' AND id_fornitore IS NOT NULL AND id_scontrino IS NULL)
     )
 );
-COMMENT ON COLUMN TRANSAZIONI.tipo IS 'E = entrata (incasso biglietteria), U = uscita (pagamento fornitore)';
+COMMENT ON COLUMN TRANSAZIONE.tipo IS 'E = entrata (incasso biglietteria), U = uscita (pagamento fornitore)';
+
+
+-- ============================================================
+--  TRIGGER 1: id_veterinario deve essere un dipendente veterinario
+--  (PostgreSQL non supporta subquery nei CHECK, quindi usiamo trigger)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION trg_check_veterinario()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM DIPENDENTE   d
+        JOIN TIPO_MANSIONE tm ON d.id_tipo_mansione = tm.id_tipo_mansione
+        WHERE d.id_dipendente = NEW.id_veterinario
+          AND LOWER(tm.nome) = 'veterinario'
+    ) THEN
+        RAISE EXCEPTION
+            'Il dipendente % non è un veterinario. Solo i veterinari possono eseguire visite mediche.',
+            NEW.id_veterinario;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_visita_veterinario
+    BEFORE INSERT OR UPDATE ON VISITA_MEDICA
+    FOR EACH ROW
+    EXECUTE FUNCTION trg_check_veterinario();
+
+COMMENT ON FUNCTION trg_check_veterinario()
+    IS 'Verifica che id_veterinario in VISITA_MEDICA punti a un dipendente con mansione veterinario';
+
+
+-- ============================================================
+--  TRIGGER 2: tipo transazione coerente con tipo categoria
+--  (il campo tipo in TRANSAZIONI deve coincidere con il tipo
+--   della CATEGORIA_TRANSAZIONE collegata)
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION trg_check_tipo_transazione()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_tipo_categoria CHAR(1);
+BEGIN
+    SELECT tipo INTO v_tipo_categoria
+    FROM CATEGORIA_TRANSAZIONE
+    WHERE id_categoria = NEW.id_categoria;
+
+    IF v_tipo_categoria IS NULL THEN
+        RAISE EXCEPTION
+            'Categoria transazione % non trovata.', NEW.id_categoria;
+    END IF;
+
+    IF NEW.tipo <> v_tipo_categoria THEN
+        RAISE EXCEPTION
+            'Tipo transazione (%) non coerente con il tipo della categoria (%). '
+            'Entrambi devono essere E (entrata) oppure U (uscita).',
+            NEW.tipo, v_tipo_categoria;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_transazione_tipo_coerente
+    BEFORE INSERT OR UPDATE ON TRANSAZIONE
+    FOR EACH ROW
+    EXECUTE FUNCTION trg_check_tipo_transazione();
+
+COMMENT ON FUNCTION trg_check_tipo_transazione()
+    IS 'Verifica che il tipo (E/U) della transazione coincida con il tipo della categoria associata';
+
+
+-- ============================================================
+--  TRIGGER 3: solo utenti cassiere (o admin) possono creare SCONTRINO
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION trg_check_cassiere_scontrino()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_ruolo VARCHAR(20);
+BEGIN
+    SELECT ruolo INTO v_ruolo
+    FROM UTENTE
+    WHERE id_utente = NEW.id_utente;
+
+    IF v_ruolo NOT IN ('cassiere', 'admin') THEN
+        RAISE EXCEPTION
+            'L''utente % (ruolo: %) non è autorizzato a creare SCONTRINO. '
+            'Sono abilitati solo cassiere e admin.',
+            NEW.id_utente, v_ruolo;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_scontrino_cassiere
+    BEFORE INSERT OR UPDATE ON SCONTRINO
+    FOR EACH ROW
+    EXECUTE FUNCTION trg_check_cassiere_scontrino();
+
+COMMENT ON FUNCTION trg_check_cassiere_scontrino()
+    IS 'Verifica che solo utenti con ruolo cassiere o admin possano creare SCONTRINO';
+
+
+-- ============================================================
+--  RUOLI POSTGRESQL — permessi a livello database
+--  (da eseguire come superuser / owner del database)
+-- ============================================================
+
+-- Ruolo base: solo lettura su tutte le tabelle dello zoo
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'zoo_operatore') THEN
+        CREATE ROLE zoo_operatore NOLOGIN;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'zoo_cassiere') THEN
+        CREATE ROLE zoo_cassiere NOLOGIN;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'zoo_admin') THEN
+        CREATE ROLE zoo_admin NOLOGIN;
+    END IF;
+END $$;
+
+-- Operatore: può consultare tutto, non può modificare nulla
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO zoo_operatore;
+
+-- Cassiere: eredita da operatore + può gestire biglietteria e transazioni di incasso
+GRANT zoo_operatore TO zoo_cassiere;
+GRANT INSERT, UPDATE ON SCONTRINO, DETTAGLIO_SCONTRINO TO zoo_cassiere;
+GRANT INSERT ON TRANSAZIONE TO zoo_cassiere;
+
+-- Admin: accesso completo a tutte le tabelle
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO zoo_admin;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO zoo_admin;
+
+COMMENT ON ROLE zoo_operatore IS 'Consultazione read-only di tutto lo zoo';
+COMMENT ON ROLE zoo_cassiere  IS 'Operatore + gestione biglietteria (scontrini, dettagli, transazioni entrata)';
+COMMENT ON ROLE zoo_admin     IS 'Accesso completo a tutte le tabelle e sequenze';
