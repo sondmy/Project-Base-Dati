@@ -138,7 +138,7 @@ Table "AREA" {
 }
 
 Table "RECINTO" {
-  "id_recinto" INTEGER(10) [not null]
+  "id_recinto" SERIAL [not null]
   "capienza_massima" NUMERIC(10) [not null]
   "id_tipo_recinto" INTEGER(10) [not null]
   "id_area" INTEGER(10) [not null]
@@ -149,20 +149,21 @@ Table "RECINTO" {
 }
 
 Table "STORICO_COLLOCAZIONE" {
-  "id_storico"     INTEGER(10)
+  "id_storico"     INTEGER(10) [not null]
   "id_animale"     INTEGER(10) [not null]
   "id_recinto"     INTEGER(10) [not null]
   "data_inizio"    DATE [not null]
   "data_fine"      DATE
 
   Indexes {
-    id_storico [pk, name: "PK_STORICO"]
+    id_storico [pk, name: "PK_STORICO_COLLOCAZIONE"]
   }
 }
 
 Table "ANIMALE" {
   "id_animale" INTEGER(10) [not null]
   "nome" VARCHAR(50) [not null]
+  "sesso" CHAR(1) [not null, note: 'M / F / I']
   "vivo" BOOLEAN(1) [not null]
   "data_nascita" DATE
   "data_arrivo" DATE
@@ -176,7 +177,7 @@ Table "ANIMALE" {
 
 Table "DIPENDENTE" {
   "id_dipendente" INTEGER(10) [not null]
-  "codice_fiscale" VARCHAR(50) [not null]
+  "codice_fiscale" VARCHAR(16) [not null]
   "nome" VARCHAR(50) [not null]
   "cognome" VARCHAR(50) [not null]
   "compleanno" DATE
@@ -231,7 +232,7 @@ Table "VISITA_MEDICA" {
 Table "UTENTE" {
   "id_utente" INTEGER(10) [not null]
   "email" VARCHAR(100) [not null]
-  "password_hash" VARCHAR(250) [not null]
+  "password_hash" VARCHAR(512) [not null]
   "data_registrazione" DATE [not null]
   "id_dipendente" INTEGER(10) [not null]
   "ruolo" VARCHAR(20) [not null, default: 'operatore', note: 'admin / cassiere / operatore']
@@ -248,7 +249,7 @@ Table "FORNITORE" {
   "nome_azienda" VARCHAR(50) [not null]
   "descrizione" VARCHAR(250)
   "indirizzo" VARCHAR(100)
-  "iban" VARCHAR(50)
+  "iban" VARCHAR(34)
   "id_tipo_fornitura" INTEGER(10) [not null]
 
   Indexes {
@@ -259,8 +260,8 @@ Table "FORNITORE" {
 Table "SCONTRINO" {
   "id_scontrino" INTEGER(10) [not null]
   "data_acquisto" DATE [not null]
-  "nome_gruppo" VARCHAR(50)
-  "num_persone" INTEGER(10)
+  "nome_gruppo" VARCHAR(50) [not null]
+  "num_persone" INTEGER(10) [not null]
   "id_utente" INTEGER(10) [not null]
 
   Indexes {
@@ -270,7 +271,7 @@ Table "SCONTRINO" {
 
 Table "DETTAGLIO_SCONTRINO" {
   "id_dettaglio" INTEGER(10) [not null]
-  "quantita" NUMERIC(10) [not null]
+  "quantita" INTEGER [not null]
   "prezzo_pagato_biglietto" NUMERIC(10,2) [not null]
   "id_biglietto" INTEGER(10) [not null]
   "id_scontrino" INTEGER(10) [not null]
