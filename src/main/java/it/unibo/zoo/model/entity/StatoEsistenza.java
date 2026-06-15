@@ -4,7 +4,7 @@ public class StatoEsistenza {
 
     private int idStato;
     private String nome;
-    private String descrizione;
+    private String descrizione;  // nullable
 
     public StatoEsistenza() {}
 
@@ -25,6 +25,6 @@ public class StatoEsistenza {
 
     @Override
     public String toString() {
-        return "StatoEsistenza{idStato=" + idStato + ", nome='" + nome + "'}";
+        return "StatoEsistenza{idStato=" + idStato + ", nome=" + nome + "}";
     }
 }

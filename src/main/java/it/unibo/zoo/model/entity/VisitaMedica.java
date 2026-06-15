@@ -5,19 +5,17 @@ import java.time.LocalDate;
 public class VisitaMedica {
 
     private int idVisita;
-    private Double peso;                // nullable — storico peso all'atto della visita
-    private String diagnosi;
-    private String noteTrattamento;
+    private Double peso;  // nullable
+    private String diagnosi;  // nullable
+    private String noteTrattamento;  // nullable
     private LocalDate dataVisita;
-    private LocalDate dataFine;         // nullable
-    private int idAnimale;              // FK → Animali
-    private int idVeterinario;          // FK → Dipendenti
+    private LocalDate dataFine;  // nullable
+    private int idAnimale;  // FK
+    private int idDipendente;  // FK — veterinario
 
     public VisitaMedica() {}
 
-    public VisitaMedica(int idVisita, Double peso, String diagnosi, String noteTrattamento,
-                        LocalDate dataVisita, LocalDate dataFine,
-                        int idAnimale, int idVeterinario) {
+    public VisitaMedica(int idVisita, Double peso, String diagnosi, String noteTrattamento, LocalDate dataVisita, LocalDate dataFine, int idAnimale, int idDipendente) {
         this.idVisita = idVisita;
         this.peso = peso;
         this.diagnosi = diagnosi;
@@ -25,7 +23,7 @@ public class VisitaMedica {
         this.dataVisita = dataVisita;
         this.dataFine = dataFine;
         this.idAnimale = idAnimale;
-        this.idVeterinario = idVeterinario;
+        this.idDipendente = idDipendente;
     }
 
     public int getIdVisita() { return idVisita; }
@@ -49,12 +47,11 @@ public class VisitaMedica {
     public int getIdAnimale() { return idAnimale; }
     public void setIdAnimale(int idAnimale) { this.idAnimale = idAnimale; }
 
-    public int getIdVeterinario() { return idVeterinario; }
-    public void setIdVeterinario(int idVeterinario) { this.idVeterinario = idVeterinario; }
+    public int getIdDipendente() { return idDipendente; }
+    public void setIdDipendente(int idDipendente) { this.idDipendente = idDipendente; }
 
     @Override
     public String toString() {
-        return "VisitaMedica{idVisita=" + idVisita + ", idAnimale=" + idAnimale
-                + ", dataVisita=" + dataVisita + "}";
+        return "VisitaMedica{idVisita=" + idVisita + ", dataVisita=" + dataVisita + ", idAnimale=" + idAnimale + "}";
     }
 }

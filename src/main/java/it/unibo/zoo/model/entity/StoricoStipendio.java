@@ -5,15 +5,14 @@ import java.time.LocalDate;
 public class StoricoStipendio {
 
     private int idStorico;
-    private int idDipendente;       // FK → Dipendenti
+    private int idDipendente;  // FK
     private double prezzoOrario;
     private LocalDate dataInizio;
-    private LocalDate dataFine;     // nullable — null = contratto ancora attivo
+    private LocalDate dataFine;  // nullable — null = contratto attivo
 
     public StoricoStipendio() {}
 
-    public StoricoStipendio(int idStorico, int idDipendente, double prezzoOrario,
-                            LocalDate dataInizio, LocalDate dataFine) {
+    public StoricoStipendio(int idStorico, int idDipendente, double prezzoOrario, LocalDate dataInizio, LocalDate dataFine) {
         this.idStorico = idStorico;
         this.idDipendente = idDipendente;
         this.prezzoOrario = prezzoOrario;
@@ -38,7 +37,6 @@ public class StoricoStipendio {
 
     @Override
     public String toString() {
-        return "StoricoStipendio{idStorico=" + idStorico + ", idDipendente=" + idDipendente
-                + ", prezzoOrario=" + prezzoOrario + "}";
+        return "StoricoStipendio{idStorico=" + idStorico + ", idDipendente=" + idDipendente + ", prezzoOrario=" + prezzoOrario + ", dataInizio=" + dataInizio + "}";
     }
 }

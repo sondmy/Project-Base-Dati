@@ -4,7 +4,7 @@ public class TipoArea {
 
     private int idTipoArea;
     private String nome;
-    private String descrizione;
+    private String descrizione;  // nullable
 
     public TipoArea() {}
 
@@ -25,6 +25,6 @@ public class TipoArea {
 
     @Override
     public String toString() {
-        return "TipoArea{idTipoArea=" + idTipoArea + ", nome='" + nome + "'}";
+        return "TipoArea{idTipoArea=" + idTipoArea + ", nome=" + nome + "}";
     }
 }

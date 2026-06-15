@@ -5,7 +5,7 @@ public class Area {
     private int idArea;
     private String nome;
     private int metratura;
-    private int idTipoArea;     // FK → Tipi_Area
+    private int idTipoArea;  // FK
 
     public Area() {}
 
@@ -30,6 +30,6 @@ public class Area {
 
     @Override
     public String toString() {
-        return "Area{idArea=" + idArea + ", nome='" + nome + "', metratura=" + metratura + "}";
+        return "Area{idArea=" + idArea + ", nome=" + nome + ", metratura=" + metratura + "}";
     }
 }

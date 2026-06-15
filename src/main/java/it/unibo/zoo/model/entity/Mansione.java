@@ -1,21 +1,21 @@
 package it.unibo.zoo.model.entity;
 
-public class TipoAnimale {
+public class Mansione {
 
-    private int idTipo;
+    private int idMansione;
     private String nome;
-    private String descrizione;
+    private String descrizione;  // nullable
 
-    public TipoAnimale() {}
+    public Mansione() {}
 
-    public TipoAnimale(int idTipo, String nome, String descrizione) {
-        this.idTipo = idTipo;
+    public Mansione(int idMansione, String nome, String descrizione) {
+        this.idMansione = idMansione;
         this.nome = nome;
         this.descrizione = descrizione;
     }
 
-    public int getIdTipo() { return idTipo; }
-    public void setIdTipo(int idTipo) { this.idTipo = idTipo; }
+    public int getIdMansione() { return idMansione; }
+    public void setIdMansione(int idMansione) { this.idMansione = idMansione; }
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
@@ -25,6 +25,6 @@ public class TipoAnimale {
 
     @Override
     public String toString() {
-        return "TipoAnimale{idTipo=" + idTipo + ", nome='" + nome + "'}";
+        return "Mansione{idMansione=" + idMansione + ", nome=" + nome + "}";
     }
 }
