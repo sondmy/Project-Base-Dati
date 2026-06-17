@@ -1,7 +1,7 @@
 package it.unibo.zoo.controller;
 
-import it.unibo.zoo.model.MockData;
 import it.unibo.zoo.model.entity.TipoBiglietto;
+import it.unibo.zoo.model.jdbc.entityDao.TipoBigliettoDao;
 import it.unibo.zoo.view.BigliettiView;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public class BigliettiController {
 
     public BigliettiController(final BigliettiView view) {
         this.view = view;
-        this.tipiBiglietto = MockData.getTipiBiglietto();
+        this.tipiBiglietto = new TipoBigliettoDao().findAll();
         init();
     }
 

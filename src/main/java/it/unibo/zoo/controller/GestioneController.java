@@ -1,18 +1,29 @@
 package it.unibo.zoo.controller;
 
-import it.unibo.zoo.model.MockData;
 import it.unibo.zoo.model.entity.Animale;
 import it.unibo.zoo.model.entity.Area;
 import it.unibo.zoo.model.entity.CategoriaTransazione;
 import it.unibo.zoo.model.entity.Dipendente;
 import it.unibo.zoo.model.entity.Fornitore;
-import it.unibo.zoo.model.entity.OrdineGiornaliero;
+import it.unibo.zoo.model.entity.OrdineGiornalieroCibo;
 import it.unibo.zoo.model.entity.Specie;
 import it.unibo.zoo.model.entity.TipoCibo;
-import it.unibo.zoo.model.entity.TipoMansione;
 import it.unibo.zoo.model.entity.Transazione;
 import it.unibo.zoo.model.entity.Turno;
 import it.unibo.zoo.model.entity.VisitaMedica;
+import it.unibo.zoo.model.entity.Mansione;
+import it.unibo.zoo.model.jdbc.entityDao.TransazioneDao;
+import it.unibo.zoo.model.jdbc.entityDao.CategoriaTransazioneDao;
+import it.unibo.zoo.model.jdbc.entityDao.OrdineGiornalieroCiboDao;
+import it.unibo.zoo.model.jdbc.entityDao.FornitoreDao;
+import it.unibo.zoo.model.jdbc.entityDao.TipoCiboDao;
+import it.unibo.zoo.model.jdbc.entityDao.VisitaMedicaDao;
+import it.unibo.zoo.model.jdbc.entityDao.AnimaleDao;
+import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
+import it.unibo.zoo.model.jdbc.entityDao.DipendenteDao;
+import it.unibo.zoo.model.jdbc.entityDao.TurnoDao;
+import it.unibo.zoo.model.jdbc.entityDao.MansioneDao;
+import it.unibo.zoo.model.jdbc.entityDao.AreaDao;
 import it.unibo.zoo.view.GestioneView;
 
 import java.time.format.DateTimeFormatter;
@@ -57,8 +68,8 @@ public class GestioneController {
     /* ═══ TAB 1 — Saldo ══════════════════════════════════ */
 
     private void populateSaldo() {
-        final List<Transazione> transazioni = MockData.getTransazioni();
-        final Map<Integer, CategoriaTransazione> catMap = MockData.getCategorieTransazione().stream()
+        final List<Transazione> transazioni = new TransazioneDao().findAll();
+        final Map<Integer, CategoriaTransazione> catMap = new CategoriaTransazioneDao().findAll().stream()
                 .collect(Collectors.toMap(CategoriaTransazione::getIdCategoria, c -> c));
 
         double entrate = 0;
@@ -95,33 +106,32 @@ public class GestioneController {
     /* ═══ TAB 2 — Ordini giornalieri ═════════════════════ */
 
     private void populateOrdini() {
-        final List<OrdineGiornaliero> ordini = MockData.getOrdiniGiornalieri();
-        final Map<Integer, Fornitore> fornMap = MockData.getFornitori().stream()
+        final List<OrdineGiornalieroCibo> ordini = new OrdineGiornalieroCiboDao().findAll();
+        final Map<Integer, Fornitore> fornMap = new FornitoreDao().findAll().stream()
                 .collect(Collectors.toMap(Fornitore::getIdFornitore, f -> f));
-        final Map<Integer, TipoCibo> ciboMap = MockData.getTipiCibo().stream()
+        final Map<Integer, TipoCibo> ciboMap = new TipoCiboDao().findAll().stream()
                 .collect(Collectors.toMap(TipoCibo::getIdTipoCibo, c -> c));
 
         final List<GestioneView.OrdineRow> rows = new ArrayList<>();
-        for (final OrdineGiornaliero o : ordini) {
+        for (final OrdineGiornalieroCibo o : ordini) {
             final Fornitore f = fornMap.get(o.getIdFornitore());
             final TipoCibo c = ciboMap.get(o.getIdTipoCibo());
             rows.add(new GestioneView.OrdineRow(
-                    o.getData().format(DATE_FMT),
-                    f != null ? f.getNome() : "—",
+                    o.getDataOrdine().format(DATE_FMT),
+                    f != null ? f.getNomeAzienda() : "—",
                     c != null ? c.getNome() : "—",
                     String.format("%.1f", o.getQuantitaKg()),
-                    o.isPagato() ? "Pagato" : "Da pagare"
+                    o.getIdTransazione() != null ? "Pagato" : "Da pagare"
             ));
         }
         view.setOrdini(rows);
 
-        // Popola combo fornitori e tipi cibo
         view.getComboFornitore().getItems().clear();
-        for (final Fornitore f : MockData.getFornitori()) {
-            view.getComboFornitore().getItems().add(f.getNome());
+        for (final Fornitore f : new FornitoreDao().findAll()) {
+            view.getComboFornitore().getItems().add(f.getNomeAzienda());
         }
         view.getComboTipoCibo().getItems().clear();
-        for (final TipoCibo c : MockData.getTipiCibo()) {
+        for (final TipoCibo c : new TipoCiboDao().findAll()) {
             view.getComboTipoCibo().getItems().add(c.getNome());
         }
     }
@@ -143,12 +153,12 @@ public class GestioneController {
     /* ═══ TAB 3 — Animali in cura ════════════════════════ */
 
     private void populateVisite() {
-        final List<VisitaMedica> visite = MockData.getVisiteMediche();
-        final Map<Integer, Animale> animMap = MockData.getAnimali().stream()
+        final List<VisitaMedica> visite = new VisitaMedicaDao().findAll();
+        final Map<Integer, Animale> animMap = new AnimaleDao().findAll().stream()
                 .collect(Collectors.toMap(Animale::getIdAnimale, a -> a));
-        final Map<Integer, Specie> specieMap = MockData.getSpecie().stream()
+        final Map<Integer, Specie> specieMap = new SpecieDao().findAll().stream()
                 .collect(Collectors.toMap(Specie::getIdSpecie, s -> s));
-        final Map<Integer, Dipendente> dipMap = MockData.getDipendenti().stream()
+        final Map<Integer, Dipendente> dipMap = new DipendenteDao().findAll().stream()
                 .collect(Collectors.toMap(Dipendente::getIdDipendente, d -> d));
 
         final List<GestioneView.VisitaRow> rows = new ArrayList<>();
@@ -162,7 +172,7 @@ public class GestioneController {
             } else {
                 nomeSpecie = "—";
             }
-            final Dipendente vet = dipMap.get(v.getIdVeterinario());
+            final Dipendente vet = dipMap.get(v.getIdDipendente());
             final String nomeVet = vet != null ? vet.getNome() + " " + vet.getCognome() : "—";
             final String stato = v.getDataFine() == null ? "In corso" : "Concluso";
 
@@ -178,12 +188,12 @@ public class GestioneController {
     /* ═══ TAB 4 — Turni del giorno ═══════════════════════ */
 
     private void populateTurni() {
-        final List<Turno> turni = MockData.getTurniOggi();
-        final Map<Integer, Dipendente> dipMap = MockData.getDipendenti().stream()
+        final List<Turno> turni = new TurnoDao().findAll();
+        final Map<Integer, Dipendente> dipMap = new DipendenteDao().findAll().stream()
                 .collect(Collectors.toMap(Dipendente::getIdDipendente, d -> d));
-        final Map<Integer, TipoMansione> mansMap = MockData.getMansioni().stream()
-                .collect(Collectors.toMap(TipoMansione::getIdTipoMansione, m -> m));
-        final Map<Integer, Area> areaMap = MockData.getAree().stream()
+        final Map<Integer, Mansione> mansMap = new MansioneDao().findAll().stream()
+                .collect(Collectors.toMap(Mansione::getIdMansione, m -> m));
+        final Map<Integer, Area> areaMap = new AreaDao().findAll().stream()
                 .collect(Collectors.toMap(Area::getIdArea, a -> a));
 
         final List<GestioneView.TurnoRow> rows = new ArrayList<>();
@@ -192,7 +202,7 @@ public class GestioneController {
             final String nomeDip = d != null ? d.getNome() + " " + d.getCognome() : "—";
             final String mansione;
             if (d != null) {
-                final TipoMansione m = mansMap.get(d.getIdMansione());
+                final Mansione m = mansMap.get(d.getIdMansione());
                 mansione = m != null ? m.getNome() : "—";
             } else {
                 mansione = "—";

@@ -1,6 +1,5 @@
 package it.unibo.zoo.controller;
 
-import it.unibo.zoo.model.SessionManager;
 import it.unibo.zoo.view.AnimaliView;
 import it.unibo.zoo.view.BigliettiView;
 import it.unibo.zoo.view.GestioneView;
@@ -34,7 +33,7 @@ public class NavigationController {
      * Aggiorna la visibilità del pulsante Gestione in base allo stato della sessione.
      */
     private void refreshNavbar() {
-        mainView.setGestioneVisible(SessionManager.getInstance().isLoggato());
+        mainView.setGestioneVisible(true);
     }
 
     /* ── Metodi di navigazione ───────────────────────── */
@@ -51,33 +50,41 @@ public class NavigationController {
     public void navigaAnimali() {
         refreshNavbar();
         final AnimaliView animaliView = new AnimaliView();
-        new AnimaliController(animaliView);
+        try {
+            new AnimaliController(animaliView);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         mainView.setCenter(animaliView.getRoot());
     }
 
     public void navigaBiglietti() {
         refreshNavbar();
         final BigliettiView bigliettiView = new BigliettiView();
-        new BigliettiController(bigliettiView);
+        try {
+            new BigliettiController(bigliettiView);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         mainView.setCenter(bigliettiView.getRoot());
     }
 
     public void navigaLogin() {
         refreshNavbar();
         final LoginView loginView = new LoginView();
-        new LoginController(loginView, this);
+        new LoginController();
         mainView.setCenter(loginView.getRoot());
     }
 
     public void navigaGestione() {
         refreshNavbar();
-        if (!SessionManager.getInstance().isLoggato()) {
-            navigaLogin();
-            return;
-        }
         mainView.setGestioneVisible(true);
         final GestioneView gestioneView = new GestioneView();
-        new GestioneController(gestioneView);
+        try {
+            new GestioneController(gestioneView);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
         mainView.setCenter(gestioneView.getRoot());
     }
 }

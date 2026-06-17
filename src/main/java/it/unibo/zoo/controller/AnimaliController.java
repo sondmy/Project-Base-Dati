@@ -1,11 +1,17 @@
 package it.unibo.zoo.controller;
 
-import it.unibo.zoo.model.MockData;
 import it.unibo.zoo.model.entity.Animale;
 import it.unibo.zoo.model.entity.Habitat;
 import it.unibo.zoo.model.entity.Recinto;
 import it.unibo.zoo.model.entity.Specie;
 import it.unibo.zoo.model.entity.StatoEsistenza;
+import it.unibo.zoo.model.entity.StoricoCollocazione;
+import it.unibo.zoo.model.jdbc.entityDao.AnimaleDao;
+import it.unibo.zoo.model.jdbc.entityDao.HabitatDao;
+import it.unibo.zoo.model.jdbc.entityDao.RecintoDao;
+import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
+import it.unibo.zoo.model.jdbc.entityDao.StatoEsistenzaDao;
+import it.unibo.zoo.model.jdbc.entityDao.StoricoCollocazioneDao;
 import it.unibo.zoo.view.AnimaliView;
 
 import java.util.ArrayList;
@@ -25,18 +31,24 @@ public class AnimaliController {
     private final Map<Integer, Habitat> habitatMap;
     private final Map<Integer, StatoEsistenza> statoMap;
     private final Map<Integer, Recinto> recintoMap;
+    private final Map<Integer, Integer> animaleRecintoMap; // idAnimale -> idRecinto (collocazione attuale)
 
     public AnimaliController(final AnimaliView view) {
         this.view = view;
-        this.animali = MockData.getAnimali();
-        this.specieMap = MockData.getSpecie().stream()
+        this.animali = new AnimaleDao().findAll();
+        this.specieMap = new SpecieDao().findAll().stream()
                 .collect(Collectors.toMap(Specie::getIdSpecie, s -> s));
-        this.habitatMap = MockData.getHabitat().stream()
+        this.habitatMap = new HabitatDao().findAll().stream()
                 .collect(Collectors.toMap(Habitat::getIdHabitat, h -> h));
-        this.statoMap = MockData.getStatiEsistenza().stream()
+        this.statoMap = new StatoEsistenzaDao().findAll().stream()
                 .collect(Collectors.toMap(StatoEsistenza::getIdStato, s -> s));
-        this.recintoMap = MockData.getRecinti().stream()
+        this.recintoMap = new RecintoDao().findAll().stream()
                 .collect(Collectors.toMap(Recinto::getIdRecinto, r -> r));
+        // Costruisci mappa animale -> recinto corrente (collocazione senza data_fine)
+        this.animaleRecintoMap = new StoricoCollocazioneDao().findAll().stream()
+                .filter(sc -> sc.getDataFine() == null)
+                .collect(Collectors.toMap(StoricoCollocazione::getIdAnimale, StoricoCollocazione::getIdRecinto,
+                        (a, b) -> b));
         init();
     }
 
@@ -82,14 +94,14 @@ public class AnimaliController {
             }
             final String stato;
             if (sp != null) {
-                final StatoEsistenza se = statoMap.get(sp.getIdStatoEsistenza());
+                final StatoEsistenza se = statoMap.get(sp.getIdStato());
                 stato = se != null ? se.getNome() : "—";
             } else {
                 stato = "—";
             }
-            // Sesso: non presente nell'entity, usiamo mock basato su idAnimale pari/dispari
-            final String sesso = (a.getIdAnimale() % 2 == 0) ? "F" : "M";
-            final Recinto rec = recintoMap.get(a.getIdRecinto());
+            final String sesso = String.valueOf(a.getSesso());
+            final Integer idRecinto = animaleRecintoMap.get(a.getIdAnimale());
+            final Recinto rec = idRecinto != null ? recintoMap.get(idRecinto) : null;
             final String recinto = rec != null ? "R" + rec.getIdRecinto() : "—";
 
             rows.add(new AnimaliView.AnimaleRow(a.getNome(), nomeSpecie, sesso, habitat, stato, recinto));
