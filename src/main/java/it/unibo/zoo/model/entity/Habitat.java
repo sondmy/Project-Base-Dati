@@ -4,7 +4,7 @@ public class Habitat {
 
     private int idHabitat;
     private String nome;
-    private String descrizione;
+    private String descrizione;  // nullable
 
     public Habitat() {}
 
@@ -25,6 +25,6 @@ public class Habitat {
 
     @Override
     public String toString() {
-        return "Habitat{idHabitat=" + idHabitat + ", nome='" + nome + "'}";
+        return "Habitat{idHabitat=" + idHabitat + ", nome=" + nome + "}";
     }
 }

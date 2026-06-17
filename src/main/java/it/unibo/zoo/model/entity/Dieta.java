@@ -1,18 +1,14 @@
 package it.unibo.zoo.model.entity;
 
-/**
- * Rappresenta la tabella ponte _Specie (M:N tra Specie e Tipi_Cibo).
- * PK composta: (idSpecie, idTipoCibo).
- */
-public class SpecieCibo {
+public class Dieta {
 
-    private int idSpecie;       // FK → Specie
-    private int idTipoCibo;     // FK → Tipi_Cibo
+    private int idSpecie;  // PK FK
+    private int idTipoCibo;  // PK FK
     private double quantitaKgGiorno;
 
-    public SpecieCibo() {}
+    public Dieta() {}
 
-    public SpecieCibo(int idSpecie, int idTipoCibo, double quantitaKgGiorno) {
+    public Dieta(int idSpecie, int idTipoCibo, double quantitaKgGiorno) {
         this.idSpecie = idSpecie;
         this.idTipoCibo = idTipoCibo;
         this.quantitaKgGiorno = quantitaKgGiorno;
@@ -29,7 +25,6 @@ public class SpecieCibo {
 
     @Override
     public String toString() {
-        return "SpecieCibo{idSpecie=" + idSpecie + ", idTipoCibo=" + idTipoCibo
-                + ", quantitaKgGiorno=" + quantitaKgGiorno + "}";
+        return "Dieta{idSpecie=" + idSpecie + ", idTipoCibo=" + idTipoCibo + ", quantitaKgGiorno=" + quantitaKgGiorno + "}";
     }
 }

@@ -5,19 +5,20 @@ import java.time.LocalDate;
 public class Utente {
 
     private int idUtente;
-    private String email;           // UNIQUE NOT NULL
-    private String passwordHash;    // hash bcrypt, mai la password in chiaro
+    private String email;  // UNIQUE
+    private String passwordHash;  // bcrypt — mai in chiaro
     private LocalDate dataRegistrazione;
-    private Integer idDipendente;   // FK → Dipendenti — nullable (Integer, non int)
+    private String ruolo;
+    private Integer idDipendente;  // nullable FK
 
     public Utente() {}
 
-    public Utente(int idUtente, String email, String passwordHash,
-                  LocalDate dataRegistrazione, Integer idDipendente) {
+    public Utente(int idUtente, String email, String passwordHash, LocalDate dataRegistrazione, String ruolo, Integer idDipendente) {
         this.idUtente = idUtente;
         this.email = email;
         this.passwordHash = passwordHash;
         this.dataRegistrazione = dataRegistrazione;
+        this.ruolo = ruolo;
         this.idDipendente = idDipendente;
     }
 
@@ -33,14 +34,14 @@ public class Utente {
     public LocalDate getDataRegistrazione() { return dataRegistrazione; }
     public void setDataRegistrazione(LocalDate dataRegistrazione) { this.dataRegistrazione = dataRegistrazione; }
 
+    public String getRuolo() { return ruolo; }
+    public void setRuolo(String ruolo) { this.ruolo = ruolo; }
+
     public Integer getIdDipendente() { return idDipendente; }
     public void setIdDipendente(Integer idDipendente) { this.idDipendente = idDipendente; }
 
-    /** Restituisce true se l'utente è collegato a un dipendente. */
-    public boolean isDipendente() { return idDipendente != null; }
-
     @Override
     public String toString() {
-        return "Utente{idUtente=" + idUtente + ", email='" + email + "'}";
+        return "Utente{idUtente=" + idUtente + ", email=" + email + ", ruolo=" + ruolo + "}";
     }
 }

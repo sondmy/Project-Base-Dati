@@ -7,13 +7,12 @@ public class Turno {
     private int idTurno;
     private LocalDateTime oraInizio;
     private LocalDateTime oraFine;
-    private int idDipendente;   // FK → Dipendenti
-    private int idArea;         // FK → Aree
+    private int idDipendente;  // FK
+    private int idArea;  // FK
 
     public Turno() {}
 
-    public Turno(int idTurno, LocalDateTime oraInizio, LocalDateTime oraFine,
-                 int idDipendente, int idArea) {
+    public Turno(int idTurno, LocalDateTime oraInizio, LocalDateTime oraFine, int idDipendente, int idArea) {
         this.idTurno = idTurno;
         this.oraInizio = oraInizio;
         this.oraFine = oraFine;

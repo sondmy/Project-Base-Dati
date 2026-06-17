@@ -4,14 +4,13 @@ public class TipoBiglietto {
 
     private int idBiglietto;
     private String nome;
-    private String descrizione;
+    private String descrizione;  // nullable
     private double prezzo;
     private boolean attivo;
 
     public TipoBiglietto() {}
 
-    public TipoBiglietto(int idBiglietto, String nome, String descrizione,
-                         double prezzo, boolean attivo) {
+    public TipoBiglietto(int idBiglietto, String nome, String descrizione, double prezzo, boolean attivo) {
         this.idBiglietto = idBiglietto;
         this.nome = nome;
         this.descrizione = descrizione;
@@ -36,7 +35,6 @@ public class TipoBiglietto {
 
     @Override
     public String toString() {
-        return "TipoBiglietto{idBiglietto=" + idBiglietto + ", nome='" + nome
-                + "', prezzo=" + prezzo + ", attivo=" + attivo + "}";
+        return "TipoBiglietto{idBiglietto=" + idBiglietto + ", nome=" + nome + ", prezzo=" + prezzo + ", attivo=" + attivo + "}";
     }
 }

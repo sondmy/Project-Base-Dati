@@ -5,20 +5,19 @@ public class Specie {
     private int idSpecie;
     private String nomeScentifico;
     private String nomeComune;
-    private int idStatoEsistenza;   // FK → Stati_Esistenza
-    private int idTipoAnimale;      // FK → Tipi_Animale
-    private int idHabitat;          // FK → Habitat
+    private Integer idHabitat;  // nullable FK
+    private Integer idStato;  // nullable FK
+    private Integer idFamigliaSpecie;  // nullable FK
 
     public Specie() {}
 
-    public Specie(int idSpecie, String nomeScentifico, String nomeComune,
-                  int idStatoEsistenza, int idTipoAnimale, int idHabitat) {
+    public Specie(int idSpecie, String nomeScentifico, String nomeComune, Integer idHabitat, Integer idStato, Integer idFamigliaSpecie) {
         this.idSpecie = idSpecie;
         this.nomeScentifico = nomeScentifico;
         this.nomeComune = nomeComune;
-        this.idStatoEsistenza = idStatoEsistenza;
-        this.idTipoAnimale = idTipoAnimale;
         this.idHabitat = idHabitat;
+        this.idStato = idStato;
+        this.idFamigliaSpecie = idFamigliaSpecie;
     }
 
     public int getIdSpecie() { return idSpecie; }
@@ -30,17 +29,17 @@ public class Specie {
     public String getNomeComune() { return nomeComune; }
     public void setNomeComune(String nomeComune) { this.nomeComune = nomeComune; }
 
-    public int getIdStatoEsistenza() { return idStatoEsistenza; }
-    public void setIdStatoEsistenza(int idStatoEsistenza) { this.idStatoEsistenza = idStatoEsistenza; }
+    public Integer getIdHabitat() { return idHabitat; }
+    public void setIdHabitat(Integer idHabitat) { this.idHabitat = idHabitat; }
 
-    public int getIdTipoAnimale() { return idTipoAnimale; }
-    public void setIdTipoAnimale(int idTipoAnimale) { this.idTipoAnimale = idTipoAnimale; }
+    public Integer getIdStato() { return idStato; }
+    public void setIdStato(Integer idStato) { this.idStato = idStato; }
 
-    public int getIdHabitat() { return idHabitat; }
-    public void setIdHabitat(int idHabitat) { this.idHabitat = idHabitat; }
+    public Integer getIdFamigliaSpecie() { return idFamigliaSpecie; }
+    public void setIdFamigliaSpecie(Integer idFamigliaSpecie) { this.idFamigliaSpecie = idFamigliaSpecie; }
 
     @Override
     public String toString() {
-        return "Specie{idSpecie=" + idSpecie + ", nomeComune='" + nomeComune + "', nomeScentifico='" + nomeScentifico + "'}";
+        return "Specie{idSpecie=" + idSpecie + ", nomeScentifico=" + nomeScentifico + ", nomeComune=" + nomeComune + "}";
     }
 }

@@ -2,19 +2,24 @@ package it.unibo.zoo.model.entity;
 
 public class DettaglioScontrino {
 
-    private int idScontrino;    // FK → Scontrini
-    private int idBiglietto;    // FK → Tipi_Biglietto
+    private int idDettaglio;
+    private int idScontrino;  // FK
+    private int idBiglietto;  // FK
     private int quantita;
-    private double prezzoUnitario;
+    private double prezzoPagatoBiglietto;  // storico al momento acquisto
 
     public DettaglioScontrino() {}
 
-    public DettaglioScontrino(int idScontrino, int idBiglietto, int quantita, double prezzoUnitario) {
+    public DettaglioScontrino(int idDettaglio, int idScontrino, int idBiglietto, int quantita, double prezzoPagatoBiglietto) {
+        this.idDettaglio = idDettaglio;
         this.idScontrino = idScontrino;
         this.idBiglietto = idBiglietto;
         this.quantita = quantita;
-        this.prezzoUnitario = prezzoUnitario;
+        this.prezzoPagatoBiglietto = prezzoPagatoBiglietto;
     }
+
+    public int getIdDettaglio() { return idDettaglio; }
+    public void setIdDettaglio(int idDettaglio) { this.idDettaglio = idDettaglio; }
 
     public int getIdScontrino() { return idScontrino; }
     public void setIdScontrino(int idScontrino) { this.idScontrino = idScontrino; }
@@ -25,12 +30,11 @@ public class DettaglioScontrino {
     public int getQuantita() { return quantita; }
     public void setQuantita(int quantita) { this.quantita = quantita; }
 
-    public double getPrezzoUnitario() { return prezzoUnitario; }
-    public void setPrezzoUnitario(double prezzoUnitario) { this.prezzoUnitario = prezzoUnitario; }
+    public double getPrezzoPagatoBiglietto() { return prezzoPagatoBiglietto; }
+    public void setPrezzoPagatoBiglietto(double prezzoPagatoBiglietto) { this.prezzoPagatoBiglietto = prezzoPagatoBiglietto; }
 
     @Override
     public String toString() {
-        return "DettaglioScontrino{idScontrino=" + idScontrino
-                + ", idBiglietto=" + idBiglietto + ", quantita=" + quantita + "}";
+        return "DettaglioScontrino{idDettaglio=" + idDettaglio + ", idScontrino=" + idScontrino + ", idBiglietto=" + idBiglietto + ", quantita=" + quantita + "}";
     }
 }

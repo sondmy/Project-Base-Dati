@@ -4,7 +4,7 @@ public class TipoFornitura {
 
     private int idTipoFornitura;
     private String nome;
-    private String descrizione;
+    private String descrizione;  // nullable
 
     public TipoFornitura() {}
 
@@ -25,6 +25,6 @@ public class TipoFornitura {
 
     @Override
     public String toString() {
-        return "TipoFornitura{idTipoFornitura=" + idTipoFornitura + ", nome='" + nome + "'}";
+        return "TipoFornitura{idTipoFornitura=" + idTipoFornitura + ", nome=" + nome + "}";
     }
 }
