@@ -21,12 +21,12 @@ public class DipendenteDao extends AbstractCrudDao<Dipendente> {
 
     @Override
     protected String insertSql() {
-        return "INSERT INTO dipendente (codice_fiscale, nome, cognome, data_nascita, data_assunzione, prezzo_orario, id_mansione) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        return "INSERT INTO dipendente (codice_fiscale, nome, cognome, data_nascita, data_assunzione, id_mansione) VALUES (?, ?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String updateSql() {
-        return "UPDATE dipendente SET codice_fiscale = ?, nome = ?, cognome = ?, data_nascita = ?, data_assunzione = ?, prezzo_orario = ?, id_mansione = ? WHERE id_dipendente = ?";
+        return "UPDATE dipendente SET codice_fiscale = ?, nome = ?, cognome = ?, data_nascita = ?, data_assunzione = ?, id_mansione = ? WHERE id_dipendente = ?";
     }
 
     @Override
@@ -48,7 +48,6 @@ public class DipendenteDao extends AbstractCrudDao<Dipendente> {
                 resultSet.getString("cognome"),
                 JdbcUtils.getNullableDate(resultSet, "data_nascita"),
                 JdbcUtils.getNullableDate(resultSet, "data_assunzione"),
-                resultSet.getDouble("prezzo_orario"),
                 resultSet.getInt("id_mansione")
         );
     }
@@ -61,7 +60,6 @@ public class DipendenteDao extends AbstractCrudDao<Dipendente> {
         statement.setString(index++, entity.getCognome());
         JdbcUtils.setNullableDate(statement, index++, entity.getDataNascita());
         statement.setDate(index++, java.sql.Date.valueOf(entity.getDataAssunzione()));
-        statement.setDouble(index++, entity.getPrezzoOrario());
         statement.setInt(index++, entity.getIdMansione());
     }
 
@@ -73,7 +71,6 @@ public class DipendenteDao extends AbstractCrudDao<Dipendente> {
         statement.setString(index++, entity.getCognome());
         JdbcUtils.setNullableDate(statement, index++, entity.getDataNascita());
         statement.setDate(index++, java.sql.Date.valueOf(entity.getDataAssunzione()));
-        statement.setDouble(index++, entity.getPrezzoOrario());
         statement.setInt(index++, entity.getIdMansione());
         statement.setInt(index++, entity.getIdDipendente());
     }
