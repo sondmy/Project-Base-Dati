@@ -5,29 +5,47 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.layout.BackgroundRepeat;
+import javafx.scene.layout.BackgroundPosition;
+import javafx.scene.layout.BackgroundSize;
 
 /**
- * Schermata iniziale con 3 card cliccabili: Biglietti, Animali, Area Gestione.
+ * Schermata iniziale con 2 card cliccabili: Biglietti, Animali.
  */
 public class HomeView {
 
     private final VBox root;
     private final VBox cardBiglietti;
     private final VBox cardAnimali;
-    private final VBox cardGestione;
 
     public HomeView() {
         root = new VBox(24);
         root.setAlignment(Pos.CENTER);
         root.setPadding(new Insets(48, 32, 48, 32));
-        root.setStyle(StyleHelper.STYLE_APP_BG);
+        
+        try {
+            Image bgImage = new Image("file:src/main/java/it/unibo/zoo/utils/images/home.png");
+            if (bgImage.isError()) {
+                throw new Exception("Image error");
+            }
+            BackgroundImage bgi = new BackgroundImage(
+                bgImage,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundRepeat.NO_REPEAT,
+                BackgroundPosition.CENTER,
+                new BackgroundSize(BackgroundSize.AUTO, BackgroundSize.AUTO, false, false, true, true)
+            );
+            root.setBackground(new Background(bgi));
+        } catch (Exception e) {
+            root.setStyle(StyleHelper.STYLE_APP_BG);
+        }
 
         /* ── Titolo ──────────────────────────────────────── */
         final Label title = new Label("Benvenuto nel gestionale dello Zoo");
         title.setStyle(StyleHelper.STYLE_TITLE);
-
-        final Label subtitle = new Label("Seleziona una sezione per iniziare");
-        subtitle.setStyle(StyleHelper.STYLE_SUBTITLE);
 
         /* ── Card ────────────────────────────────────────── */
         cardBiglietti = createCard(
@@ -38,15 +56,11 @@ public class HomeView {
                 "\uD83D\uDC3E Scopri gli Animali",
                 "Esplora l'elenco degli animali del nostro zoo e le loro specie."
         );
-        cardGestione = createCard(
-                "\uD83D\uDD12 Area Gestione",
-                "Accedi al pannello riservato per gestire finanze, ordini e turni."
-        );
 
-        final HBox cardsBox = new HBox(20, cardBiglietti, cardAnimali, cardGestione);
+        final HBox cardsBox = new HBox(20, cardBiglietti, cardAnimali);
         cardsBox.setAlignment(Pos.CENTER);
 
-        root.getChildren().addAll(title, subtitle, cardsBox);
+        root.getChildren().addAll(title, cardsBox);
     }
 
     /* ── Accesso ─────────────────────────────────────────── */
@@ -55,7 +69,6 @@ public class HomeView {
 
     public VBox getCardBiglietti() { return cardBiglietti; }
     public VBox getCardAnimali()   { return cardAnimali; }
-    public VBox getCardGestione()  { return cardGestione; }
 
     /* ── Utility ─────────────────────────────────────────── */
 
