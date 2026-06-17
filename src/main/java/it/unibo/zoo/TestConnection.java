@@ -10,6 +10,12 @@ import it.unibo.zoo.model.entity.TipoArea;
 import it.unibo.zoo.model.jdbc.ConnectionFactory;
 import it.unibo.zoo.model.jdbc.entityDao.AnimaleDao;
 import it.unibo.zoo.model.jdbc.entityDao.TipoAreaDao;
+import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
+import it.unibo.zoo.model.jdbc.entityDao.DipendenteDao;
+import it.unibo.zoo.model.jdbc.entityDao.VisitaMedicaDao;
+import it.unibo.zoo.model.entity.Specie;
+import it.unibo.zoo.model.entity.Dipendente;
+import it.unibo.zoo.model.entity.VisitaMedica;
 import java.util.Optional;
 
 public class TestConnection {
@@ -26,7 +32,6 @@ public class TestConnection {
                 LocalDate.of(2020, 5, 10),
                 LocalDate.now(),
                 null,
-                1, // id_recinto esistente
                 1  // id_specie esistente
             );
 
@@ -36,8 +41,8 @@ public class TestConnection {
             Optional<Animale> trovato = dao.findById(inserito.getIdAnimale());
             System.out.println("Trovato: " + trovato.orElse(null));
 
-            List<Animale> perRecinto = dao.findByRecinto(1);
-            System.out.println("Animali nel recinto 1: " + perRecinto.size());
+            List<Animale> perSpecie = dao.findBySpecie(1);
+            System.out.println("Animali della specie 1: " + perSpecie.size());
 
             inserito.setNome("Re Simba");
             dao.update(inserito);
@@ -75,15 +80,31 @@ public class TestConnection {
         }
     }
 
-    // private static void testConnection(){
-    //     try {
-    //         Connection conn = ConnectionFactory.getInstance().getConnection();
-    //         System.out.println("Connessione OK: " + conn);
-    //         conn.close();
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+    public static void testQueries() {
+        System.out.println("--- ESECUZIONE QUERY DI TEST ---");
+        try {
+            System.out.println("1. Elenco di tutte le Specie:");
+            SpecieDao specieDao = new SpecieDao();
+            List<Specie> specie = specieDao.findAll();
+            specie.forEach(s -> System.out.println("  - " + s.getNomeComune() + " (" + s.getNomeScentifico() + ")"));
+
+            System.out.println("\n2. Elenco dei Dipendenti:");
+            DipendenteDao dipDao = new DipendenteDao();
+            List<Dipendente> dipendenti = dipDao.findAll();
+            dipendenti.forEach(d -> System.out.println("  - " + d.getNome() + " " + d.getCognome() + " (CF: " + d.getCodiceFiscale() + ")"));
+
+            System.out.println("\n3. Elenco delle Visite Mediche in corso:");
+            VisitaMedicaDao visitaDao = new VisitaMedicaDao();
+            List<VisitaMedica> visite = visitaDao.findAll();
+            visite.stream()
+                  .filter(v -> v.getDataFine() == null)
+                  .forEach(v -> System.out.println("  - Visita del " + v.getDataVisita() + " - Diagnosi: " + v.getDiagnosi()));
+
+            System.out.println("--------------------------------");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     public static void main(String[] args) {
 
@@ -91,9 +112,7 @@ public class TestConnection {
             Connection conn = ConnectionFactory.getInstance().getConnection();
             System.out.println("Connessione OK: " + conn);
 
-            testTipoArea();
-
-            testAnimal();
+            testQueries();
 
             conn.close();
         } catch (Exception e) {

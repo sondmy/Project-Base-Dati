@@ -32,6 +32,7 @@ val supportedPlatforms = listOf("linux", "mac", "win") // All required for OOP
 
 dependencies {
     implementation("org.mindrot:jbcrypt:0.4")
+    implementation("org.postgresql:postgresql:42.7.4")
 
     // Suppressions for SpotBugs
     compileOnly("com.github.spotbugs:spotbugs-annotations:4.9.8")
