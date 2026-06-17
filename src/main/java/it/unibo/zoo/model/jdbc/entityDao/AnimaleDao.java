@@ -6,10 +6,7 @@ import it.unibo.zoo.model.jdbc.AbstractCrudDao;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class AnimaleDao extends AbstractCrudDao<Animale> {
 

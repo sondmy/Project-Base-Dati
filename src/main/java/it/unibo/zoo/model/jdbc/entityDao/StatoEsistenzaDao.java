@@ -6,7 +6,6 @@ import it.unibo.zoo.model.jdbc.AbstractCrudDao;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.Optional;
 
 public class StatoEsistenzaDao extends AbstractCrudDao<StatoEsistenza> {
