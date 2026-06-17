@@ -21,34 +21,15 @@ import java.util.Optional;
 public class TestConnection {
     
     public static void testAnimal() {
-        AnimaleDao dao = new AnimaleDao();
-
-        try {
-            Animale animale = new Animale(
-                0,
-                "Simba",
-                'M',
-                true,
-                LocalDate.of(2020, 5, 10),
-                LocalDate.now(),
-                null,
-                1  // id_specie esistente
-            );
-
-            Animale inserito = dao.insert(animale);
-            System.out.println("Inserito: " + inserito);
-
-            Optional<Animale> trovato = dao.findById(inserito.getIdAnimale());
-            System.out.println("Trovato: " + trovato.orElse(null));
-
-            List<Animale> perSpecie = dao.findBySpecie(1);
-            System.out.println("Animali della specie 1: " + perSpecie.size());
-
-            inserito.setNome("Re Simba");
-            dao.update(inserito);
-
-            // dao.delete(inserito.getIdAnimale());
-
+        System.out.println("Aggiornamento password utenti con BCrypt...");
+        String newPassword = "password123";
+        String hashed = it.unibo.zoo.utils.PasswordHasher.hash(newPassword);
+        
+        try (java.sql.Connection conn = it.unibo.zoo.model.jdbc.ConnectionFactory.getInstance().getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement("UPDATE utente SET password_hash = ?")) {
+            stmt.setString(1, hashed);
+            int updated = stmt.executeUpdate();
+            System.out.println("Aggiornati " + updated + " utenti con la password: " + newPassword);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -112,6 +93,7 @@ public class TestConnection {
             Connection conn = ConnectionFactory.getInstance().getConnection();
             System.out.println("Connessione OK: " + conn);
 
+            testAnimal();
             testQueries();
 
             conn.close();

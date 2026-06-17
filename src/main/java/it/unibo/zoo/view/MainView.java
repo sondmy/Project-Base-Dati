@@ -39,7 +39,7 @@ public class MainView {
         btnHome = createNavButton("Home");
         btnAnimali = createNavButton("Animali");
         btnBiglietti = createNavButton("Biglietti");
-        btnGestione = createNavButton("Gestione");
+        btnGestione = createNavButton("Login");
         btnGestione.setVisible(false);
         btnGestione.setManaged(false);
 

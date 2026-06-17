@@ -26,7 +26,7 @@ public class NavigationController {
         mainView.getBtnHome().setOnAction(e -> navigaHome());
         mainView.getBtnAnimali().setOnAction(e -> navigaAnimali());
         mainView.getBtnBiglietti().setOnAction(e -> navigaBiglietti());
-        mainView.getBtnGestione().setOnAction(e -> navigaGestione());
+        mainView.getBtnGestione().setOnAction(e -> navigaLogin());
     }
 
     /**
@@ -43,7 +43,6 @@ public class NavigationController {
         final HomeView homeView = new HomeView();
         homeView.getCardBiglietti().setOnMouseClicked(e -> navigaBiglietti());
         homeView.getCardAnimali().setOnMouseClicked(e -> navigaAnimali());
-        homeView.getCardGestione().setOnMouseClicked(e -> navigaGestione());
         mainView.setCenter(homeView.getRoot());
     }
 
@@ -72,7 +71,7 @@ public class NavigationController {
     public void navigaLogin() {
         refreshNavbar();
         final LoginView loginView = new LoginView();
-        new LoginController();
+        new LoginController(loginView, this::navigaGestione);
         mainView.setCenter(loginView.getRoot());
     }
 
