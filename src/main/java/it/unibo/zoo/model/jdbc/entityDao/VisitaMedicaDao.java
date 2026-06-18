@@ -21,12 +21,12 @@ public class VisitaMedicaDao extends AbstractCrudDao<VisitaMedica> {
 
     @Override
     protected String insertSql() {
-        return "INSERT INTO visita_medica (peso, diagnosi, note_trattamento, data_visita, data_fine, id_animale, id_dipendente) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        return "INSERT INTO visita_medica (peso, diagnosi, note_trattamento, data_visita, data_fine, id_animale, id_veterinario) VALUES (?, ?, ?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String updateSql() {
-        return "UPDATE visita_medica SET peso = ?, diagnosi = ?, note_trattamento = ?, data_visita = ?, data_fine = ?, id_animale = ?, id_dipendente = ? WHERE id_visita = ?";
+        return "UPDATE visita_medica SET peso = ?, diagnosi = ?, note_trattamento = ?, data_visita = ?, data_fine = ?, id_animale = ?, id_veterinario = ? WHERE id_visita = ?";
     }
 
     @Override
@@ -49,7 +49,7 @@ public class VisitaMedicaDao extends AbstractCrudDao<VisitaMedica> {
                 JdbcUtils.getNullableDate(resultSet, "data_visita"),
                 JdbcUtils.getNullableDate(resultSet, "data_fine"),
                 resultSet.getInt("id_animale"),
-                resultSet.getInt("id_dipendente")
+                resultSet.getInt("id_veterinario")
         );
     }
 
@@ -83,7 +83,7 @@ public class VisitaMedicaDao extends AbstractCrudDao<VisitaMedica> {
     }
 
     public List<VisitaMedica> findByDipendente(int idDipendente) {
-        return queryMany("SELECT * FROM visita_medica WHERE id_dipendente = ? ORDER BY data_visita DESC", statement -> statement.setInt(1, idDipendente));
+        return queryMany("SELECT * FROM visita_medica WHERE id_veterinario = ? ORDER BY data_visita DESC", statement -> statement.setInt(1, idDipendente));
     }
 
     public List<VisitaMedica> findByDataVisita(LocalDate dataVisita) {

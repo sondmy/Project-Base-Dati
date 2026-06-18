@@ -26,11 +26,6 @@ public class AnimaleController {
         return animaleDao.findById(idAnimale);
     }
 
-    public List<Animale> getAnimaliByRecinto(int idRecinto) {
-        InputValidator.notNegative(idRecinto, "idRecinto");
-        return animaleDao.findByRecinto(idRecinto);
-    }
-
     public List<Animale> getAnimaliBySpecie(int idSpecie) {
         InputValidator.notNegative(idSpecie, "idSpecie");
         return animaleDao.findBySpecie(idSpecie);
@@ -39,16 +34,14 @@ public class AnimaleController {
     public Animale createAnimale(
             String nome,
             char sesso,
-            boolean attivo,
+            boolean vivo,
             LocalDate dataNascita,
             LocalDate dataArrivo,
             LocalDate dataUscita,
-            int idRecinto,
             int idSpecie) {
 
         InputValidator.notBlank(nome, "nome");
         InputValidator.checkSesso(sesso);
-        InputValidator.notNegative(idRecinto, "idRecinto");
         InputValidator.notNegative(idSpecie, "idSpecie");
 
         if (dataNascita != null && dataArrivo != null && dataNascita.isAfter(dataArrivo)) {
@@ -59,11 +52,10 @@ public class AnimaleController {
                 0,
                 nome,
                 sesso,
-                attivo,
+                vivo,
                 dataNascita,
                 dataArrivo,
                 dataUscita,
-                idRecinto,
                 idSpecie
         );
 
@@ -81,7 +73,6 @@ public class AnimaleController {
 
         InputValidator.notBlank(animale.getNome(), "nome");
         InputValidator.checkSesso(animale.getSesso());
-        InputValidator.notNegative(animale.getIdRecinto(), "idRecinto");
         InputValidator.notNegative(animale.getIdSpecie(), "idSpecie");
 
         try {

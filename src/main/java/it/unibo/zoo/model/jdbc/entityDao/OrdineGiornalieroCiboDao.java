@@ -13,7 +13,7 @@ public class OrdineGiornalieroCiboDao extends AbstractCrudDao<OrdineGiornalieroC
 
     @Override
     protected String tableName() {
-        return "ordine_giornaliero_cibo";
+        return "ordine_giornaliero";
     }
 
     @Override
@@ -21,12 +21,12 @@ public class OrdineGiornalieroCiboDao extends AbstractCrudDao<OrdineGiornalieroC
 
     @Override
     protected String insertSql() {
-        return "INSERT INTO ordine_giornaliero_cibo (data_ordine, quantita_kg, id_fornitore, id_tipo_cibo, id_transazione) VALUES (?, ?, ?, ?, ?)";
+        return "INSERT INTO ordine_giornaliero (data_ordine, quantita_kg, id_fornitore, id_tipo_cibo, id_transazione) VALUES (?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String updateSql() {
-        return "UPDATE ordine_giornaliero_cibo SET data_ordine = ?, quantita_kg = ?, id_fornitore = ?, id_tipo_cibo = ?, id_transazione = ? WHERE id_ordine = ?";
+        return "UPDATE ordine_giornaliero SET data_ordine = ?, quantita_kg = ?, id_fornitore = ?, id_tipo_cibo = ?, id_transazione = ? WHERE id_ordine = ?";
     }
 
     @Override
@@ -73,19 +73,19 @@ public class OrdineGiornalieroCiboDao extends AbstractCrudDao<OrdineGiornalieroC
     }
 
     public List<OrdineGiornalieroCibo> findByFornitore(int idFornitore) {
-        return queryMany("SELECT * FROM ordine_giornaliero_cibo WHERE id_fornitore = ? ORDER BY data_ordine DESC", statement -> statement.setInt(1, idFornitore));
+        return queryMany("SELECT * FROM ordine_giornaliero WHERE id_fornitore = ? ORDER BY data_ordine DESC", statement -> statement.setInt(1, idFornitore));
     }
 
     public List<OrdineGiornalieroCibo> findByTipoCibo(int idTipoCibo) {
-        return queryMany("SELECT * FROM ordine_giornaliero_cibo WHERE id_tipo_cibo = ? ORDER BY data_ordine DESC", statement -> statement.setInt(1, idTipoCibo));
+        return queryMany("SELECT * FROM ordine_giornaliero WHERE id_tipo_cibo = ? ORDER BY data_ordine DESC", statement -> statement.setInt(1, idTipoCibo));
     }
 
     public List<OrdineGiornalieroCibo> findByTransazione(Integer idTransazione) {
-        return queryMany("SELECT * FROM ordine_giornaliero_cibo WHERE id_transazione = ? ORDER BY data_ordine DESC", statement -> statement.setInt(1, idTransazione));
+        return queryMany("SELECT * FROM ordine_giornaliero WHERE id_transazione = ? ORDER BY data_ordine DESC", statement -> statement.setInt(1, idTransazione));
     }
 
     public List<OrdineGiornalieroCibo> findByDataOrdine(LocalDate dataOrdine) {
-        return queryMany("SELECT * FROM ordine_giornaliero_cibo WHERE data_ordine = ? ORDER BY id_ordine DESC", statement -> statement.setDate(1, java.sql.Date.valueOf(dataOrdine)));
+        return queryMany("SELECT * FROM ordine_giornaliero WHERE data_ordine = ? ORDER BY id_ordine DESC", statement -> statement.setDate(1, java.sql.Date.valueOf(dataOrdine)));
     }
 
 }

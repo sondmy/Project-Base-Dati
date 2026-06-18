@@ -10,19 +10,17 @@ public class Dipendente {
     private String cognome;
     private LocalDate dataNascita;  // nullable
     private LocalDate dataAssunzione;
-    private double prezzoOrario;
     private int idMansione;  // FK
 
     public Dipendente() {}
 
-    public Dipendente(int idDipendente, String codiceFiscale, String nome, String cognome, LocalDate dataNascita, LocalDate dataAssunzione, double prezzoOrario, int idMansione) {
+    public Dipendente(int idDipendente, String codiceFiscale, String nome, String cognome, LocalDate dataNascita, LocalDate dataAssunzione, int idMansione) {
         this.idDipendente = idDipendente;
         this.codiceFiscale = codiceFiscale;
         this.nome = nome;
         this.cognome = cognome;
         this.dataNascita = dataNascita;
         this.dataAssunzione = dataAssunzione;
-        this.prezzoOrario = prezzoOrario;
         this.idMansione = idMansione;
     }
 
@@ -43,9 +41,6 @@ public class Dipendente {
 
     public LocalDate getDataAssunzione() { return dataAssunzione; }
     public void setDataAssunzione(LocalDate dataAssunzione) { this.dataAssunzione = dataAssunzione; }
-
-    public double getPrezzoOrario() { return prezzoOrario; }
-    public void setPrezzoOrario(double prezzoOrario) { this.prezzoOrario = prezzoOrario; }
 
     public int getIdMansione() { return idMansione; }
     public void setIdMansione(int idMansione) { this.idMansione = idMansione; }
