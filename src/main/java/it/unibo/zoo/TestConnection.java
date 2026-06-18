@@ -1,4 +1,4 @@
-package it.unibo.zoo;
+/* package it.unibo.zoo;
 
 import java.sql.Connection;
 import java.time.LocalDate;
@@ -10,40 +10,26 @@ import it.unibo.zoo.model.entity.TipoArea;
 import it.unibo.zoo.model.jdbc.ConnectionFactory;
 import it.unibo.zoo.model.jdbc.entityDao.AnimaleDao;
 import it.unibo.zoo.model.jdbc.entityDao.TipoAreaDao;
+import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
+import it.unibo.zoo.model.jdbc.entityDao.DipendenteDao;
+import it.unibo.zoo.model.jdbc.entityDao.VisitaMedicaDao;
+import it.unibo.zoo.model.entity.Specie;
+import it.unibo.zoo.model.entity.Dipendente;
+import it.unibo.zoo.model.entity.VisitaMedica;
 import java.util.Optional;
 
 public class TestConnection {
     
     public static void testAnimal() {
-        AnimaleDao dao = new AnimaleDao();
-
-        try {
-            Animale animale = new Animale(
-                0,
-                "Simba",
-                'M',
-                true,
-                LocalDate.of(2020, 5, 10),
-                LocalDate.now(),
-                null,
-                1, // id_recinto esistente
-                1  // id_specie esistente
-            );
-
-            Animale inserito = dao.insert(animale);
-            System.out.println("Inserito: " + inserito);
-
-            Optional<Animale> trovato = dao.findById(inserito.getIdAnimale());
-            System.out.println("Trovato: " + trovato.orElse(null));
-
-            List<Animale> perRecinto = dao.findByRecinto(1);
-            System.out.println("Animali nel recinto 1: " + perRecinto.size());
-
-            inserito.setNome("Re Simba");
-            dao.update(inserito);
-
-            // dao.delete(inserito.getIdAnimale());
-
+        System.out.println("Aggiornamento password utenti con BCrypt...");
+        String newPassword = "password123";
+        String hashed = it.unibo.zoo.utils.PasswordHasher.hash(newPassword);
+        
+        try (java.sql.Connection conn = it.unibo.zoo.model.jdbc.ConnectionFactory.getInstance().getConnection();
+             java.sql.PreparedStatement stmt = conn.prepareStatement("UPDATE utente SET password_hash = ?")) {
+            stmt.setString(1, hashed);
+            int updated = stmt.executeUpdate();
+            System.out.println("Aggiornati " + updated + " utenti con la password: " + newPassword);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -75,15 +61,31 @@ public class TestConnection {
         }
     }
 
-    // private static void testConnection(){
-    //     try {
-    //         Connection conn = ConnectionFactory.getInstance().getConnection();
-    //         System.out.println("Connessione OK: " + conn);
-    //         conn.close();
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+    public static void testQueries() {
+        System.out.println("--- ESECUZIONE QUERY DI TEST ---");
+        try {
+            System.out.println("1. Elenco di tutte le Specie:");
+            SpecieDao specieDao = new SpecieDao();
+            List<Specie> specie = specieDao.findAll();
+            specie.forEach(s -> System.out.println("  - " + s.getNomeComune() + " (" + s.getNomeScentifico() + ")"));
+
+            System.out.println("\n2. Elenco dei Dipendenti:");
+            DipendenteDao dipDao = new DipendenteDao();
+            List<Dipendente> dipendenti = dipDao.findAll();
+            dipendenti.forEach(d -> System.out.println("  - " + d.getNome() + " " + d.getCognome() + " (CF: " + d.getCodiceFiscale() + ")"));
+
+            System.out.println("\n3. Elenco delle Visite Mediche in corso:");
+            VisitaMedicaDao visitaDao = new VisitaMedicaDao();
+            List<VisitaMedica> visite = visitaDao.findAll();
+            visite.stream()
+                  .filter(v -> v.getDataFine() == null)
+                  .forEach(v -> System.out.println("  - Visita del " + v.getDataVisita() + " - Diagnosi: " + v.getDiagnosi()));
+
+            System.out.println("--------------------------------");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     
     public static void main(String[] args) {
 
@@ -91,9 +93,8 @@ public class TestConnection {
             Connection conn = ConnectionFactory.getInstance().getConnection();
             System.out.println("Connessione OK: " + conn);
 
-            testTipoArea();
-
             testAnimal();
+            testQueries();
 
             conn.close();
         } catch (Exception e) {
@@ -102,4 +103,4 @@ public class TestConnection {
     }
 
     
-}
+}*/
