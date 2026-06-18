@@ -1,5 +1,6 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.model.SessionManager;
 import it.unibo.zoo.view.AnimaliView;
 import it.unibo.zoo.view.BigliettiView;
 import it.unibo.zoo.view.GestioneView;
@@ -26,14 +27,14 @@ public class NavigationController {
         mainView.getBtnHome().setOnAction(e -> navigaHome());
         mainView.getBtnAnimali().setOnAction(e -> navigaAnimali());
         mainView.getBtnBiglietti().setOnAction(e -> navigaBiglietti());
-        mainView.getBtnGestione().setOnAction(e -> navigaLogin());
+        mainView.getBtnGestione().setOnAction(e -> navigaGestione());
     }
 
     /**
      * Aggiorna la visibilità del pulsante Gestione in base allo stato della sessione.
      */
     private void refreshNavbar() {
-        mainView.setGestioneVisible(true);
+        mainView.setGestioneVisible(SessionManager.getInstance().isLoggato());
     }
 
     /* ── Metodi di navigazione ───────────────────────── */
@@ -43,47 +44,40 @@ public class NavigationController {
         final HomeView homeView = new HomeView();
         homeView.getCardBiglietti().setOnMouseClicked(e -> navigaBiglietti());
         homeView.getCardAnimali().setOnMouseClicked(e -> navigaAnimali());
+        homeView.getCardGestione().setOnMouseClicked(e -> navigaGestione());
         mainView.setCenter(homeView.getRoot());
     }
 
     public void navigaAnimali() {
         refreshNavbar();
         final AnimaliView animaliView = new AnimaliView();
-        try {
-            new AnimaliController(animaliView);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        new AnimaliController(animaliView);
         mainView.setCenter(animaliView.getRoot());
     }
 
     public void navigaBiglietti() {
         refreshNavbar();
         final BigliettiView bigliettiView = new BigliettiView();
-        try {
-            new BigliettiController(bigliettiView);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        new BigliettiController(bigliettiView);
         mainView.setCenter(bigliettiView.getRoot());
     }
 
     public void navigaLogin() {
         refreshNavbar();
         final LoginView loginView = new LoginView();
-        new LoginController(loginView, this::navigaGestione);
+        new LoginController(loginView, this);
         mainView.setCenter(loginView.getRoot());
     }
 
     public void navigaGestione() {
         refreshNavbar();
+        if (!SessionManager.getInstance().isLoggato()) {
+            navigaLogin();
+            return;
+        }
         mainView.setGestioneVisible(true);
         final GestioneView gestioneView = new GestioneView();
-        try {
-            new GestioneController(gestioneView);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        new GestioneController(gestioneView);
         mainView.setCenter(gestioneView.getRoot());
     }
 }

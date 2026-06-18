@@ -1,57 +1,62 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.model.SessionManager;
 import it.unibo.zoo.model.entity.Utente;
-import it.unibo.zoo.model.jdbc.entityDao.UtenteDao;
-import it.unibo.zoo.utils.InputValidator;
-import it.unibo.zoo.utils.PasswordHasher;
 import it.unibo.zoo.view.LoginView;
 
+import java.time.LocalDate;
+
+/**
+ * Controller per la schermata Login.
+ * Verifica credenziali mock e salva l'utente nella sessione.
+ */
 public class LoginController {
 
-    private final UtenteDao utenteDao;
     private final LoginView view;
-    private final Runnable onSuccess;
+    private final NavigationController navController;
 
-    public LoginController(LoginView view, Runnable onSuccess) {
-        this.utenteDao = new UtenteDao();
+    public LoginController(final LoginView view, final NavigationController navController) {
         this.view = view;
-        this.onSuccess = onSuccess;
-        
-        if (this.view != null) {
-            this.view.getBtnAccedi().setOnAction(e -> handleLogin());
-        }
+        this.navController = navController;
+        init();
     }
-    
-    public LoginController() {
-        this(null, null);
+
+    private void init() {
+        view.getBtnAccedi().setOnAction(e -> handleLogin());
+        view.getTxtPassword().setOnAction(e -> handleLogin());
     }
 
     private void handleLogin() {
-        String email = view.getTxtEmail().getText();
-        String password = view.getTxtPassword().getText();
+        view.hideError();
 
-        try {
-            login(email, password);
-            view.hideError();
-            if (onSuccess != null) {
-                onSuccess.run();
-            }
-        } catch (Exception ex) {
-            view.showError(ex.getMessage() != null ? ex.getMessage() : "Credenziali non valide");
+        final String email = view.getTxtEmail().getText();
+        final String password = view.getTxtPassword().getText();
+
+        if (email == null || password == null || email.isBlank() || password.isBlank()) {
+            view.showError("Inserisci email e password.");
+            return;
+        }
+
+        final Utente utente = authenticate(email.trim(), password);
+        if (utente != null) {
+            SessionManager.getInstance().login(utente);
+            navController.navigaGestione();
+        } else {
+            view.showError("Credenziali non valide");
         }
     }
 
-    public Utente login(String email, String password) {
-        InputValidator.notBlank(email, "email");
-        InputValidator.notBlank(password, "password");
-
-        Utente utente = utenteDao.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Utente non trovato"));
-
-        if (!PasswordHasher.verify(password, utente.getPasswordHash())) {
-            throw new IllegalArgumentException("Password non valida");
+    /**
+     * Verifica credenziali mock.
+     * @return l'Utente autenticato, oppure null se le credenziali non corrispondono.
+     */
+    private Utente authenticate(final String email, final String password) {
+        if ("admin@zoo.it".equals(email) && "admin123".equals(password)) {
+            return new Utente(1, email, "hashed", LocalDate.of(2024, 1, 1), 1);
         }
-
-        return utente;
+        if ("cassiere@zoo.it".equals(email) && "cassa123".equals(password)) {
+            return new Utente(2, email, "hashed", LocalDate.of(2024, 6, 1), 3);
+        }
+        return null;
     }
 }

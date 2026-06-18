@@ -1,399 +1,150 @@
-CREATE TABLE STATO_ESISTENZA (
-                                   id_stato INTEGER NOT NULL,
-                                   nome VARCHAR(50) NOT NULL,
-                                   descrizione VARCHAR(250),
-                                   PRIMARY KEY (id_stato)
+CREATE TABLE IF NOT EXISTS Ruoli (
+    id_ruolo    SERIAL PRIMARY KEY,
+    nome        VARCHAR(100) NOT NULL,
+    descrizione VARCHAR(255)
 );
 
-CREATE TABLE HABITAT (
-                           id_habitat INTEGER NOT NULL,
-                           nome VARCHAR(50) NOT NULL,
-                           descrizione VARCHAR(250),
-                           PRIMARY KEY (id_habitat)
+
+CREATE TABLE IF NOT EXISTS Permessi (
+    id_permesso    SERIAL PRIMARY KEY,
+    codice         VARCHAR(100) NOT NULL UNIQUE,
+    descrizione    VARCHAR(255),
+    tabella_target VARCHAR(100)
 );
 
-CREATE TABLE FAMIGLIA_SPECIE (
-                                   id_famiglia_specie INTEGER NOT NULL,
-                                   nome VARCHAR(50) NOT NULL,
-                                   descrizione VARCHAR(250),
-                                   PRIMARY KEY (id_famiglia_specie)
+CREATE TABLE IF NOT EXISTS Ruoli_Permesso (
+    id_ruolo    INT NOT NULL REFERENCES Ruoli(id_ruolo) ON DELETE CASCADE,
+    id_permesso INT NOT NULL REFERENCES Permessi(id_permesso) ON DELETE CASCADE,
+    PRIMARY KEY (id_ruolo, id_permesso)
 );
 
-CREATE TABLE TIPO_AREA (
-                             id_tipo_area INTEGER NOT NULL,
-                             nome VARCHAR(50) NOT NULL,
-                             descrizione VARCHAR(250),
-                             PRIMARY KEY (id_tipo_area)
+CREATE TABLE IF NOT EXISTS Specie (
+    nome_scientifico VARCHAR(150) PRIMARY KEY,
+    stato_esistenza  VARCHAR(100),
+    tipo_animale     VARCHAR(100),
+    nome_comune      VARCHAR(150),
+    habitat          VARCHAR(150)
 );
 
-CREATE TABLE TIPO_RECINTO (
-                                id_tipo_recinto INTEGER NOT NULL,
-                                nome VARCHAR(50) NOT NULL,
-                                descrizione VARCHAR(250),
-                                PRIMARY KEY (id_tipo_recinto)
+CREATE TABLE IF NOT EXISTS Aree (
+    id_area   SERIAL PRIMARY KEY,
+    nome      VARCHAR(150) NOT NULL,
+    metratura INT,
+    tipo      VARCHAR(100)
 );
 
-CREATE TABLE MANSIONE (
-                            id_mansione INTEGER NOT NULL,
-                            nome VARCHAR(50) NOT NULL,
-                            descrizione VARCHAR(250),
-                            PRIMARY KEY (id_mansione)
+
+CREATE TABLE IF NOT EXISTS Recinti (
+    id_recinto   SERIAL PRIMARY KEY,
+    tipo_recinto VARCHAR(100),
+    id_area      INT NOT NULL REFERENCES Aree(id_area) ON DELETE RESTRICT
 );
 
-CREATE TABLE TIPO_CIBO (
-                             id_tipo_cibo INTEGER NOT NULL,
-                             nome VARCHAR(50) NOT NULL,
-                             descrizione VARCHAR(250),
-                             PRIMARY KEY (id_tipo_cibo)
+CREATE TABLE IF NOT EXISTS Animali (
+    id_animale       SERIAL PRIMARY KEY,
+    nome             VARCHAR(150),
+    vivo             BOOLEAN NOT NULL DEFAULT TRUE,
+    data_nascita     DATE,
+    data_arrivo      DATE,
+    nome_scientifico VARCHAR(150) REFERENCES Specie(nome_scientifico) ON DELETE SET NULL,
+    id_recinto       INT          REFERENCES Recinti(id_recinto) ON DELETE SET NULL
 );
 
-CREATE TABLE TIPO_FORNITURA (
-                                  id_tipo_fornitura INTEGER NOT NULL,
-                                  nome VARCHAR(50) NOT NULL,
-                                  descrizione VARCHAR(250),
-                                  PRIMARY KEY (id_tipo_fornitura)
+CREATE TABLE IF NOT EXISTS Diete (
+    id_dieta         SERIAL PRIMARY KEY,
+    nome_scientifico VARCHAR(150) REFERENCES Specie(nome_scientifico) ON DELETE CASCADE,
+    tipo_cibo        VARCHAR(150),
+    quantita         DOUBLE PRECISION
 );
 
-CREATE TABLE TIPO_BIGLIETTO (
-                                  id_biglietto INTEGER NOT NULL,
-                                  nome VARCHAR(50) NOT NULL,
-                                  descrizione VARCHAR(250),
-                                  prezzo NUMERIC(10,2) NOT NULL,
-                                  attivo BOOLEAN NOT NULL DEFAULT true,
-                                  CONSTRAINT chk_biglietto_prezzo CHECK (prezzo >= 0),
-                                  PRIMARY KEY (id_biglietto)
+CREATE TABLE IF NOT EXISTS Dipendenti (
+    codice_fiscale  VARCHAR(16)  PRIMARY KEY,
+    nome            VARCHAR(100) NOT NULL,
+    cognome         VARCHAR(100) NOT NULL,
+    anno_nascita    DATE,
+    ruolo           INT          REFERENCES Ruoli(id_ruolo) ON DELETE SET NULL,
+    data_assunzione DATE,
+    prezzo_orario   DOUBLE PRECISION
 );
 
-CREATE TABLE CATEGORIA_TRANSAZIONE (
-                                         id_categoria INTEGER NOT NULL,
-                                         nome VARCHAR(50) NOT NULL,
-                                         descrizione VARCHAR(250),
-                                         tipo CHAR(1) NOT NULL,
-                                         CONSTRAINT chk_categoria_tipo CHECK (tipo IN ('E', 'U')),
-                                         PRIMARY KEY (id_categoria)
+CREATE TABLE IF NOT EXISTS Utenti (
+    id_utente          SERIAL PRIMARY KEY,
+    email              VARCHAR(255) NOT NULL UNIQUE,
+    password           VARCHAR(255) NOT NULL,
+    data_registrazione DATE         NOT NULL DEFAULT CURRENT_DATE,
+    id_ruolo           INT          REFERENCES Ruoli(id_ruolo) ON DELETE SET NULL,
+    codice_fiscale     VARCHAR(16)  REFERENCES Dipendenti(codice_fiscale) ON DELETE SET NULL
 );
 
-CREATE TABLE SPECIE (
-                          id_specie INTEGER NOT NULL,
-                          nome_scientifico VARCHAR(50) NOT NULL,
-                          nome_comune VARCHAR(50) NOT NULL,
-                          id_stato INTEGER NOT NULL,
-                          id_habitat INTEGER NOT NULL,
-                          id_famiglia_specie INTEGER NOT NULL,
-                          PRIMARY KEY (id_specie)
+CREATE TABLE IF NOT EXISTS Categorie (
+    id_categoria      SERIAL PRIMARY KEY,
+    nome              VARCHAR(150) NOT NULL,
+    descrizione       VARCHAR(255),
+    tipo_entrata_uscita BOOLEAN NOT NULL
 );
 
-CREATE TABLE DIETA (
-                         id_specie INTEGER NOT NULL,
-                         id_tipo_cibo INTEGER NOT NULL,
-                         quantita_kg_giorno NUMERIC(10,2) NOT NULL,
-                         CONSTRAINT chk_dieta_quantita CHECK (quantita_kg_giorno > 0),
-                         PRIMARY KEY (id_specie, id_tipo_cibo)
+CREATE TABLE IF NOT EXISTS Entrate (
+    id_entrata       SERIAL PRIMARY KEY,
+    categoria_entrata INT             REFERENCES Categorie(id_categoria) ON DELETE SET NULL,
+    data_entrata     DATE             NOT NULL DEFAULT CURRENT_DATE,
+    importo          DOUBLE PRECISION NOT NULL,
+    descrizione      VARCHAR(255),
+    id_utente        INT              REFERENCES Utenti(id_utente) ON DELETE SET NULL
 );
 
-CREATE TABLE AREA (
-                        id_area INTEGER NOT NULL,
-                        nome VARCHAR(50) NOT NULL,
-                        metratura NUMERIC(10) NOT NULL,
-                        id_tipo_area INTEGER NOT NULL,
-                        CONSTRAINT chk_area_metratura CHECK (metratura > 0),
-                        PRIMARY KEY (id_area)
+CREATE TABLE IF NOT EXISTS Uscite (
+    id_uscite        SERIAL PRIMARY KEY,
+    categoria_uscite INT             REFERENCES Categorie(id_categoria) ON DELETE SET NULL,
+    data_uscite      DATE            NOT NULL DEFAULT CURRENT_DATE,
+    importo          DOUBLE PRECISION NOT NULL,
+    descrizione      VARCHAR(255),
+    id_utente        INT             REFERENCES Utenti(id_utente) ON DELETE SET NULL
 );
 
-CREATE TABLE RECINTO (
-                           id_recinto SERIAL,
-                           capienza_massima NUMERIC(10) NOT NULL,
-                           id_tipo_recinto INTEGER NOT NULL,
-                           id_area INTEGER NOT NULL,
-                           CONSTRAINT chk_capienza CHECK (capienza_massima > 0),
-                           PRIMARY KEY (id_recinto)
+CREATE TABLE IF NOT EXISTS Tipo_Biglietti (
+    id_biglietto SERIAL PRIMARY KEY,
+    nome         VARCHAR(150) NOT NULL,
+    descrizione  VARCHAR(255),
+    prezzo       DOUBLE PRECISION NOT NULL,
+    attivo       BOOLEAN NOT NULL DEFAULT TRUE
 );
 
-CREATE TABLE ANIMALE (
-                           id_animale INTEGER NOT NULL,
-                           nome VARCHAR(50) NOT NULL,
-                           sesso CHAR(1) NOT NULL,
-                           vivo BOOLEAN NOT NULL DEFAULT true,
-                           data_nascita DATE,
-                           data_arrivo DATE,
-                           data_uscita DATE,
-                           id_specie INTEGER NOT NULL,
-                           CONSTRAINT chk_sesso CHECK (sesso IN ('M', 'F', 'I')),
-                           CONSTRAINT chk_date_animale CHECK ((data_arrivo IS NULL OR data_nascita IS NULL OR data_arrivo >= data_nascita)
-                               AND
-                                                                (data_uscita IS NULL OR data_arrivo  IS NULL OR data_uscita >= data_arrivo)),
-                           PRIMARY KEY (id_animale)
+CREATE TABLE IF NOT EXISTS Scontrini (
+    id_scontrino  SERIAL PRIMARY KEY,
+    data_acquisto DATE             NOT NULL DEFAULT CURRENT_DATE,
+    prezzo_totale DOUBLE PRECISION NOT NULL,
+    nome_gruppo   VARCHAR(150),
+    num_persone   INT
 );
 
-CREATE TABLE STORICO_COLLOCAZIONE (
-                                        id_storico INTEGER NOT NULL,
-                                        id_animale INTEGER NOT NULL,
-                                        id_recinto INTEGER NOT NULL,
-                                        data_inizio DATE NOT NULL,
-                                        data_fine DATE,
-                                        CONSTRAINT chk_coll_date CHECK (data_fine IS NULL OR data_fine >= data_inizio),
-                                        PRIMARY KEY (id_storico)
+CREATE TABLE IF NOT EXISTS Dettaglio_scontrini (
+    id_dettaglio              SERIAL PRIMARY KEY,
+    id_biglietto              INT             REFERENCES Tipo_Biglietti(id_biglietto) ON DELETE RESTRICT,
+    scontrino                 INT             REFERENCES Scontrini(id_scontrino) ON DELETE CASCADE,
+    quantita                  INT             NOT NULL DEFAULT 1,
+    prezzo_pagato_biglietto   DOUBLE PRECISION NOT NULL
 );
 
-CREATE TABLE DIPENDENTE (
-                              id_dipendente INTEGER NOT NULL,
-                              codice_fiscale VARCHAR(16) NOT NULL,
-                              nome VARCHAR(50) NOT NULL,
-                              cognome VARCHAR(50) NOT NULL,
-                              data_nascita DATE,
-                              data_assunzione DATE NOT NULL,
-                              id_mansione INTEGER NOT NULL,
-                              CONSTRAINT chk_cf_length CHECK (LENGTH(codice_fiscale) = 16),
-                              PRIMARY KEY (id_dipendente)
+CREATE TABLE IF NOT EXISTS Visite_Mediche (
+    id_trattamento   SERIAL PRIMARY KEY,
+    peso             DOUBLE PRECISION,
+    diagnosi         VARCHAR(255),
+    note_trattamento TEXT,
+    data_visita      DATE NOT NULL,
+    data_fine        DATE,
+    id_animale       INT         REFERENCES Animali(id_animale) ON DELETE SET NULL,
+    id_veterinario   VARCHAR(16) REFERENCES Dipendenti(codice_fiscale) ON DELETE SET NULL
 );
 
-CREATE TABLE STORICO_STIPENDIO (
-                                     id_storico INTEGER NOT NULL,
-                                     id_dipendente INTEGER NOT NULL,
-                                     prezzo_orario NUMERIC(10,2) NOT NULL,
-                                     data_inizio DATE NOT NULL,
-                                     data_fine DATE,
-                                     CONSTRAINT chk_stipendio_prezzo CHECK (prezzo_orario > 0),
-                                     CONSTRAINT chk_stipendio_date CHECK (data_fine IS NULL OR data_fine >= data_inizio),
-                                     PRIMARY KEY (id_storico)
+CREATE TABLE IF NOT EXISTS Turni (
+    id_lavoro      SERIAL PRIMARY KEY,
+    ora_inizio     TIMESTAMP NOT NULL,
+    ora_fine       TIMESTAMP NOT NULL,
+    codice_fiscale VARCHAR(16) REFERENCES Dipendenti(codice_fiscale) ON DELETE SET NULL,
+    posto          INT         REFERENCES Aree(id_area) ON DELETE SET NULL
 );
 
-CREATE TABLE TURNO (
-                         id_turno INTEGER NOT NULL,
-                         ora_inizio TIMESTAMP NOT NULL,
-                         ora_fine TIMESTAMP NOT NULL,
-                         id_dipendente INTEGER NOT NULL,
-                         id_area INTEGER NOT NULL,
-                         CONSTRAINT chk_turno_orario CHECK (ora_fine > ora_inizio),
-                         PRIMARY KEY (id_turno)
+CREATE TABLE IF NOT EXISTS Spese (
+    id_acquisto SERIAL PRIMARY KEY,
+    id_utente   INT REFERENCES Utenti(id_utente) ON DELETE SET NULL
 );
-
-CREATE TABLE VISITA_MEDICA (
-                                 id_visita INTEGER NOT NULL,
-                                 peso NUMERIC(10,2),
-                                 diagnosi VARCHAR(250),
-                                 note_trattamento VARCHAR(250),
-                                 data_visita DATE NOT NULL,
-                                 data_fine DATE,
-                                 id_animale INTEGER NOT NULL,
-                                 id_veterinario INTEGER NOT NULL,
-                                 CONSTRAINT chk_visita_peso CHECK (peso IS NULL OR peso > 0),
-                                 CONSTRAINT chk_visita_date CHECK (data_fine IS NULL OR data_fine >= data_visita),
-                                 PRIMARY KEY (id_visita)
-);
-
-CREATE TABLE UTENTE (
-                          id_utente INTEGER NOT NULL,
-                          email VARCHAR(100) NOT NULL,
-                          password_hash VARCHAR(512) NOT NULL,
-                          data_registrazione DATE NOT NULL,
-                          id_dipendente INTEGER NOT NULL,
-                          ruolo VARCHAR(20) NOT NULL DEFAULT 'operatore',
-                          CONSTRAINT chk_utente_ruolo CHECK (ruolo IN ('admin', 'cassiere', 'operatore')),
-                          PRIMARY KEY (id_utente)
-);
-
-CREATE TABLE FORNITORE (
-                             id_fornitore INTEGER NOT NULL,
-                             nome_azienda VARCHAR(50) NOT NULL,
-                             descrizione VARCHAR(250),
-                             indirizzo VARCHAR(100),
-                             iban VARCHAR(34),
-                             id_tipo_fornitura INTEGER NOT NULL,
-                             CONSTRAINT chk_iban CHECK (iban IS NULL OR (
-                                 LENGTH(iban) BETWEEN 15 AND 34
-                                     AND iban ~ '^[A-Z]{2}[0-9]{2}[A-Z0-9]+$'
-                                 )),
-                             PRIMARY KEY (id_fornitore)
-);
-
-CREATE TABLE FORNITORE_CIBO (
-                                  id_fornitore INTEGER NOT NULL,
-                                  id_tipo_cibo INTEGER NOT NULL,
-                                  PRIMARY KEY (id_fornitore, id_tipo_cibo)
-);
-
-CREATE TABLE ORDINE_GIORNALIERO (
-                                      id_ordine INTEGER NOT NULL,
-                                      data_ordine DATE NOT NULL,
-                                      id_fornitore INTEGER NOT NULL,
-                                      id_tipo_cibo INTEGER NOT NULL,
-                                      quantita_kg NUMERIC(10,2) NOT NULL,
-                                      id_transazione INTEGER,
-                                      CONSTRAINT chk_ordine_quantita CHECK (quantita_kg > 0),
-                                      PRIMARY KEY (id_ordine)
-);
-
-CREATE TABLE SCONTRINO (
-                             id_scontrino INTEGER NOT NULL,
-                             data_acquisto DATE NOT NULL,
-                             nome_gruppo VARCHAR(50),
-                             num_persone INTEGER,
-                             id_utente INTEGER NOT NULL,
-                             CONSTRAINT chk_num_persone CHECK (num_persone IS NULL OR num_persone > 0),
-                             CONSTRAINT chk_gruppo_coerente CHECK ((nome_gruppo IS NULL AND num_persone IS NULL)
-                                 OR
-                                                                     (nome_gruppo IS NOT NULL AND num_persone IS NOT NULL)),
-                             PRIMARY KEY (id_scontrino)
-);
-
-CREATE TABLE DETTAGLIO_SCONTRINO (
-                                       id_dettaglio INTEGER NOT NULL,
-                                       quantita INTEGER NOT NULL,
-                                       prezzo_pagato_biglietto NUMERIC(10,2) NOT NULL,
-                                       id_biglietto INTEGER NOT NULL,
-                                       id_scontrino INTEGER NOT NULL,
-                                       CONSTRAINT chk_det_quantita CHECK (quantita > 0),
-                                       CONSTRAINT chk_det_prezzo CHECK (prezzo_pagato_biglietto >= 0),
-                                       PRIMARY KEY (id_dettaglio)
-);
-
-CREATE TABLE TRANSAZIONE (
-                               id_transazione INTEGER NOT NULL,
-                               tipo CHAR(1) NOT NULL,
-                               importo NUMERIC(10,2) NOT NULL,
-                               data DATE NOT NULL,
-                               descrizione VARCHAR(250),
-                               id_categoria INTEGER NOT NULL,
-                               id_utente INTEGER NOT NULL,
-                               id_fornitore INTEGER,
-                               id_scontrino INTEGER,
-                               CONSTRAINT chk_transazione_tipo CHECK (tipo IN ('E', 'U')),
-                               CONSTRAINT chk_transazione_importo CHECK (importo > 0),
-                               CONSTRAINT chk_transazione_coerente CHECK ((tipo = 'E' AND id_scontrino IS NOT NULL AND id_fornitore IS NULL)
-                                   OR
-                                                                            (tipo = 'U' AND id_fornitore IS NOT NULL AND id_scontrino IS NULL)),
-                               PRIMARY KEY (id_transazione)
-);
-
-CREATE UNIQUE INDEX UQ_DIPENDENTE_CF ON DIPENDENTE (codice_fiscale);
-
-CREATE UNIQUE INDEX UQ_UTENTE_EMAIL ON UTENTE (email);
-
-CREATE UNIQUE INDEX UQ_UTENTE_DIP ON UTENTE (id_dipendente);
-
-COMMENT ON TABLE STATO_ESISTENZA IS 'Stato di conservazione della specie (es. estinto, vulnerabile, in pericolo)';
-
-COMMENT ON COLUMN STATO_ESISTENZA.nome IS 'Nome dello stato (es. LC, VU, EN, CR, EW, EX)';
-
-COMMENT ON TABLE HABITAT IS 'Habitat naturale di una specie (es. foresta tropicale, savana, artico)';
-
-COMMENT ON TABLE FAMIGLIA_SPECIE IS 'Famiglia tassonomica della specie (es. Felidae, Canidae)';
-
-COMMENT ON TABLE TIPO_AREA IS 'Tipologia di area dello zoo (es. zoo, veterinaria, amministrativa)';
-
-COMMENT ON TABLE TIPO_RECINTO IS 'Tipologia strutturale del recinto (es. gabbia, vasca, voliera)';
-
-COMMENT ON TABLE MANSIONE IS 'Ruolo lavorativo del dipendente (es. veterinario, guardiano, amministratore)';
-
-COMMENT ON TABLE TIPO_CIBO IS 'Categoria alimentare usata nelle diete (es. carne, pesce, vegetali)';
-
-COMMENT ON TABLE TIPO_FORNITURA IS 'Categoria merceologica del fornitore (es. alimentari, farmaceutici, manutenzione)';
-
-COMMENT ON COLUMN TIPO_BIGLIETTO.attivo IS 'TRUE = biglietto in vendita, FALSE = ritirato dal catalogo';
-
-COMMENT ON COLUMN CATEGORIA_TRANSAZIONE.tipo IS 'E = entrata (incasso), U = uscita (spesa)';
-
-COMMENT ON COLUMN RECINTO.id_recinto IS 'Identificativo incrementale del recinto, generato automaticamente';
-
-COMMENT ON COLUMN ANIMALE.sesso IS 'M = maschio, F = femmina, I = indeterminato';
-
-COMMENT ON COLUMN ANIMALE.vivo IS 'TRUE = animale in carico allo zoo, FALSE = uscito (decesso, cessione, trasferimento)';
-
-COMMENT ON COLUMN ANIMALE.data_uscita IS 'Data di uscita dallo zoo (cessione, decesso, trasferimento)';
-
-COMMENT ON TABLE STORICO_COLLOCAZIONE IS 'Storico delle collocazioni di ogni animale nei recinti nel tempo';
-
-COMMENT ON COLUMN STORICO_COLLOCAZIONE.data_fine IS 'NULL = collocazione attualmente attiva';
-
-COMMENT ON COLUMN DIPENDENTE.codice_fiscale IS 'Codice fiscale italiano, sempre 16 caratteri';
-
-COMMENT ON COLUMN STORICO_STIPENDIO.data_fine IS 'NULL = tariffa oraria attualmente in vigore';
-
-COMMENT ON COLUMN VISITA_MEDICA.data_fine IS 'NULL = trattamento ancora in corso';
-
-COMMENT ON COLUMN VISITA_MEDICA.id_veterinario IS 'FK verso DIPENDENTE — deve essere un dipendente con mansione veterinario (verificato da trigger)';
-
-COMMENT ON TABLE UTENTE IS 'Account di accesso al gestionale — solo per dipendenti autorizzati';
-
-COMMENT ON COLUMN UTENTE.id_dipendente IS 'Ogni dipendente può avere al massimo un account (vincolo UNIQUE)';
-
-COMMENT ON COLUMN UTENTE.ruolo IS 'Ruolo applicativo nel gestionale, indipendente dalla mansione operativa. admin = accesso completo, cassiere = biglietteria e incassi, operatore = consultazione';
-
-COMMENT ON COLUMN FORNITORE.iban IS 'IBAN internazionale: 2 lettere paese + 2 cifre controllo + BBAN, lunghezza 15-34';
-
-COMMENT ON TABLE FORNITORE_CIBO IS 'Associazione fornitore-tipo di cibo: indica quali tipi di cibo ogni fornitore può fornire';
-
-COMMENT ON TABLE ORDINE_GIORNALIERO IS 'Ordini giornalieri di cibo calcolati in base alle diete degli animali presenti';
-
-COMMENT ON COLUMN ORDINE_GIORNALIERO.id_transazione IS 'NULL = ordine generato ma non ancora pagato';
-
-COMMENT ON COLUMN SCONTRINO.nome_gruppo IS 'Nome del gruppo scolastico o comitiva — NULL per acquisti individuali';
-
-COMMENT ON COLUMN SCONTRINO.num_persone IS 'Numero totale di persone del gruppo — NULL per acquisti individuali';
-
-COMMENT ON COLUMN DETTAGLIO_SCONTRINO.prezzo_pagato_biglietto IS 'Prezzo storicizzato al momento dell acquisto, indipendente dal listino attuale';
-
-COMMENT ON COLUMN TRANSAZIONE.tipo IS 'E = entrata (incasso biglietteria), U = uscita (pagamento fornitore)';
-
-ALTER TABLE SPECIE ADD CONSTRAINT FKconservazione FOREIGN KEY (id_stato) REFERENCES STATO_ESISTENZA (id_stato) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE SPECIE ADD CONSTRAINT FKprovenienza FOREIGN KEY (id_habitat) REFERENCES HABITAT (id_habitat) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE SPECIE ADD CONSTRAINT FKcategoria FOREIGN KEY (id_famiglia_specie) REFERENCES FAMIGLIA_SPECIE (id_famiglia_specie) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE DIETA ADD CONSTRAINT FKdieta_specie FOREIGN KEY (id_specie) REFERENCES SPECIE (id_specie) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE DIETA ADD CONSTRAINT FKdieta_tipocibo FOREIGN KEY (id_tipo_cibo) REFERENCES TIPO_CIBO (id_tipo_cibo) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE AREA ADD CONSTRAINT FKcaratterizzazione FOREIGN KEY (id_tipo_area) REFERENCES TIPO_AREA (id_tipo_area) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE RECINTO ADD CONSTRAINT FKtipologia FOREIGN KEY (id_tipo_recinto) REFERENCES TIPO_RECINTO (id_tipo_recinto) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE RECINTO ADD CONSTRAINT FKubicazione FOREIGN KEY (id_area) REFERENCES AREA (id_area) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE ANIMALE ADD CONSTRAINT FKappartenenza FOREIGN KEY (id_specie) REFERENCES SPECIE (id_specie) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE STORICO_COLLOCAZIONE ADD CONSTRAINT FKcoll_animale FOREIGN KEY (id_animale) REFERENCES ANIMALE (id_animale) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE STORICO_COLLOCAZIONE ADD CONSTRAINT FKcoll_recinto FOREIGN KEY (id_recinto) REFERENCES RECINTO (id_recinto) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE DIPENDENTE ADD CONSTRAINT FKruolo FOREIGN KEY (id_mansione) REFERENCES MANSIONE (id_mansione) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE STORICO_STIPENDIO ADD CONSTRAINT FKretribuzione FOREIGN KEY (id_dipendente) REFERENCES DIPENDENTE (id_dipendente) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE TURNO ADD CONSTRAINT FKturno_dipendente FOREIGN KEY (id_dipendente) REFERENCES DIPENDENTE (id_dipendente) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE TURNO ADD CONSTRAINT FKturno_area FOREIGN KEY (id_area) REFERENCES AREA (id_area) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE VISITA_MEDICA ADD CONSTRAINT FKreferto FOREIGN KEY (id_animale) REFERENCES ANIMALE (id_animale) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE VISITA_MEDICA ADD CONSTRAINT FKvisita FOREIGN KEY (id_veterinario) REFERENCES DIPENDENTE (id_dipendente) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE UTENTE ADD CONSTRAINT FKaccesso FOREIGN KEY (id_dipendente) REFERENCES DIPENDENTE (id_dipendente) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE FORNITORE ADD CONSTRAINT FKspecializzazione FOREIGN KEY (id_tipo_fornitura) REFERENCES TIPO_FORNITURA (id_tipo_fornitura) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE FORNITORE_CIBO ADD CONSTRAINT FKfc_fornitore FOREIGN KEY (id_fornitore) REFERENCES FORNITORE (id_fornitore) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE FORNITORE_CIBO ADD CONSTRAINT FKfc_cibo FOREIGN KEY (id_tipo_cibo) REFERENCES TIPO_CIBO (id_tipo_cibo) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE ORDINE_GIORNALIERO ADD CONSTRAINT FKordine_fornitore FOREIGN KEY (id_fornitore) REFERENCES FORNITORE (id_fornitore) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE ORDINE_GIORNALIERO ADD CONSTRAINT FKordine_cibo FOREIGN KEY (id_tipo_cibo) REFERENCES TIPO_CIBO (id_tipo_cibo) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE ORDINE_GIORNALIERO ADD CONSTRAINT FKordine_transazione FOREIGN KEY (id_transazione) REFERENCES TRANSAZIONE (id_transazione) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE SCONTRINO ADD CONSTRAINT FKgenerazione FOREIGN KEY (id_utente) REFERENCES UTENTE (id_utente) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE DETTAGLIO_SCONTRINO ADD CONSTRAINT FKtariffa FOREIGN KEY (id_biglietto) REFERENCES TIPO_BIGLIETTO (id_biglietto) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE DETTAGLIO_SCONTRINO ADD CONSTRAINT FKcomposizione FOREIGN KEY (id_scontrino) REFERENCES SCONTRINO (id_scontrino) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE TRANSAZIONE ADD CONSTRAINT FKimputazione FOREIGN KEY (id_categoria) REFERENCES CATEGORIA_TRANSAZIONE (id_categoria) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE TRANSAZIONE ADD CONSTRAINT FKcreazione FOREIGN KEY (id_utente) REFERENCES UTENTE (id_utente) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE TRANSAZIONE ADD CONSTRAINT FKfornitura FOREIGN KEY (id_fornitore) REFERENCES FORNITORE (id_fornitore) DEFERRABLE INITIALLY IMMEDIATE;
-
-ALTER TABLE TRANSAZIONE ADD CONSTRAINT FKincasso FOREIGN KEY (id_scontrino) REFERENCES SCONTRINO (id_scontrino) DEFERRABLE INITIALLY IMMEDIATE;

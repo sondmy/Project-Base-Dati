@@ -1,30 +1,31 @@
 package it.unibo.zoo.model.entity;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 public class Scontrino {
 
     private int idScontrino;
-    private LocalDate dataAcquisto;
-    private String nomeGruppo;  // nullable
-    private Integer numPersone;  // nullable
-    private int idUtente;  // FK
+    private LocalDateTime dataOra;
+    private String nomeGruppo;      // nullable
+    private Integer numPersone;     // nullable
+    private double totale;
 
     public Scontrino() {}
 
-    public Scontrino(int idScontrino, LocalDate dataAcquisto, String nomeGruppo, Integer numPersone, int idUtente) {
+    public Scontrino(int idScontrino, LocalDateTime dataOra, String nomeGruppo,
+                     Integer numPersone, double totale) {
         this.idScontrino = idScontrino;
-        this.dataAcquisto = dataAcquisto;
+        this.dataOra = dataOra;
         this.nomeGruppo = nomeGruppo;
         this.numPersone = numPersone;
-        this.idUtente = idUtente;
+        this.totale = totale;
     }
 
     public int getIdScontrino() { return idScontrino; }
     public void setIdScontrino(int idScontrino) { this.idScontrino = idScontrino; }
 
-    public LocalDate getDataAcquisto() { return dataAcquisto; }
-    public void setDataAcquisto(LocalDate dataAcquisto) { this.dataAcquisto = dataAcquisto; }
+    public LocalDateTime getDataOra() { return dataOra; }
+    public void setDataOra(LocalDateTime dataOra) { this.dataOra = dataOra; }
 
     public String getNomeGruppo() { return nomeGruppo; }
     public void setNomeGruppo(String nomeGruppo) { this.nomeGruppo = nomeGruppo; }
@@ -32,11 +33,11 @@ public class Scontrino {
     public Integer getNumPersone() { return numPersone; }
     public void setNumPersone(Integer numPersone) { this.numPersone = numPersone; }
 
-    public int getIdUtente() { return idUtente; }
-    public void setIdUtente(int idUtente) { this.idUtente = idUtente; }
+    public double getTotale() { return totale; }
+    public void setTotale(double totale) { this.totale = totale; }
 
     @Override
     public String toString() {
-        return "Scontrino{idScontrino=" + idScontrino + ", dataAcquisto=" + dataAcquisto + "}";
+        return "Scontrino{idScontrino=" + idScontrino + ", totale=" + totale + "}";
     }
 }
