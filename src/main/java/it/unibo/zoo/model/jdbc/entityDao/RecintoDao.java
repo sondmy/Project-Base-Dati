@@ -20,12 +20,12 @@ public class RecintoDao extends AbstractCrudDao<Recinto> {
 
     @Override
     protected String insertSql() {
-        return "INSERT INTO recinto (capienza_massima, id_area, id_tipo_recinto) VALUES (?, ?, ?)";
+        return "INSERT INTO recinto (nome, capienza_massima, id_area, id_tipo_recinto) VALUES (?, ?, ?, ?)";
     }
 
     @Override
     protected String updateSql() {
-        return "UPDATE recinto SET capienza_massima = ?, id_area = ?, id_tipo_recinto = ? WHERE id_recinto = ?";
+        return "UPDATE recinto SET nome = ?, capienza_massima = ?, id_area = ?, id_tipo_recinto = ? WHERE id_recinto = ?";
     }
 
     @Override
@@ -42,6 +42,7 @@ public class RecintoDao extends AbstractCrudDao<Recinto> {
     protected Recinto mapRow(ResultSet resultSet) throws SQLException {
         return new Recinto(
                 resultSet.getInt("id_recinto"),
+                resultSet.getString("nome"),
                 resultSet.getInt("capienza_massima"),
                 resultSet.getInt("id_area"),
                 resultSet.getInt("id_tipo_recinto")
@@ -51,6 +52,7 @@ public class RecintoDao extends AbstractCrudDao<Recinto> {
     @Override
     protected void bindInsert(PreparedStatement statement, Recinto entity) throws SQLException {
         int index = 1;
+        statement.setString(index++, entity.getNome());
         statement.setInt(index++, entity.getCapienzaMassima());
         statement.setInt(index++, entity.getIdArea());
         statement.setInt(index++, entity.getIdTipoRecinto());
@@ -59,6 +61,7 @@ public class RecintoDao extends AbstractCrudDao<Recinto> {
     @Override
     protected void bindUpdate(PreparedStatement statement, Recinto entity) throws SQLException {
         int index = 1;
+        statement.setString(index++, entity.getNome());
         statement.setInt(index++, entity.getCapienzaMassima());
         statement.setInt(index++, entity.getIdArea());
         statement.setInt(index++, entity.getIdTipoRecinto());

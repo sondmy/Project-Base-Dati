@@ -226,15 +226,17 @@ public class GestioneView {
 
     public static class RecintoRow {
         private final String idRecinto;
+        private final String nome;
         private final String area;
         private final String capienza;
         private final String tipo;
 
-        public RecintoRow(final String idRecinto, final String area, final String capienza, final String tipo) {
-            this.idRecinto = idRecinto; this.area = area; this.capienza = capienza; this.tipo = tipo;
+        public RecintoRow(final String idRecinto, final String nome, final String area, final String capienza, final String tipo) {
+            this.idRecinto = idRecinto; this.nome = nome; this.area = area; this.capienza = capienza; this.tipo = tipo;
         }
 
         public String getIdRecinto() { return idRecinto; }
+        public String getNome() { return nome; }
         public String getArea() { return area; }
         public String getCapienza() { return capienza; }
         public String getTipo() { return tipo; }
@@ -361,6 +363,7 @@ public class GestioneView {
     private final TableView<RecintoRow> tableRecinti;
     private final Button btnNuovoRecinto;
     private final VBox panelNuovoRecinto;
+    private final TextField txtRecintoNome;
     private final ComboBox<String> comboRecintoArea;
     private final ComboBox<String> comboRecintoTipo;
     private final Spinner<Integer> spinnerRecintoCapienza;
@@ -987,6 +990,9 @@ public class GestioneView {
         colRecId.setCellValueFactory(new PropertyValueFactory<>("idRecinto"));
         colRecId.setMaxWidth(50);
 
+        final TableColumn<RecintoRow, String> colRecNome = new TableColumn<>("Nome");
+        colRecNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+
         final TableColumn<RecintoRow, String> colRecArea = new TableColumn<>("Area");
         colRecArea.setCellValueFactory(new PropertyValueFactory<>("area"));
 
@@ -996,7 +1002,7 @@ public class GestioneView {
         final TableColumn<RecintoRow, String> colRecCapienza = new TableColumn<>("Capienza Massima");
         colRecCapienza.setCellValueFactory(new PropertyValueFactory<>("capienza"));
 
-        tableRecinti.getColumns().addAll(colRecId, colRecArea, colRecTipo, colRecCapienza);
+        tableRecinti.getColumns().addAll(colRecId, colRecNome, colRecArea, colRecTipo, colRecCapienza);
 
         btnNuovoRecinto = new Button("Aggiungi Recinto");
         btnNuovoRecinto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
@@ -1007,6 +1013,7 @@ public class GestioneView {
         panelNuovoRecinto.setVisible(false);
         panelNuovoRecinto.setManaged(false);
 
+        txtRecintoNome = new TextField(); txtRecintoNome.setPromptText("Nome del recinto...");
         comboRecintoArea = new ComboBox<>(); comboRecintoArea.setPromptText("Seleziona Area...");
         comboRecintoTipo = new ComboBox<>(); comboRecintoTipo.setPromptText("Seleziona Tipo Recinto...");
         spinnerRecintoCapienza = new Spinner<>(1, 1000, 10); spinnerRecintoCapienza.setEditable(true);
@@ -1015,13 +1022,18 @@ public class GestioneView {
         btnSalvaRecinto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
         lblRecintoMsg = new Label(); lblRecintoMsg.setVisible(false);
 
+        final HBox nomeRecintoRow = new HBox(12, new Label("Nome Recinto:"), txtRecintoNome);
+        nomeRecintoRow.setAlignment(Pos.CENTER_LEFT);
+        for (javafx.scene.Node n : nomeRecintoRow.getChildren()) {
+            if (n instanceof Label) n.setStyle(StyleHelper.STYLE_LABEL);
+        }
         final HBox capienzaRow = new HBox(12, new Label("Capienza Massima:"), spinnerRecintoCapienza);
         capienzaRow.setAlignment(Pos.CENTER_LEFT);
         for (javafx.scene.Node n : capienzaRow.getChildren()) {
             if (n instanceof Label) n.setStyle(StyleHelper.STYLE_LABEL);
         }
 
-        panelNuovoRecinto.getChildren().addAll(new Label("Nuovo Recinto"), comboRecintoArea, comboRecintoTipo, capienzaRow, btnSalvaRecinto, lblRecintoMsg);
+        panelNuovoRecinto.getChildren().addAll(new Label("Nuovo Recinto"), nomeRecintoRow, comboRecintoArea, comboRecintoTipo, capienzaRow, btnSalvaRecinto, lblRecintoMsg);
 
         lblTopRecintoAnimali = new Label("Recinto con più animali: -");
         lblTopRecintoAnimali.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.PRIMARY + ";");
@@ -1233,6 +1245,7 @@ public class GestioneView {
     public void setRecinti(final List<RecintoRow> rows) { tableRecinti.setItems(FXCollections.observableArrayList(rows)); }
     public Button getBtnNuovoRecinto() { return btnNuovoRecinto; }
     public VBox getPanelNuovoRecinto() { return panelNuovoRecinto; }
+    public TextField getTxtRecintoNome() { return txtRecintoNome; }
     public ComboBox<String> getComboRecintoArea() { return comboRecintoArea; }
     public ComboBox<String> getComboRecintoTipo() { return comboRecintoTipo; }
     public Spinner<Integer> getSpinnerRecintoCapienza() { return spinnerRecintoCapienza; }
