@@ -114,15 +114,20 @@ public class GestioneView {
 
     public static class TurnoRow {
         private final String idTurno;
+        private final String idDipendente;
+        private final String idArea;
         private final String dipendente;
         private final String mansione;
         private final String area;
         private final String oraInizio;
         private final String oraFine;
 
-        public TurnoRow(final String idTurno, final String dipendente, final String mansione, final String area,
+        public TurnoRow(final String idTurno, final String idDipendente, final String idArea, 
+                        final String dipendente, final String mansione, final String area,
                         final String oraInizio, final String oraFine) {
             this.idTurno = idTurno;
+            this.idDipendente = idDipendente;
+            this.idArea = idArea;
             this.dipendente = dipendente;
             this.mansione = mansione;
             this.area = area;
@@ -131,6 +136,8 @@ public class GestioneView {
         }
 
         public String getIdTurno() { return idTurno; }
+        public String getIdDipendente() { return idDipendente; }
+        public String getIdArea() { return idArea; }
 
         public String getDipendente() { return dipendente; }
         public String getMansione() { return mansione; }

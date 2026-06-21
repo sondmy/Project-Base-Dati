@@ -138,7 +138,20 @@ public class GestioneController {
             view.getBtnEliminaTurno().setDisable(newSel == null);
             if (newSel != null && newSel.getIdTurno() != null) {
                 editingTurnoId = Integer.parseInt(newSel.getIdTurno());
-                // The Turno combo boxes selection logic would go here
+                
+                view.getComboTurnoDip().getItems().stream()
+                    .filter(i -> i.startsWith(newSel.getIdDipendente() + " -"))
+                    .findFirst()
+                    .ifPresent(view.getComboTurnoDip()::setValue);
+                
+                view.getComboTurnoArea().getItems().stream()
+                    .filter(i -> i.startsWith(newSel.getIdArea() + " -"))
+                    .findFirst()
+                    .ifPresent(view.getComboTurnoArea()::setValue);
+                    
+                view.getComboTurnoOraInizio().setValue(newSel.getOraInizio());
+                view.getComboTurnoOraFine().setValue(newSel.getOraFine());
+                
                 panelTurnoVisible = true;
                 view.setPanelNuovoTurnoVisible(true);
             }
@@ -155,9 +168,16 @@ public class GestioneController {
         view.getTablePersonale().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             if (newSel != null && newSel.getIdDipendente() != null) {
                 editingDipendenteId = Integer.parseInt(newSel.getIdDipendente());
+                view.getTxtDipCf().setText(newSel.getCodiceFiscale());
                 view.getTxtDipNome().setText(newSel.getNome());
                 view.getTxtDipCognome().setText(newSel.getCognome());
                 view.getDateDipNascita().setValue(LocalDate.parse(newSel.getDataNascita(), DATE_FMT));
+                
+                view.getComboDipMansione().getItems().stream()
+                    .filter(i -> i.equals(newSel.getMansione()))
+                    .findFirst()
+                    .ifPresent(view.getComboDipMansione()::setValue);
+                    
                 panelDipendenteVisible = true;
                 view.setPanelNuovoDipendenteVisible(true);
             }
@@ -522,6 +542,8 @@ public class GestioneController {
 
             rows.add(new GestioneView.TurnoRow(
                     String.valueOf(t.getIdTurno()),
+                    String.valueOf(t.getIdDipendente()),
+                    String.valueOf(t.getIdArea()),
                     nomeDip, mansione, nomeArea,
                     t.getOraInizio().format(TIME_FMT),
                     t.getOraFine().format(TIME_FMT)
