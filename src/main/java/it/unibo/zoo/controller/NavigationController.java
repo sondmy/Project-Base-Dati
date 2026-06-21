@@ -89,10 +89,11 @@ public class NavigationController {
         mainView.setCenter(loginView.getRoot());
     }
 
-    public void navigaGestione() {
+    public void navigaGestione(it.unibo.zoo.model.entity.Utente utente) {
         refreshNavbar();
         mainView.setGestioneVisible(true);
         final GestioneView gestioneView = new GestioneView();
+        gestioneView.filterTabsByRuolo(utente.getRuolo());
         try {
             new GestioneController(gestioneView);
         } catch (Exception ex) {

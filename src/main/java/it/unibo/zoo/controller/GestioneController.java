@@ -27,6 +27,9 @@ public class GestioneController {
     private boolean panelAreaVisible;
     private boolean panelRecintoVisible;
     private Integer editingAnimaleId = null;
+    private Integer editingVisitaId = null;
+    private Integer editingDipendenteId = null;
+    private Integer editingTurnoId = null;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
@@ -57,28 +60,95 @@ public class GestioneController {
         // Toggle pannello nuova visita
         view.getBtnNuovaVisita().setOnAction(e -> {
             panelVisitaVisible = !panelVisitaVisible;
+            if (!panelVisitaVisible) editingVisitaId = null;
             view.setPanelNuovaVisitaVisible(panelVisitaVisible);
         });
-        view.getBtnSalvaVisita().setOnAction(e -> VisiteController.handleSalvaVisita(view));
+        view.getTableVisite().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null && newSel.getIdVisita() != null) {
+                editingVisitaId = Integer.parseInt(newSel.getIdVisita());
+                view.getTxtDiagnosi().setText(newSel.getDiagnosi());
+                view.getTxtVisitaPeso().setText(newSel.getPeso().equals("—") ? "" : newSel.getPeso());
+                view.getTxtVisitaNote().setText(newSel.getNote().equals("—") ? "" : newSel.getNote());
+                view.getDateVisita().setValue(LocalDate.parse(newSel.getDataVisita(), DATE_FMT));
+                if (!newSel.getDataFine().equals("—")) {
+                    view.getDateVisitaFine().setValue(LocalDate.parse(newSel.getDataFine(), DATE_FMT));
+                } else {
+                    view.getDateVisitaFine().setValue(null);
+                }
+                
+                view.getComboVisitaAnimale().getItems().stream()
+                    .filter(i -> i.startsWith(newSel.getIdAnimale() + " -"))
+                    .findFirst()
+                    .ifPresent(view.getComboVisitaAnimale()::setValue);
+                    
+                view.getComboVisitaVet().getItems().stream()
+                    .filter(i -> i.startsWith(newSel.getIdVet() + " -"))
+                    .findFirst()
+                    .ifPresent(view.getComboVisitaVet()::setValue);
+                    
+                panelVisitaVisible = true;
+                view.setPanelNuovaVisitaVisible(true);
+            }
+        });
+        view.getBtnSalvaVisita().setOnAction(e -> handleSalvaVisita());
 
         // Toggle pannello nuovo turno
         view.getBtnNuovoTurno().setOnAction(e -> {
             panelTurnoVisible = !panelTurnoVisible;
+            if (!panelTurnoVisible) editingTurnoId = null;
             view.setPanelNuovoTurnoVisible(panelTurnoVisible);
         });
         view.getBtnSalvaTurno().setOnAction(e -> TurnoController.handleSalvaTurno(view));
 
         view.getTableTurni().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             view.getBtnEliminaTurno().setDisable(newSel == null);
+            if (newSel != null && newSel.getIdTurno() != null) {
+                editingTurnoId = Integer.parseInt(newSel.getIdTurno());
+                
+                view.getComboTurnoDip().getItems().stream()
+                    .filter(i -> i.startsWith(newSel.getIdDipendente() + " -"))
+                    .findFirst()
+                    .ifPresent(view.getComboTurnoDip()::setValue);
+                
+                view.getComboTurnoArea().getItems().stream()
+                    .filter(i -> i.startsWith(newSel.getIdArea() + " -"))
+                    .findFirst()
+                    .ifPresent(view.getComboTurnoArea()::setValue);
+                    
+                view.getComboTurnoOraInizio().setValue(newSel.getOraInizio());
+                view.getComboTurnoOraFine().setValue(newSel.getOraFine());
+                
+                panelTurnoVisible = true;
+                view.setPanelNuovoTurnoVisible(true);
+            }
         });
-        view.getBtnEliminaTurno().setOnAction(e -> TurnoController.handleEliminaTurno(view));
+        view.getBtnSalvaTurno().setOnAction(e -> handleSalvaTurno());
+        view.getBtnEliminaTurno().setOnAction(e -> handleEliminaTurno());
 
         // Toggle pannello nuovo dipendente
         view.getBtnNuovoDipendente().setOnAction(e -> {
             panelDipendenteVisible = !panelDipendenteVisible;
+            if (!panelDipendenteVisible) editingDipendenteId = null;
             view.setPanelNuovoDipendenteVisible(panelDipendenteVisible);
         });
-        view.getBtnSalvaDipendente().setOnAction(e -> DipendenteController.handleSalvaDipendente(view));
+        view.getTablePersonale().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null && newSel.getIdDipendente() != null) {
+                editingDipendenteId = Integer.parseInt(newSel.getIdDipendente());
+                view.getTxtDipCf().setText(newSel.getCodiceFiscale());
+                view.getTxtDipNome().setText(newSel.getNome());
+                view.getTxtDipCognome().setText(newSel.getCognome());
+                view.getDateDipNascita().setValue(LocalDate.parse(newSel.getDataNascita(), DATE_FMT));
+                
+                view.getComboDipMansione().getItems().stream()
+                    .filter(i -> i.equals(newSel.getMansione()))
+                    .findFirst()
+                    .ifPresent(view.getComboDipMansione()::setValue);
+                    
+                panelDipendenteVisible = true;
+                view.setPanelNuovoDipendenteVisible(true);
+            }
+        });
+        view.getBtnSalvaDipendente().setOnAction(e -> handleSalvaDipendente());
 
         // Calcola ricavo totale
         view.getBtnCalcolaRicavo().setOnAction(e -> {
