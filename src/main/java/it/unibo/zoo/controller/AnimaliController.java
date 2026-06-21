@@ -140,7 +140,6 @@ public class AnimaliController {
             view.getComboAnimaleSpecie().getItems().add(s.getIdSpecie() + " - " + s.getNomeComune());
         }
     }
-
     public static void handleSalvaAnimale(final GestioneView view, final Integer editingAnimaleId) {
         try {
             String nome = view.getTxtAnimaleNome().getText();

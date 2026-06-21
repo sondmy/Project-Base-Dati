@@ -55,6 +55,8 @@ public class TurnoController {
 
             rows.add(new GestioneView.TurnoRow(
                     String.valueOf(t.getIdTurno()),
+                    String.valueOf(t.getIdDipendente()),
+                    String.valueOf(t.getIdArea()),
                     nomeDip, mansione, nomeArea,
                     t.getOraInizio().format(TIME_FMT),
                     t.getOraFine().format(TIME_FMT)

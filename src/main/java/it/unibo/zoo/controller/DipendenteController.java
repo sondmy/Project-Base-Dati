@@ -27,6 +27,7 @@ public class DipendenteController {
         for (final Dipendente d : dipendenti) {
             final Mansione m = mansMap.get(d.getIdMansione());
             rows.add(new GestioneView.DipendenteRow(
+                    String.valueOf(d.getIdDipendente()),
                     d.getCodiceFiscale(),
                     d.getNome(),
                     d.getCognome(),

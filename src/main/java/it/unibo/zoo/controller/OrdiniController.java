@@ -36,8 +36,7 @@ public class OrdiniController {
                     o.getDataOrdine().format(DATE_FMT),
                     f != null ? f.getNomeAzienda() : "—",
                     c != null ? c.getNome() : "—",
-                    String.format("%.1f", o.getQuantitaKg()),
-                    o.getIdTransazione() != null ? "Pagato" : "Da pagare"
+                    String.format("%.1f", o.getQuantitaKg())
             ));
         }
         view.setOrdini(rows);

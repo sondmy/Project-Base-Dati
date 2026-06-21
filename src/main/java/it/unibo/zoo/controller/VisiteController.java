@@ -9,10 +9,12 @@ import java.util.stream.Collectors;
 
 import it.unibo.zoo.model.entity.Animale;
 import it.unibo.zoo.model.entity.Dipendente;
+import it.unibo.zoo.model.entity.Mansione;
 import it.unibo.zoo.model.entity.Specie;
 import it.unibo.zoo.model.entity.VisitaMedica;
 import it.unibo.zoo.model.jdbc.entityDao.AnimaleDao;
 import it.unibo.zoo.model.jdbc.entityDao.DipendenteDao;
+import it.unibo.zoo.model.jdbc.entityDao.MansioneDao;
 import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
 import it.unibo.zoo.model.jdbc.entityDao.VisitaMedicaDao;
 import it.unibo.zoo.view.GestioneView;
@@ -43,12 +45,19 @@ public class VisiteController {
             }
             final Dipendente vet = dipMap.get(v.getIdDipendente());
             final String nomeVet = vet != null ? vet.getNome() + " " + vet.getCognome() : "—";
-            final String stato = v.getDataFine() == null ? "In corso" : "Concluso";
+            final String dataFineStr = v.getDataFine() == null ? "—" : v.getDataFine().format(DATE_FMT);
+            final String pesoStr = v.getPeso() != null ? String.format("%.2f", v.getPeso()) : "—";
+            final String noteStr = v.getNoteTrattamento() != null && !v.getNoteTrattamento().isEmpty() ? v.getNoteTrattamento() : "—";
 
             rows.add(new GestioneView.VisitaRow(
+                    String.valueOf(v.getIdVisita()),
+                    String.valueOf(v.getIdAnimale()),
+                    String.valueOf(v.getIdDipendente()),
                     nomeAnimale, nomeSpecie, v.getDiagnosi(),
+                    pesoStr, noteStr,
                     v.getDataVisita().format(DATE_FMT),
-                    nomeVet, stato
+                    dataFineStr,
+                    nomeVet
             ));
         }
         view.setVisite(rows);
@@ -58,8 +67,13 @@ public class VisiteController {
             view.getComboVisitaAnimale().getItems().add(a.getIdAnimale() + " - " + a.getNome());
         }
         view.getComboVisitaVet().getItems().clear();
-        for(Dipendente d : new DipendenteDao().findAll()) { // Here we just take any dipendente for now
-            view.getComboVisitaVet().getItems().add(d.getIdDipendente() + " - " + d.getNome() + " " + d.getCognome());
+        Map<Integer, Mansione> mansioniMap = new MansioneDao().findAll().stream()
+                .collect(Collectors.toMap(Mansione::getIdMansione, m -> m));
+        for(Dipendente d : new DipendenteDao().findAll()) {
+            Mansione m = mansioniMap.get(d.getIdMansione());
+            if (m != null && "Veterinario".equalsIgnoreCase(m.getNome())) {
+                view.getComboVisitaVet().getItems().add(d.getIdDipendente() + " - " + d.getNome() + " " + d.getCognome());
+            }
         }
     }
 
