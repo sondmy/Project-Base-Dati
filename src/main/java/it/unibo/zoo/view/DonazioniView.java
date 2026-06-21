@@ -1,7 +1,9 @@
 package it.unibo.zoo.view;
 
+import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 
 /**
@@ -10,69 +12,64 @@ import javafx.scene.layout.VBox;
 public class DonazioniView {
     
     private final VBox root;
-    private final Button btnNuovaDonazione;
+    private final TextField txtImporto;
+    private final TextField txtDescrizione;
     private final Button btnSalvaDonazione;
     private final Label lblDonazioneMsg;
+    private final VBox panelNuovaDonazione;
     
     public DonazioniView() {
-        root = new VBox();
-        // Bottone aggiungi spesa
-        btnNuovaSpesa = new Button("Aggiungi Spesa");
-        btnNuovaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
-        btnNuovaSpesa.setOnMouseEntered(e -> btnNuovaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY_HOVER));
-        btnNuovaSpesa.setOnMouseExited(e -> btnNuovaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY));
+        root = new VBox(16);
+        root.setPadding(new Insets(32));
+        root.setStyle(StyleHelper.STYLE_APP_BG);
 
-        // Pannello nuova spesa
-        panelNuovaSpesa = new VBox(12);
-        panelNuovaSpesa.setStyle(StyleHelper.STYLE_CARD);
-        panelNuovaSpesa.setPadding(new Insets(16));
-        panelNuovaSpesa.setVisible(false);
-        panelNuovaSpesa.setManaged(false);
+        final Label title = new Label("Donazioni anonime");
+        title.setStyle(StyleHelper.STYLE_TITLE);
 
-        final Label lblNewSpesa = new Label("Nuova Spesa");
-        lblNewSpesa.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: "
-                + StyleHelper.TEXT_MAIN + ";");
+        panelNuovaDonazione = new VBox(12);
+        panelNuovaDonazione.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovaDonazione.setPadding(new Insets(16));
+        panelNuovaDonazione.setVisible(true);
+        panelNuovaDonazione.setManaged(true);
 
-        final Label lblSpesaImporto = new Label("Importo (€):");
-        lblSpesaImporto.setStyle(StyleHelper.STYLE_LABEL);
-        txtSpesaImporto = new TextField();
-        txtSpesaImporto.setPromptText("Es. 49.90");
-        txtSpesaImporto.setMaxWidth(200);
+        final Label lblImporto = new Label("Importo (\u20AC):");
+        lblImporto.setStyle(StyleHelper.STYLE_LABEL);
+        txtImporto = new TextField();
+        txtImporto.setPromptText("Es. 50.00");
+        txtImporto.setMaxWidth(200);
 
-        final Label lblSpesaDesc = new Label("Descrizione:");
-        lblSpesaDesc.setStyle(StyleHelper.STYLE_LABEL);
-        txtSpesaDescrizione = new TextField();
-        txtSpesaDescrizione.setPromptText("Descrizione della spesa...");
-        txtSpesaDescrizione.setMaxWidth(Double.MAX_VALUE);
+        final Label lblDescrizione = new Label("Descrizione:");
+        lblDescrizione.setStyle(StyleHelper.STYLE_LABEL);
+        txtDescrizione = new TextField();
+        txtDescrizione.setPromptText("se vuoi lasciarci un messaggio");
+        txtDescrizione.setMaxWidth(Double.MAX_VALUE);
 
-        final Label lblSpesaForn = new Label("Fornitore:");
-        lblSpesaForn.setStyle(StyleHelper.STYLE_LABEL);
-        comboSpesaFornitore = new ComboBox<>();
-        comboSpesaFornitore.setPromptText("Seleziona fornitore...");
-        comboSpesaFornitore.setMaxWidth(Double.MAX_VALUE);
+        btnSalvaDonazione = new Button("Salva donazione");
+        btnSalvaDonazione.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
 
-        final Label lblInfoData = new Label("\u2139 La data verrà assegnata automaticamente alla data odierna.");
-        lblInfoData.setStyle("-fx-font-size: 12px; -fx-text-fill: " + StyleHelper.TEXT_MUTED + "; -fx-font-style: italic;");
+        lblDonazioneMsg = new Label();
+        lblDonazioneMsg.setVisible(false);
 
-        btnSalvaSpesa = new Button("Salva");
-        btnSalvaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
-        btnSalvaSpesa.setOnMouseEntered(e -> btnSalvaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY_HOVER));
-        btnSalvaSpesa.setOnMouseExited(e -> btnSalvaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY));
+        panelNuovaDonazione.getChildren().addAll(
+            lblImporto,
+            txtImporto,
+            lblDescrizione,
+            txtDescrizione,
+            btnSalvaDonazione,
+            lblDonazioneMsg
+        );
 
-        lblSpesaMsg = new Label();
-        lblSpesaMsg.setVisible(false);
-
-        panelNuovaSpesa.getChildren().addAll(lblNewSpesa, lblSpesaImporto, txtSpesaImporto, lblSpesaDesc, txtSpesaDescrizione, lblSpesaForn, comboSpesaFornitore, lblInfoData, btnSalvaSpesa, lblSpesaMsg);
-
-        donazioniContent.getChildren().addAll(lblElencoDonazioni, tableDonazioni, btnNuovaDonazione, panelNuovaDonazione);
-
-        final ScrollPane donazioniScroll = new ScrollPane(donazioniContent);
-        donazioniScroll.setFitToWidth(true);
-        donazioniScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        tabDonazioni.setContent(donazioniScroll);
+        root.getChildren().addAll(title, panelNuovaDonazione);
     }
     
-    public VBox getRoot() {
-        return root;
+    public VBox getRoot() { return root; }
+    public TextField getTxtImporto() { return txtImporto; }
+    public TextField getTxtDescrizione() { return txtDescrizione; }
+    public Button getBtnSalvaDonazione() { return btnSalvaDonazione; }
+    
+    public void showMessage(String msg, boolean success) {
+        lblDonazioneMsg.setText(msg);
+        lblDonazioneMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblDonazioneMsg.setVisible(true);
     }
 }

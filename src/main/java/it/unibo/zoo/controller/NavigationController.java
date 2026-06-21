@@ -2,6 +2,7 @@ package it.unibo.zoo.controller;
 
 import it.unibo.zoo.view.AnimaliView;
 import it.unibo.zoo.view.BigliettiView;
+import it.unibo.zoo.view.DonazioniView;
 import it.unibo.zoo.view.GestioneView;
 import it.unibo.zoo.view.HomeView;
 import it.unibo.zoo.view.LoginView;
@@ -26,6 +27,7 @@ public class NavigationController {
         mainView.getBtnHome().setOnAction(e -> navigaHome());
         mainView.getBtnAnimali().setOnAction(e -> navigaAnimali());
         mainView.getBtnBiglietti().setOnAction(e -> navigaBiglietti());
+        mainView.getBtnDonazioni().setOnAction(e -> navigaDonazioni());
         mainView.getBtnGestione().setOnAction(e -> navigaLogin());
     }
 
@@ -43,6 +45,7 @@ public class NavigationController {
         final HomeView homeView = new HomeView();
         homeView.getCardBiglietti().setOnMouseClicked(e -> navigaBiglietti());
         homeView.getCardAnimali().setOnMouseClicked(e -> navigaAnimali());
+        homeView.getCardDonazioni().setOnMouseClicked(e -> navigaDonazioni());
         mainView.setCenter(homeView.getRoot());
     }
 
@@ -66,6 +69,17 @@ public class NavigationController {
             ex.printStackTrace();
         }
         mainView.setCenter(bigliettiView.getRoot());
+    }
+
+    public void navigaDonazioni() {
+        refreshNavbar();
+        final DonazioniView donazioniView = new DonazioniView();
+        try {
+            new it.unibo.zoo.controller.DonazioniController(donazioniView);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        mainView.setCenter(donazioniView.getRoot());
     }
 
     public void navigaLogin() {

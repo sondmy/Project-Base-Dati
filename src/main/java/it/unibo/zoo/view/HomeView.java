@@ -20,6 +20,7 @@ public class HomeView {
     private final VBox root;
     private final VBox cardBiglietti;
     private final VBox cardAnimali;
+    private final VBox cardDonazioni;
 
     public HomeView() {
         root = new VBox(24);
@@ -56,8 +57,12 @@ public class HomeView {
                 "\uD83D\uDC3E Scopri gli Animali",
                 "Esplora l'elenco degli animali del nostro zoo e le loro specie."
         );
+        cardDonazioni = createCard(
+                "\uD83D\uDCB0 Donazioni",
+                "Fai una donazione per supportare i nostri animali."
+        );
 
-        final HBox cardsBox = new HBox(20, cardBiglietti, cardAnimali);
+        final HBox cardsBox = new HBox(20, cardBiglietti, cardAnimali, cardDonazioni);
         cardsBox.setAlignment(Pos.CENTER);
 
         root.getChildren().addAll(title, cardsBox);
@@ -69,6 +74,7 @@ public class HomeView {
 
     public VBox getCardBiglietti() { return cardBiglietti; }
     public VBox getCardAnimali()   { return cardAnimali; }
+    public VBox getCardDonazioni() { return cardDonazioni; }
 
     /* ── Utility ─────────────────────────────────────────── */
 

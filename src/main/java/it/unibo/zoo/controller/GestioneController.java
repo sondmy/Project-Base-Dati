@@ -53,6 +53,7 @@ public class GestioneController {
     private boolean panelDipendenteVisible;
     private boolean panelAnimaleVisible;
     private boolean panelAreaVisible;
+    private boolean panelRecintoVisible;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
@@ -63,6 +64,7 @@ public class GestioneController {
         this.panelDipendenteVisible = false;
         this.panelAnimaleVisible = false;
         this.panelAreaVisible = false;
+        this.panelRecintoVisible = false;
         init();
     }
 
@@ -75,6 +77,7 @@ public class GestioneController {
         populateSpese();
         populateAnimali();
         populateAree();
+        populateRecinti();
 
         // Toggle pannello nuovo ordine
         view.getBtnNuovoOrdine().setOnAction(e -> {
@@ -131,6 +134,13 @@ public class GestioneController {
             view.setPanelNuovaAreaVisible(panelAreaVisible);
         });
         view.getBtnSalvaArea().setOnAction(e -> handleSalvaArea());
+
+        // Toggle pannello nuovo recinto
+        view.getBtnNuovoRecinto().setOnAction(e -> {
+            panelRecintoVisible = !panelRecintoVisible;
+            view.setPanelNuovoRecintoVisible(panelRecintoVisible);
+        });
+        view.getBtnSalvaRecinto().setOnAction(e -> handleSalvaRecinto());
     }
 
     /* ═══ TAB 1 — Saldo ══════════════════════════════════ */
@@ -666,6 +676,63 @@ public class GestioneController {
             populateAree();
         } catch(Exception e) {
             view.showAreaMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+
+    /* ═══ TAB 9 - Recinti ═════════════════════════════ */
+    private void populateRecinti() {
+        final List<it.unibo.zoo.model.entity.Recinto> recinti = new it.unibo.zoo.model.jdbc.entityDao.RecintoDao().findAll();
+        final java.util.Map<Integer, it.unibo.zoo.model.entity.Area> areaMap = new AreaDao().findAll().stream()
+                .collect(Collectors.toMap(it.unibo.zoo.model.entity.Area::getIdArea, a -> a));
+        final java.util.Map<Integer, it.unibo.zoo.model.entity.TipoRecinto> tipoRecintoMap = new it.unibo.zoo.model.jdbc.entityDao.TipoRecintoDao().findAll().stream()
+                .collect(Collectors.toMap(it.unibo.zoo.model.entity.TipoRecinto::getIdTipoRecinto, t -> t));
+
+        final List<GestioneView.RecintoRow> rows = new ArrayList<>();
+        for (final it.unibo.zoo.model.entity.Recinto r : recinti) {
+            final it.unibo.zoo.model.entity.Area a = areaMap.get(r.getIdArea());
+            final it.unibo.zoo.model.entity.TipoRecinto t = tipoRecintoMap.get(r.getIdTipoRecinto());
+            rows.add(new GestioneView.RecintoRow(
+                    String.valueOf(r.getIdRecinto()),
+                    a != null ? a.getNome() : "-",
+                    String.valueOf(r.getCapienzaMassima()),
+                    t != null ? t.getNome() : "-"
+            ));
+        }
+        view.setRecinti(rows);
+
+        view.getComboRecintoArea().getItems().clear();
+        for (final it.unibo.zoo.model.entity.Area a : new AreaDao().findAll()) {
+            view.getComboRecintoArea().getItems().add(a.getIdArea() + " - " + a.getNome());
+        }
+
+        view.getComboRecintoTipo().getItems().clear();
+        for (final it.unibo.zoo.model.entity.TipoRecinto t : new it.unibo.zoo.model.jdbc.entityDao.TipoRecintoDao().findAll()) {
+            view.getComboRecintoTipo().getItems().add(t.getIdTipoRecinto() + " - " + t.getNome());
+        }
+    }
+
+    private void handleSalvaRecinto() {
+        try {
+            String areaStr = view.getComboRecintoArea().getValue();
+            String tipoStr = view.getComboRecintoTipo().getValue();
+            Integer capienza = view.getSpinnerRecintoCapienza().getValue();
+            
+            if(areaStr == null || tipoStr == null || capienza == null) {
+                view.showRecintoMsg("Tutti i campi sono obbligatori.", false);
+                return;
+            }
+            
+            int idArea = Integer.parseInt(areaStr.split(" - ")[0]);
+            int idTipoRecinto = Integer.parseInt(tipoStr.split(" - ")[0]);
+            
+            it.unibo.zoo.model.entity.Recinto r = new it.unibo.zoo.model.entity.Recinto(0, capienza, idArea, idTipoRecinto);
+            new it.unibo.zoo.model.jdbc.entityDao.RecintoDao().insert(r);
+            
+            view.showRecintoMsg("Recinto aggiunto con successo!", true);
+            view.setPanelNuovoRecintoVisible(false);
+            populateRecinti();
+        } catch(Exception e) {
+            view.showRecintoMsg("Errore: " + e.getMessage(), false);
         }
     }
 
