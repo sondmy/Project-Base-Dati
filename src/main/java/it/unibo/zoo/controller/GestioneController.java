@@ -55,6 +55,9 @@ public class GestioneController {
     private boolean panelAreaVisible;
     private boolean panelRecintoVisible;
     private Integer editingAnimaleId = null;
+    private Integer editingVisitaId = null;
+    private Integer editingDipendenteId = null;
+    private Integer editingTurnoId = null;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
@@ -93,26 +96,71 @@ public class GestioneController {
         // Toggle pannello nuova visita
         view.getBtnNuovaVisita().setOnAction(e -> {
             panelVisitaVisible = !panelVisitaVisible;
+            if (!panelVisitaVisible) editingVisitaId = null;
             view.setPanelNuovaVisitaVisible(panelVisitaVisible);
+        });
+        view.getTableVisite().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null && newSel.getIdVisita() != null) {
+                editingVisitaId = Integer.parseInt(newSel.getIdVisita());
+                view.getTxtDiagnosi().setText(newSel.getDiagnosi());
+                view.getTxtVisitaPeso().setText(newSel.getPeso().equals("—") ? "" : newSel.getPeso());
+                view.getTxtVisitaNote().setText(newSel.getNote().equals("—") ? "" : newSel.getNote());
+                view.getDateVisita().setValue(LocalDate.parse(newSel.getDataVisita(), DATE_FMT));
+                if (!newSel.getDataFine().equals("—")) {
+                    view.getDateVisitaFine().setValue(LocalDate.parse(newSel.getDataFine(), DATE_FMT));
+                } else {
+                    view.getDateVisitaFine().setValue(null);
+                }
+                
+                view.getComboVisitaAnimale().getItems().stream()
+                    .filter(i -> i.startsWith(newSel.getIdAnimale() + " -"))
+                    .findFirst()
+                    .ifPresent(view.getComboVisitaAnimale()::setValue);
+                    
+                view.getComboVisitaVet().getItems().stream()
+                    .filter(i -> i.startsWith(newSel.getIdVet() + " -"))
+                    .findFirst()
+                    .ifPresent(view.getComboVisitaVet()::setValue);
+                    
+                panelVisitaVisible = true;
+                view.setPanelNuovaVisitaVisible(true);
+            }
         });
         view.getBtnSalvaVisita().setOnAction(e -> handleSalvaVisita());
 
         // Toggle pannello nuovo turno
         view.getBtnNuovoTurno().setOnAction(e -> {
             panelTurnoVisible = !panelTurnoVisible;
+            if (!panelTurnoVisible) editingTurnoId = null;
             view.setPanelNuovoTurnoVisible(panelTurnoVisible);
         });
-        view.getBtnSalvaTurno().setOnAction(e -> handleSalvaTurno());
-
         view.getTableTurni().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             view.getBtnEliminaTurno().setDisable(newSel == null);
+            if (newSel != null && newSel.getIdTurno() != null) {
+                editingTurnoId = Integer.parseInt(newSel.getIdTurno());
+                // The Turno combo boxes selection logic would go here
+                panelTurnoVisible = true;
+                view.setPanelNuovoTurnoVisible(true);
+            }
         });
+        view.getBtnSalvaTurno().setOnAction(e -> handleSalvaTurno());
         view.getBtnEliminaTurno().setOnAction(e -> handleEliminaTurno());
 
         // Toggle pannello nuovo dipendente
         view.getBtnNuovoDipendente().setOnAction(e -> {
             panelDipendenteVisible = !panelDipendenteVisible;
+            if (!panelDipendenteVisible) editingDipendenteId = null;
             view.setPanelNuovoDipendenteVisible(panelDipendenteVisible);
+        });
+        view.getTablePersonale().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null && newSel.getIdDipendente() != null) {
+                editingDipendenteId = Integer.parseInt(newSel.getIdDipendente());
+                view.getTxtDipNome().setText(newSel.getNome());
+                view.getTxtDipCognome().setText(newSel.getCognome());
+                view.getDateDipNascita().setValue(LocalDate.parse(newSel.getDataNascita(), DATE_FMT));
+                panelDipendenteVisible = true;
+                view.setPanelNuovoDipendenteVisible(true);
+            }
         });
         view.getBtnSalvaDipendente().setOnAction(e -> handleSalvaDipendente());
 
@@ -328,8 +376,7 @@ public class GestioneController {
                     o.getDataOrdine().format(DATE_FMT),
                     f != null ? f.getNomeAzienda() : "—",
                     c != null ? c.getNome() : "—",
-                    String.format("%.1f", o.getQuantitaKg()),
-                    o.getIdTransazione() != null ? "Pagato" : "Da pagare"
+                    String.format("%.1f", o.getQuantitaKg())
             ));
         }
         view.setOrdini(rows);
@@ -410,12 +457,19 @@ public class GestioneController {
             }
             final Dipendente vet = dipMap.get(v.getIdDipendente());
             final String nomeVet = vet != null ? vet.getNome() + " " + vet.getCognome() : "—";
-            final String stato = v.getDataFine() == null ? "In corso" : "Concluso";
+            final String dataFineStr = v.getDataFine() == null ? "—" : v.getDataFine().format(DATE_FMT);
+            final String pesoStr = v.getPeso() != null ? String.format("%.2f", v.getPeso()) : "—";
+            final String noteStr = v.getNoteTrattamento() != null && !v.getNoteTrattamento().isEmpty() ? v.getNoteTrattamento() : "—";
 
             rows.add(new GestioneView.VisitaRow(
+                    String.valueOf(v.getIdVisita()),
+                    String.valueOf(v.getIdAnimale()),
+                    String.valueOf(v.getIdDipendente()),
                     nomeAnimale, nomeSpecie, v.getDiagnosi(),
+                    pesoStr, noteStr,
                     v.getDataVisita().format(DATE_FMT),
-                    nomeVet, stato
+                    dataFineStr,
+                    nomeVet
             ));
         }
         view.setVisite(rows);
@@ -425,8 +479,13 @@ public class GestioneController {
             view.getComboVisitaAnimale().getItems().add(a.getIdAnimale() + " - " + a.getNome());
         }
         view.getComboVisitaVet().getItems().clear();
-        for(Dipendente d : new DipendenteDao().findAll()) { // Here we just take any dipendente for now
-            view.getComboVisitaVet().getItems().add(d.getIdDipendente() + " - " + d.getNome() + " " + d.getCognome());
+        Map<Integer, Mansione> mansioniMap = new MansioneDao().findAll().stream()
+                .collect(Collectors.toMap(Mansione::getIdMansione, m -> m));
+        for(Dipendente d : new DipendenteDao().findAll()) {
+            Mansione m = mansioniMap.get(d.getIdMansione());
+            if (m != null && "Veterinario".equalsIgnoreCase(m.getNome())) {
+                view.getComboVisitaVet().getItems().add(d.getIdDipendente() + " - " + d.getNome() + " " + d.getCognome());
+            }
         }
     }
 
@@ -505,9 +564,8 @@ public class GestioneController {
         for (final Dipendente d : dipendenti) {
             final Mansione m = mansMap.get(d.getIdMansione());
             rows.add(new GestioneView.DipendenteRow(
-                    d.getCodiceFiscale(),
-                    d.getNome(),
-                    d.getCognome(),
+                    String.valueOf(d.getIdDipendente()),
+                    d.getCodiceFiscale(), d.getNome(), d.getCognome(),
                     d.getDataNascita() != null ? d.getDataNascita().format(DATE_FMT) : "—",
                     m != null ? m.getNome() : "—"
             ));
@@ -541,12 +599,27 @@ public class GestioneController {
                 }
             }
             
-            Dipendente d = new Dipendente(0, cf, nome, cognome, dataNascita, LocalDate.now(), idMans);
-            new DipendenteDao().insert(d);
+            if (editingDipendenteId != null) {
+                DipendenteDao dao = new DipendenteDao();
+                Dipendente d = dao.findAll().stream().filter(x -> x.getIdDipendente() == editingDipendenteId).findFirst().orElse(null);
+                if (d != null) {
+                    d.setCodiceFiscale(cf);
+                    d.setNome(nome);
+                    d.setCognome(cognome);
+                    d.setDataNascita(dataNascita);
+                    d.setIdMansione(idMans);
+                    dao.update(d);
+                    view.showDipendenteMsg("Dipendente modificato con successo!", true);
+                }
+            } else {
+                Dipendente d = new Dipendente(0, cf, nome, cognome, dataNascita, LocalDate.now(), idMans);
+                new DipendenteDao().insert(d);
+                view.showDipendenteMsg("Dipendente assunto con successo!", true);
+            }
             
-            view.showDipendenteMsg("Dipendente assunto con successo!", true);
             view.setPanelNuovoDipendenteVisible(false);
             populatePersonale();
+            editingDipendenteId = null;
         } catch(Exception e) {
             view.showDipendenteMsg("Errore: " + e.getMessage(), false);
         }
@@ -557,22 +630,48 @@ public class GestioneController {
             String animale = view.getComboVisitaAnimale().getValue();
             String vet = view.getComboVisitaVet().getValue();
             String diagnosi = view.getTxtDiagnosi().getText();
+            String pesoStr = view.getTxtVisitaPeso().getText();
+            String note = view.getTxtVisitaNote().getText();
             LocalDate data = view.getDateVisita().getValue();
+            LocalDate dataFine = view.getDateVisitaFine().getValue();
             
             if(animale == null || vet == null || data == null) {
-                view.showVisitaMsg("Animale, Veterinario e Data sono obbligatori.", false);
+                view.showVisitaMsg("Animale, Veterinario e Data inizio sono obbligatori.", false);
                 return;
             }
             
             int idAnimale = Integer.parseInt(animale.split(" - ")[0]);
             int idVet = Integer.parseInt(vet.split(" - ")[0]);
             
-            VisitaMedica v = new VisitaMedica(0, null, diagnosi, null, data, null, idAnimale, idVet);
-            new VisitaMedicaDao().insert(v);
+            Double peso = null;
+            if (pesoStr != null && !pesoStr.trim().isEmpty()) {
+                pesoStr = pesoStr.replace(",", ".");
+                peso = Double.parseDouble(pesoStr);
+            }
             
-            view.showVisitaMsg("Visita registrata con successo!", true);
+            if (editingVisitaId != null) {
+                VisitaMedicaDao dao = new VisitaMedicaDao();
+                VisitaMedica v = dao.findAll().stream().filter(x -> x.getIdVisita() == editingVisitaId).findFirst().orElse(null);
+                if (v != null) {
+                    v.setIdAnimale(idAnimale);
+                    v.setIdDipendente(idVet);
+                    v.setDiagnosi(diagnosi);
+                    v.setPeso(peso);
+                    v.setNoteTrattamento(note);
+                    v.setDataVisita(data);
+                    v.setDataFine(dataFine);
+                    dao.update(v);
+                    view.showVisitaMsg("Visita modificata con successo!", true);
+                }
+            } else {
+                VisitaMedica v = new VisitaMedica(0, peso, diagnosi, note, data, dataFine, idAnimale, idVet);
+                new VisitaMedicaDao().insert(v);
+                view.showVisitaMsg("Visita registrata con successo!", true);
+            }
+            
             view.setPanelNuovaVisitaVisible(false);
             populateVisite();
+            editingVisitaId = null;
         } catch(Exception e) {
             view.showVisitaMsg("Errore: " + e.getMessage(), false);
         }
@@ -608,12 +707,26 @@ public class GestioneController {
             java.time.LocalDateTime dtInizio = LocalDate.now().atTime(java.time.LocalTime.parse(inizio));
             java.time.LocalDateTime dtFine = LocalDate.now().atTime(java.time.LocalTime.parse(fine));
             
-            Turno t = new Turno(0, dtInizio, dtFine, idDip, idArea);
-            new TurnoDao().insert(t);
+            if (editingTurnoId != null) {
+                TurnoDao dao = new TurnoDao();
+                Turno t = dao.findAll().stream().filter(x -> x.getIdTurno() == editingTurnoId).findFirst().orElse(null);
+                if (t != null) {
+                    t.setIdDipendente(idDip);
+                    t.setIdArea(idArea);
+                    t.setOraInizio(dtInizio);
+                    t.setOraFine(dtFine);
+                    dao.update(t);
+                    view.showTurnoMsg("Turno modificato con successo!", true);
+                }
+            } else {
+                Turno t = new Turno(0, dtInizio, dtFine, idDip, idArea);
+                new TurnoDao().insert(t);
+                view.showTurnoMsg("Turno salvato con successo!", true);
+            }
             
-            view.showTurnoMsg("Turno salvato con successo!", true);
             view.setPanelNuovoTurnoVisible(false);
             populateTurni();
+            editingTurnoId = null;
         } catch(Exception e) {
             view.showTurnoMsg("Errore: " + e.getMessage(), false);
         }

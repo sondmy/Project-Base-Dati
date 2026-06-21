@@ -55,48 +55,61 @@ public class GestioneView {
         private final String fornitore;
         private final String tipoCibo;
         private final String quantitaKg;
-        private final String stato;
 
         public OrdineRow(final String data, final String fornitore, final String tipoCibo,
-                         final String quantitaKg, final String stato) {
+                         final String quantitaKg) {
             this.data = data;
             this.fornitore = fornitore;
             this.tipoCibo = tipoCibo;
             this.quantitaKg = quantitaKg;
-            this.stato = stato;
         }
 
         public String getData() { return data; }
         public String getFornitore() { return fornitore; }
         public String getTipoCibo() { return tipoCibo; }
         public String getQuantitaKg() { return quantitaKg; }
-        public String getStato() { return stato; }
     }
 
     public static class VisitaRow {
+        private final String idVisita;
+        private final String idAnimale;
+        private final String idVet;
         private final String animale;
         private final String specie;
         private final String diagnosi;
+        private final String peso;
+        private final String note;
         private final String dataVisita;
+        private final String dataFine;
         private final String veterinario;
-        private final String stato;
 
-        public VisitaRow(final String animale, final String specie, final String diagnosi,
-                         final String dataVisita, final String veterinario, final String stato) {
+        public VisitaRow(final String idVisita, final String idAnimale, final String idVet, final String animale, final String specie, 
+                         final String diagnosi, final String peso, final String note, final String dataVisita, 
+                         final String dataFine, final String veterinario) {
+            this.idVisita = idVisita;
+            this.idAnimale = idAnimale;
+            this.idVet = idVet;
             this.animale = animale;
             this.specie = specie;
             this.diagnosi = diagnosi;
+            this.peso = peso;
+            this.note = note;
             this.dataVisita = dataVisita;
+            this.dataFine = dataFine;
             this.veterinario = veterinario;
-            this.stato = stato;
         }
 
+        public String getIdVisita() { return idVisita; }
+        public String getIdAnimale() { return idAnimale; }
+        public String getIdVet() { return idVet; }
         public String getAnimale() { return animale; }
         public String getSpecie() { return specie; }
         public String getDiagnosi() { return diagnosi; }
+        public String getPeso() { return peso; }
+        public String getNote() { return note; }
         public String getDataVisita() { return dataVisita; }
+        public String getDataFine() { return dataFine; }
         public String getVeterinario() { return veterinario; }
-        public String getStato() { return stato; }
     }
 
     public static class TurnoRow {
@@ -128,15 +141,18 @@ public class GestioneView {
 
     
     public static class DipendenteRow {
+        private final String idDipendente;
         private final String codiceFiscale;
         private final String nome;
         private final String cognome;
         private final String dataNascita;
         private final String mansione;
 
-        public DipendenteRow(final String cf, final String nome, final String cognome, final String dataNascita, final String mansione) {
-            this.codiceFiscale = cf; this.nome = nome; this.cognome = cognome; this.dataNascita = dataNascita; this.mansione = mansione;
+        public DipendenteRow(final String idDipendente, final String cf, final String nome, final String cognome, final String dataNascita, final String mansione) {
+            this.idDipendente = idDipendente; this.codiceFiscale = cf; this.nome = nome; this.cognome = cognome; this.dataNascita = dataNascita; this.mansione = mansione;
         }
+
+        public String getIdDipendente() { return idDipendente; }
 
         public String getCodiceFiscale() { return codiceFiscale; }
         public String getNome() { return nome; }
@@ -254,7 +270,10 @@ public class GestioneView {
     private final ComboBox<String> comboVisitaAnimale;
     private final ComboBox<String> comboVisitaVet;
     private final TextField txtDiagnosi;
+    private final TextField txtVisitaPeso;
+    private final TextField txtVisitaNote;
     private final DatePicker dateVisita;
+    private final DatePicker dateVisitaFine;
     private final Button btnSalvaVisita;
     private final Label lblVisitaMsg;
 
@@ -463,29 +482,7 @@ public class GestioneView {
         final TableColumn<OrdineRow, String> colOQta = new TableColumn<>("Quantità kg");
         colOQta.setCellValueFactory(new PropertyValueFactory<>("quantitaKg"));
 
-        final TableColumn<OrdineRow, String> colOStato = new TableColumn<>("Stato");
-        colOStato.setCellValueFactory(new PropertyValueFactory<>("stato"));
-        colOStato.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
-            @Override
-            protected void updateItem(final String item, final boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    final Label badge = new Label(item);
-                    badge.setStyle(StyleHelper.badge(
-                            "Pagato".equals(item) ? StyleHelper.GREEN : StyleHelper.YELLOW));
-                    if ("Da pagare".equals(item)) {
-                        badge.setStyle(StyleHelper.badge(StyleHelper.YELLOW)
-                                .replace(StyleHelper.WHITE, StyleHelper.TEXT_MAIN));
-                    }
-                    setGraphic(badge);
-                }
-                setText(null);
-            }
-        });
-
-        tableOrdini.getColumns().addAll(colOData, colOForn, colOCibo, colOQta, colOStato);
+        tableOrdini.getColumns().addAll(colOData, colOForn, colOCibo, colOQta);
 
         btnNuovoOrdine = new Button("Nuovo ordine");
         btnNuovoOrdine.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
@@ -541,6 +538,10 @@ public class GestioneView {
         tableVisite = new TableView<>();
         tableVisite.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
+        final TableColumn<VisitaRow, String> colVId = new TableColumn<>("ID");
+        colVId.setCellValueFactory(new PropertyValueFactory<>("idVisita"));
+        colVId.setMaxWidth(50);
+
         final TableColumn<VisitaRow, String> colVAnimale = new TableColumn<>("Animale");
         colVAnimale.setCellValueFactory(new PropertyValueFactory<>("animale"));
 
@@ -550,31 +551,22 @@ public class GestioneView {
         final TableColumn<VisitaRow, String> colVDiag = new TableColumn<>("Diagnosi");
         colVDiag.setCellValueFactory(new PropertyValueFactory<>("diagnosi"));
 
-        final TableColumn<VisitaRow, String> colVData = new TableColumn<>("Data visita");
+        final TableColumn<VisitaRow, String> colVPeso = new TableColumn<>("Peso");
+        colVPeso.setCellValueFactory(new PropertyValueFactory<>("peso"));
+
+        final TableColumn<VisitaRow, String> colVNote = new TableColumn<>("Note Trattamento");
+        colVNote.setCellValueFactory(new PropertyValueFactory<>("note"));
+
+        final TableColumn<VisitaRow, String> colVData = new TableColumn<>("Data inizio");
         colVData.setCellValueFactory(new PropertyValueFactory<>("dataVisita"));
+
+        final TableColumn<VisitaRow, String> colVDataFine = new TableColumn<>("Data fine");
+        colVDataFine.setCellValueFactory(new PropertyValueFactory<>("dataFine"));
 
         final TableColumn<VisitaRow, String> colVVet = new TableColumn<>("Veterinario");
         colVVet.setCellValueFactory(new PropertyValueFactory<>("veterinario"));
 
-        final TableColumn<VisitaRow, String> colVStato = new TableColumn<>("Stato");
-        colVStato.setCellValueFactory(new PropertyValueFactory<>("stato"));
-        colVStato.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
-            @Override
-            protected void updateItem(final String item, final boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setGraphic(null);
-                } else {
-                    final Label badge = new Label(item);
-                    badge.setStyle(StyleHelper.badge(
-                            "Concluso".equals(item) ? StyleHelper.GREEN : StyleHelper.ORANGE));
-                    setGraphic(badge);
-                }
-                setText(null);
-            }
-        });
-
-        tableVisite.getColumns().addAll(colVAnimale, colVSpecie, colVDiag, colVData, colVVet, colVStato);
+        tableVisite.getColumns().addAll(colVId, colVAnimale, colVSpecie, colVDiag, colVPeso, colVNote, colVData, colVDataFine, colVVet);
 
         btnNuovaVisita = new Button("Nuova visita");
         btnNuovaVisita.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
@@ -588,12 +580,15 @@ public class GestioneView {
         comboVisitaAnimale = new ComboBox<>(); comboVisitaAnimale.setPromptText("Seleziona animale...");
         comboVisitaVet = new ComboBox<>(); comboVisitaVet.setPromptText("Seleziona veterinario...");
         txtDiagnosi = new javafx.scene.control.TextField(); txtDiagnosi.setPromptText("Diagnosi...");
-        dateVisita = new javafx.scene.control.DatePicker(); dateVisita.setPromptText("Data visita...");
+        txtVisitaPeso = new javafx.scene.control.TextField(); txtVisitaPeso.setPromptText("Peso (es. 10.5)...");
+        txtVisitaNote = new javafx.scene.control.TextField(); txtVisitaNote.setPromptText("Note trattamento...");
+        dateVisita = new javafx.scene.control.DatePicker(); dateVisita.setPromptText("Data inizio...");
+        dateVisitaFine = new javafx.scene.control.DatePicker(); dateVisitaFine.setPromptText("Data fine...");
         btnSalvaVisita = new Button("Salva");
         btnSalvaVisita.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
         lblVisitaMsg = new Label(); lblVisitaMsg.setVisible(false);
 
-        panelNuovaVisita.getChildren().addAll(new Label("Nuova Visita"), comboVisitaAnimale, comboVisitaVet, txtDiagnosi, dateVisita, btnSalvaVisita, lblVisitaMsg);
+        panelNuovaVisita.getChildren().addAll(new Label("Nuova Visita"), comboVisitaAnimale, comboVisitaVet, txtDiagnosi, txtVisitaPeso, txtVisitaNote, dateVisita, dateVisitaFine, btnSalvaVisita, lblVisitaMsg);
 
         visiteContent.getChildren().addAll(tableVisite, btnNuovaVisita, panelNuovaVisita);
         tabVisite.setContent(visiteContent);
@@ -670,6 +665,10 @@ public class GestioneView {
         tablePersonale = new TableView<>();
         tablePersonale.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
 
+        final TableColumn<DipendenteRow, String> colDipId = new TableColumn<>("ID");
+        colDipId.setCellValueFactory(new PropertyValueFactory<>("idDipendente"));
+        colDipId.setMaxWidth(50);
+
         final TableColumn<DipendenteRow, String> colDipCf = new TableColumn<>("CF");
         colDipCf.setCellValueFactory(new PropertyValueFactory<>("codiceFiscale"));
 
@@ -685,7 +684,7 @@ public class GestioneView {
         final TableColumn<DipendenteRow, String> colDipMans = new TableColumn<>("Mansione");
         colDipMans.setCellValueFactory(new PropertyValueFactory<>("mansione"));
 
-        tablePersonale.getColumns().addAll(colDipCf, colDipNome, colDipCognome, colDipDataN, colDipMans);
+        tablePersonale.getColumns().addAll(colDipId, colDipCf, colDipNome, colDipCognome, colDipDataN, colDipMans);
 
         btnNuovoDipendente = new Button("Assumi Dipendente");
         btnNuovoDipendente.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
@@ -1070,12 +1069,16 @@ public class GestioneView {
     public void setVisite(final List<VisitaRow> rows) {
         tableVisite.setItems(FXCollections.observableArrayList(rows));
     }
+    public TableView<VisitaRow> getTableVisite() { return tableVisite; }
     public Button getBtnNuovaVisita() { return btnNuovaVisita; }
     public VBox getPanelNuovaVisita() { return panelNuovaVisita; }
     public ComboBox<String> getComboVisitaAnimale() { return comboVisitaAnimale; }
     public ComboBox<String> getComboVisitaVet() { return comboVisitaVet; }
     public javafx.scene.control.TextField getTxtDiagnosi() { return txtDiagnosi; }
+    public javafx.scene.control.TextField getTxtVisitaPeso() { return txtVisitaPeso; }
+    public javafx.scene.control.TextField getTxtVisitaNote() { return txtVisitaNote; }
     public javafx.scene.control.DatePicker getDateVisita() { return dateVisita; }
+    public javafx.scene.control.DatePicker getDateVisitaFine() { return dateVisitaFine; }
     public Button getBtnSalvaVisita() { return btnSalvaVisita; }
     public void showVisitaMsg(final String msg, final boolean success) {
         lblVisitaMsg.setText(msg);
@@ -1113,6 +1116,7 @@ public class GestioneView {
     public void setPersonale(final List<DipendenteRow> rows) {
         tablePersonale.setItems(FXCollections.observableArrayList(rows));
     }
+    public TableView<DipendenteRow> getTablePersonale() { return tablePersonale; }
 
     public Button getBtnNuovoDipendente() { return btnNuovoDipendente; }
     public VBox getPanelNuovoDipendente() { return panelNuovoDipendente; }
