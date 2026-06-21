@@ -26,6 +26,16 @@ public class Animale {
         this.idSpecie = idSpecie;
     }
 
+    public Animale(String nome, char sesso, boolean vivo, LocalDate dataNascita, LocalDate dataArrivo, LocalDate dataUscita, int idSpecie) {
+        this.nome = nome;
+        this.sesso = sesso;
+        this.vivo = vivo;
+        this.dataNascita = dataNascita;
+        this.dataArrivo = dataArrivo;
+        this.dataUscita = dataUscita;
+        this.idSpecie = idSpecie;
+    }
+
     public int getIdAnimale() { return idAnimale; }
     public void setIdAnimale(int idAnimale) { this.idAnimale = idAnimale; }
 

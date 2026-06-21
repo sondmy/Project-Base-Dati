@@ -18,6 +18,13 @@ public class TipoBiglietto {
         this.attivo = attivo;
     }
 
+    public TipoBiglietto(String nome, String descrizione, double prezzo, boolean attivo) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+        this.prezzo = prezzo;
+        this.attivo = attivo;
+    }
+
     public int getIdBiglietto() { return idBiglietto; }
     public void setIdBiglietto(int idBiglietto) { this.idBiglietto = idBiglietto; }
 

@@ -28,6 +28,20 @@ public class Transazione {
         this.idScontrino = idScontrino;
     }
 
+    /**
+     * Costruttore per una transazione senza ID (che viene generato automaticamente dal database)
+     */
+    public Transazione(String tipo, double importo, LocalDate data, String descrizione, int idCategoria, int idUtente, Integer idFornitore, Integer idScontrino) {
+        this.tipo = tipo;
+        this.importo = importo;
+        this.data = data;
+        this.descrizione = descrizione;
+        this.idCategoria = idCategoria;
+        this.idUtente = idUtente;
+        this.idFornitore = idFornitore;
+        this.idScontrino = idScontrino;
+    }
+
     public int getIdTransazione() { return idTransazione; }
     public void setIdTransazione(int idTransazione) { this.idTransazione = idTransazione; }
 

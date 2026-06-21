@@ -14,6 +14,11 @@ public class TipoCibo {
         this.descrizione = descrizione;
     }
 
+    public TipoCibo(String nome, String descrizione) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+    }
+
     public int getIdTipoCibo() { return idTipoCibo; }
     public void setIdTipoCibo(int idTipoCibo) { this.idTipoCibo = idTipoCibo; }
 

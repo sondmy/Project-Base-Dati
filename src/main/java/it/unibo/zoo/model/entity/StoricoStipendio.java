@@ -20,6 +20,13 @@ public class StoricoStipendio {
         this.dataFine = dataFine;
     }
 
+    public StoricoStipendio(int idDipendente, double prezzoOrario, LocalDate dataInizio, LocalDate dataFine) {
+        this.idDipendente = idDipendente;
+        this.prezzoOrario = prezzoOrario;
+        this.dataInizio = dataInizio;
+        this.dataFine = dataFine;
+    }
+
     public int getIdStorico() { return idStorico; }
     public void setIdStorico(int idStorico) { this.idStorico = idStorico; }
 

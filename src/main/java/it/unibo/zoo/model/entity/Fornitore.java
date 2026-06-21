@@ -20,6 +20,14 @@ public class Fornitore {
         this.idTipoFornitura = idTipoFornitura;
     }
 
+    public Fornitore(String nomeAzienda, String descrizione, String indirizzo, String iban, Integer idTipoFornitura) {
+        this.nomeAzienda = nomeAzienda;
+        this.descrizione = descrizione;
+        this.indirizzo = indirizzo;
+        this.iban = iban;
+        this.idTipoFornitura = idTipoFornitura;
+    }
+
     public int getIdFornitore() { return idFornitore; }
     public void setIdFornitore(int idFornitore) { this.idFornitore = idFornitore; }
 

@@ -18,6 +18,13 @@ public class DettaglioScontrino {
         this.prezzoPagatoBiglietto = prezzoPagatoBiglietto;
     }
 
+    public DettaglioScontrino(int idScontrino, int idBiglietto, int quantita, double prezzoPagatoBiglietto) {
+        this.idScontrino = idScontrino;
+        this.idBiglietto = idBiglietto;
+        this.quantita = quantita;
+        this.prezzoPagatoBiglietto = prezzoPagatoBiglietto;
+    }
+
     public int getIdDettaglio() { return idDettaglio; }
     public void setIdDettaglio(int idDettaglio) { this.idDettaglio = idDettaglio; }
 

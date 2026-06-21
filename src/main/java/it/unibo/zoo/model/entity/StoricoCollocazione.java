@@ -20,6 +20,13 @@ public class StoricoCollocazione {
         this.dataFine = dataFine;
     }
 
+    public StoricoCollocazione(int idAnimale, int idRecinto, LocalDate dataInizio, LocalDate dataFine) {
+        this.idAnimale = idAnimale;
+        this.idRecinto = idRecinto;
+        this.dataInizio = dataInizio;
+        this.dataFine = dataFine;
+    }
+
     public int getIdStorico() { return idStorico; }
     public void setIdStorico(int idStorico) { this.idStorico = idStorico; }
 

@@ -19,6 +19,13 @@ public class Scontrino {
         this.numPersone = numPersone;
         this.idUtente = idUtente;
     }
+    
+    public Scontrino(LocalDate dataAcquisto, String nomeGruppo, Integer numPersone, int idUtente) {
+        this.dataAcquisto = dataAcquisto;
+        this.nomeGruppo = nomeGruppo;
+        this.numPersone = numPersone;
+        this.idUtente = idUtente;
+    }
 
     public int getIdScontrino() { return idScontrino; }
     public void setIdScontrino(int idScontrino) { this.idScontrino = idScontrino; }

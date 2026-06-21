@@ -14,6 +14,11 @@ public class StatoEsistenza {
         this.descrizione = descrizione;
     }
 
+    public StatoEsistenza(String nome, String descrizione) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+    }
+
     public int getIdStato() { return idStato; }
     public void setIdStato(int idStato) { this.idStato = idStato; }
 

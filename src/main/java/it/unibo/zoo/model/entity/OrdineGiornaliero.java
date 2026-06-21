@@ -23,6 +23,15 @@ public class OrdineGiornaliero {
         this.idTipoCibo = idTipoCibo;
     }
 
+    public OrdineGiornaliero(LocalDate data, double quantitaKg,
+                             boolean pagato, int idFornitore, int idTipoCibo) {
+        this.data = data;
+        this.quantitaKg = quantitaKg;
+        this.pagato = pagato;
+        this.idFornitore = idFornitore;
+        this.idTipoCibo = idTipoCibo;
+    }
+
     public int getIdOrdine() { return idOrdine; }
     public void setIdOrdine(int idOrdine) { this.idOrdine = idOrdine; }
 

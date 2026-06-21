@@ -16,6 +16,12 @@ public class Recinto {
         this.idTipoRecinto = idTipoRecinto;
     }
 
+    public Recinto(int capienzaMassima, int idArea, int idTipoRecinto) {
+        this.capienzaMassima = capienzaMassima;
+        this.idArea = idArea;
+        this.idTipoRecinto = idTipoRecinto;
+    }
+
     public int getIdRecinto() { return idRecinto; }
     public void setIdRecinto(int idRecinto) { this.idRecinto = idRecinto; }
 

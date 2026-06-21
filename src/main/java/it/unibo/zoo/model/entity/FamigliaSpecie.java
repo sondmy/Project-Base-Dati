@@ -14,6 +14,11 @@ public class FamigliaSpecie {
         this.descrizione = descrizione;
     }
 
+    public FamigliaSpecie(String nome, String descrizione) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+    }
+
     public int getIdFamigliaSpecie() { return idFamigliaSpecie; }
     public void setIdFamigliaSpecie(int idFamigliaSpecie) { this.idFamigliaSpecie = idFamigliaSpecie; }
 

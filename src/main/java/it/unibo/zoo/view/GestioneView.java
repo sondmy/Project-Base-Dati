@@ -755,6 +755,7 @@ public class GestioneView {
     public void setPersonale(final List<DipendenteRow> rows) {
         tablePersonale.setItems(FXCollections.observableArrayList(rows));
     }
+    
     public Button getBtnNuovoDipendente() { return btnNuovoDipendente; }
     public VBox getPanelNuovoDipendente() { return panelNuovoDipendente; }
     public javafx.scene.control.TextField getTxtDipCf() { return txtDipCf; }
@@ -768,6 +769,7 @@ public class GestioneView {
         lblDipMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
         lblDipMsg.setVisible(true);
     }
+
     public void setPanelNuovoDipendenteVisible(final boolean visible) {
         panelNuovoDipendente.setVisible(visible); panelNuovoDipendente.setManaged(visible);
     }

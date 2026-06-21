@@ -14,6 +14,11 @@ public class Mansione {
         this.descrizione = descrizione;
     }
 
+    public Mansione(String nome, String descrizione) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+    }
+
     public int getIdMansione() { return idMansione; }
     public void setIdMansione(int idMansione) { this.idMansione = idMansione; }
 

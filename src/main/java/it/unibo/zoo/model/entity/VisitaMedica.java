@@ -26,6 +26,16 @@ public class VisitaMedica {
         this.idDipendente = idDipendente;
     }
 
+    public VisitaMedica(Double peso, String diagnosi, String noteTrattamento, LocalDate dataVisita, LocalDate dataFine, int idAnimale, int idDipendente) {
+        this.peso = peso;
+        this.diagnosi = diagnosi;
+        this.noteTrattamento = noteTrattamento;
+        this.dataVisita = dataVisita;
+        this.dataFine = dataFine;
+        this.idAnimale = idAnimale;
+        this.idDipendente = idDipendente;
+    }
+
     public int getIdVisita() { return idVisita; }
     public void setIdVisita(int idVisita) { this.idVisita = idVisita; }
 

@@ -14,6 +14,11 @@ public class TipoArea {
         this.descrizione = descrizione;
     }
 
+    public TipoArea(String nome, String descrizione) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+    }
+
     public int getIdTipoArea() { return idTipoArea; }
     public void setIdTipoArea(int idTipoArea) { this.idTipoArea = idTipoArea; }
 

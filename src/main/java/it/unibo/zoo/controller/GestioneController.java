@@ -4,6 +4,7 @@ import it.unibo.zoo.model.entity.Animale;
 import it.unibo.zoo.model.entity.Area;
 import it.unibo.zoo.model.entity.CategoriaTransazione;
 import it.unibo.zoo.model.entity.Dipendente;
+import it.unibo.zoo.model.entity.Utente;
 import it.unibo.zoo.model.entity.Fornitore;
 import it.unibo.zoo.model.entity.OrdineGiornalieroCibo;
 import it.unibo.zoo.model.entity.Specie;
@@ -287,6 +288,7 @@ public class GestioneController {
     /* ═══ TAB 5 — Personale ══════════════════════════ */
     private void populatePersonale() {
         final List<Dipendente> dipendenti = new DipendenteDao().findAll();
+        System.out.println("Dipendenti: " + dipendenti.size());
         final Map<Integer, Mansione> mansMap = new MansioneDao().findAll().stream()
                 .collect(Collectors.toMap(Mansione::getIdMansione, m -> m));
 
@@ -492,15 +494,16 @@ public class GestioneController {
             }
 
             // Recupera dinamicamente il primo utente disponibile
-            final List<it.unibo.zoo.model.entity.Utente> utenti = new it.unibo.zoo.model.jdbc.entityDao.UtenteDao().findAll();
+            final List<Utente> utenti = new UtenteDao().findAll();
             if (utenti.isEmpty()) {
                 view.showSpesaMsg("Nessun utente disponibile nel database.", false);
                 return;
             }
             final int idUtente = utenti.get(0).getIdUtente();
 
-            final Transazione t = new Transazione(0, "U", importo, LocalDate.now(), descrizione.trim(), idCategoria, idUtente, null, null);
+            final Transazione t = new Transazione("U", importo, LocalDate.now(), descrizione.trim(), idCategoria, idUtente, null, null);
             new TransazioneDao().insert(t);
+
 
             view.showSpesaMsg("Spesa registrata con successo!", true);
             view.getTxtSpesaImporto().clear();

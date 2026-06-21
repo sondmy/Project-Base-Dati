@@ -20,6 +20,13 @@ public class Turno {
         this.idArea = idArea;
     }
 
+    public Turno(LocalDateTime oraInizio, LocalDateTime oraFine, int idDipendente, int idArea) {
+        this.oraInizio = oraInizio;
+        this.oraFine = oraFine;
+        this.idDipendente = idDipendente;
+        this.idArea = idArea;
+    }
+
     public int getIdTurno() { return idTurno; }
     public void setIdTurno(int idTurno) { this.idTurno = idTurno; }
 

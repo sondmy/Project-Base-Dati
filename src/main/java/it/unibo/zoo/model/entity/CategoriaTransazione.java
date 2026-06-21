@@ -16,6 +16,12 @@ public class CategoriaTransazione {
         this.tipo = tipo;
     }
 
+    public CategoriaTransazione(String nome, String descrizione, String tipo) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+        this.tipo = tipo;
+    }
+
     public int getIdCategoria() { return idCategoria; }
     public void setIdCategoria(int idCategoria) { this.idCategoria = idCategoria; }
 

@@ -16,6 +16,12 @@ public class Area {
         this.idTipoArea = idTipoArea;
     }
 
+    public Area(String nome, int metratura, int idTipoArea) {
+        this.nome = nome;
+        this.metratura = metratura;
+        this.idTipoArea = idTipoArea;
+    }
+
     public int getIdArea() { return idArea; }
     public void setIdArea(int idArea) { this.idArea = idArea; }
 

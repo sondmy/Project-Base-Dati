@@ -24,6 +24,15 @@ public class Dipendente {
         this.idMansione = idMansione;
     }
 
+    public Dipendente(String codiceFiscale, String nome, String cognome, LocalDate dataNascita, LocalDate dataAssunzione, int idMansione) {
+        this.codiceFiscale = codiceFiscale;
+        this.nome = nome;
+        this.cognome = cognome;
+        this.dataNascita = dataNascita;
+        this.dataAssunzione = dataAssunzione;
+        this.idMansione = idMansione;
+    }
+
     public int getIdDipendente() { return idDipendente; }
     public void setIdDipendente(int idDipendente) { this.idDipendente = idDipendente; }
 

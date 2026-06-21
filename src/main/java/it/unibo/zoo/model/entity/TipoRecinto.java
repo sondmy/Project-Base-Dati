@@ -14,6 +14,11 @@ public class TipoRecinto {
         this.descrizione = descrizione;
     }
 
+    public TipoRecinto(String nome, String descrizione) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+    }
+
     public int getIdTipoRecinto() { return idTipoRecinto; }
     public void setIdTipoRecinto(int idTipoRecinto) { this.idTipoRecinto = idTipoRecinto; }
 

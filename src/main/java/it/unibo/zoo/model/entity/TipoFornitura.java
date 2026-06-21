@@ -14,6 +14,11 @@ public class TipoFornitura {
         this.descrizione = descrizione;
     }
 
+    public TipoFornitura(String nome, String descrizione) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+    }
+
     public int getIdTipoFornitura() { return idTipoFornitura; }
     public void setIdTipoFornitura(int idTipoFornitura) { this.idTipoFornitura = idTipoFornitura; }
 

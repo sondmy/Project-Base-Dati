@@ -21,6 +21,14 @@ public class Utente {
         this.ruolo = ruolo;
         this.idDipendente = idDipendente;
     }
+    
+    public Utente(String email, String passwordHash, LocalDate dataRegistrazione, String ruolo, Integer idDipendente) {
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.dataRegistrazione = dataRegistrazione;
+        this.ruolo = ruolo;
+        this.idDipendente = idDipendente;
+    }
 
     public int getIdUtente() { return idUtente; }
     public void setIdUtente(int idUtente) { this.idUtente = idUtente; }

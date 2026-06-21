@@ -20,6 +20,14 @@ public class Specie {
         this.idFamigliaSpecie = idFamigliaSpecie;
     }
 
+    public Specie(String nomeScentifico, String nomeComune, Integer idHabitat, Integer idStato, Integer idFamigliaSpecie) {
+        this.nomeScentifico = nomeScentifico;
+        this.nomeComune = nomeComune;
+        this.idHabitat = idHabitat;
+        this.idStato = idStato;
+        this.idFamigliaSpecie = idFamigliaSpecie;
+    }
+
     public int getIdSpecie() { return idSpecie; }
     public void setIdSpecie(int idSpecie) { this.idSpecie = idSpecie; }
 

@@ -14,6 +14,11 @@ public class Habitat {
         this.descrizione = descrizione;
     }
 
+    public Habitat(String nome, String descrizione) {
+        this.nome = nome;
+        this.descrizione = descrizione;
+    }
+
     public int getIdHabitat() { return idHabitat; }
     public void setIdHabitat(int idHabitat) { this.idHabitat = idHabitat; }
 
