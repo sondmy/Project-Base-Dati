@@ -193,9 +193,9 @@ INSERT INTO VISITA_MEDICA (id_visita, peso, diagnosi, note_trattamento, data_vis
 
 -- UTENTE
 INSERT INTO UTENTE (id_utente, email, password_hash, data_registrazione, id_dipendente, ruolo) VALUES
-(1, 'admin@zoopark.it', 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855', '2010-01-01', 5, 'admin'),
-(2, 'biglietteria@zoopark.it', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', '2018-06-21', 4, 'cassiere'),
-(3, 'vet.rossi@zoopark.it', '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8', '2010-05-16', 1, 'operatore');
+(1, 'admin@zoopark.it', '$2a$10$/8VMXMUHFPp5F/GVyGgw2OpmWIPEKWTmSN4.ZWhPfNVJMqhOpMzB2', '2010-01-01', 5, 'admin'),
+(2, 'biglietteria@zoopark.it', '$2a$10$/8VMXMUHFPp5F/GVyGgw2OpmWIPEKWTmSN4.ZWhPfNVJMqhOpMzB2', '2018-06-21', 4, 'cassiere'),
+(3, 'vet.rossi@zoopark.it', '$2a$10$/8VMXMUHFPp5F/GVyGgw2OpmWIPEKWTmSN4.ZWhPfNVJMqhOpMzB2', '2010-05-16', 1, 'operatore');
 
 -- FORNITORE
 INSERT INTO FORNITORE (id_fornitore, nome_azienda, descrizione, indirizzo, iban, id_tipo_fornitura) VALUES
