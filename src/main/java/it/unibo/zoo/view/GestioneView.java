@@ -258,6 +258,72 @@ public class GestioneView {
         public String getPrezzo() { return prezzo; }
     }
 
+    public static class StatoEsistenzaRow {
+        private final String idStato;
+        private final String nome;
+        private final String descrizione;
+
+        public StatoEsistenzaRow(final String idStato, final String nome, final String descrizione) {
+            this.idStato = idStato; this.nome = nome; this.descrizione = descrizione;
+        }
+
+        public String getIdStato() { return idStato; }
+        public String getNome() { return nome; }
+        public String getDescrizione() { return descrizione; }
+    }
+
+    public static class HabitatRow {
+        private final String idHabitat;
+        private final String nome;
+        private final String descrizione;
+
+        public HabitatRow(final String idHabitat, final String nome, final String descrizione) {
+            this.idHabitat = idHabitat; this.nome = nome; this.descrizione = descrizione;
+        }
+
+        public String getIdHabitat() { return idHabitat; }
+        public String getNome() { return nome; }
+        public String getDescrizione() { return descrizione; }
+    }
+
+    public static class FamigliaSpecieRow {
+        private final String idFamiglia;
+        private final String nome;
+        private final String descrizione;
+
+        public FamigliaSpecieRow(final String idFamiglia, final String nome, final String descrizione) {
+            this.idFamiglia = idFamiglia; this.nome = nome; this.descrizione = descrizione;
+        }
+
+        public String getIdFamiglia() { return idFamiglia; }
+        public String getNome() { return nome; }
+        public String getDescrizione() { return descrizione; }
+    }
+
+    public static class TipoAreaRow {
+        private final String idTipoArea;
+        private final String nome;
+        private final String descrizione;
+        public TipoAreaRow(String idTipoArea, String nome, String descrizione) {
+            this.idTipoArea = idTipoArea; this.nome = nome; this.descrizione = descrizione;
+        }
+        public String getIdTipoArea() { return idTipoArea; }
+        public String getNome() { return nome; }
+        public String getDescrizione() { return descrizione; }
+    }
+
+    public static class TipoRecintoRow {
+        private final String idTipoRecinto;
+        private final String nome;
+        private final String descrizione;
+        public TipoRecintoRow(String idTipoRecinto, String nome, String descrizione) {
+            this.idTipoRecinto = idTipoRecinto; this.nome = nome; this.descrizione = descrizione;
+        }
+        public String getIdTipoRecinto() { return idTipoRecinto; }
+        public String getNome() { return nome; }
+        public String getDescrizione() { return descrizione; }
+    }
+
     /* ── Campi UI ─────────────────────────────────────── */
 
     private final VBox root;
@@ -386,6 +452,22 @@ public class GestioneView {
     private final Button btnSalvaArea;
     private final Label lblAreaMsg;
 
+    // Tipo Area
+    private final TableView<TipoAreaRow> tableTipoArea;
+    private final Button btnAggiungiTipoArea;
+    private final Button btnRimuoviTipoArea;
+    private final TextField txtTipoAreaNome;
+    private final TextField txtTipoAreaDesc;
+    private final Label lblTipoAreaMsg;
+
+    // Tipo Recinto
+    private final TableView<TipoRecintoRow> tableTipoRecinto;
+    private final Button btnAggiungiTipoRecinto;
+    private final Button btnRimuoviTipoRecinto;
+    private final TextField txtTipoRecintoNome;
+    private final TextField txtTipoRecintoDesc;
+    private final Label lblTipoRecintoMsg;
+
     // Tab 9 - Recinti
     private final TableView<RecintoRow> tableRecinti;
     private final Button btnNuovoRecinto;
@@ -397,6 +479,33 @@ public class GestioneView {
     private final Button btnSalvaRecinto;
     private final Label lblRecintoMsg;
     private final Label lblTopRecintoAnimali;
+
+    // Tab Classificazione
+    private final Tab tabClassificazione;
+
+    // Stato Esistenza
+    private final TableView<StatoEsistenzaRow> tableStatoEsistenza;
+    private final Button btnAggiungiStato;
+    private final Button btnRimuoviStato;
+    private final TextField txtStatoNome;
+    private final TextField txtStatoDesc;
+    private final Label lblStatoMsg;
+
+    // Habitat
+    private final TableView<HabitatRow> tableHabitat;
+    private final Button btnAggiungiHabitat;
+    private final Button btnRimuoviHabitat;
+    private final TextField txtHabitatNome;
+    private final TextField txtHabitatDesc;
+    private final Label lblHabitatMsg;
+
+    // Famiglia Specie
+    private final TableView<FamigliaSpecieRow> tableFamigliaSpecie;
+    private final Button btnAggiungiFamiglia;
+    private final Button btnRimuoviFamiglia;
+    private final TextField txtFamigliaNome;
+    private final TextField txtFamigliaDesc;
+    private final Label lblFamigliaMsg;
 
     @SuppressWarnings("unchecked")
     public GestioneView() {
@@ -1004,6 +1113,102 @@ public class GestioneView {
         animaliContent.getChildren().addAll(tableAnimali, btnNuovoAnimale, panelNuovoAnimale);
         tabAnimali.setContent(animaliContent);
 
+        /* ═══ TAB 7.5 - Classificazione ════════════════════════════ */
+        tabClassificazione = new Tab("\uD83D\uDCCB Classificazione");
+        final VBox classificazioneContent = new VBox(20);
+        classificazioneContent.setPadding(new Insets(20));
+
+        // --- Sezione Stato Esistenza ---
+        final Label lblStato = new Label("Stato Esistenza");
+        lblStato.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableStatoEsistenza = new TableView<>();
+        tableStatoEsistenza.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableStatoEsistenza.setPrefHeight(150);
+        
+        final TableColumn<StatoEsistenzaRow, String> colStatoId = new TableColumn<>("ID");
+        colStatoId.setCellValueFactory(new PropertyValueFactory<>("idStato"));
+        colStatoId.setMaxWidth(50);
+        final TableColumn<StatoEsistenzaRow, String> colStatoNome = new TableColumn<>("Nome");
+        colStatoNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<StatoEsistenzaRow, String> colStatoDesc = new TableColumn<>("Descrizione");
+        colStatoDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
+        tableStatoEsistenza.getColumns().addAll(colStatoId, colStatoNome, colStatoDesc);
+        
+        btnAggiungiStato = new Button("Aggiungi");
+        btnAggiungiStato.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviStato = new Button("Rimuovi");
+        btnRimuoviStato.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtStatoNome = new TextField(); txtStatoNome.setPromptText("Nome...");
+        txtStatoDesc = new TextField(); txtStatoDesc.setPromptText("Descrizione...");
+        lblStatoMsg = new Label(); lblStatoMsg.setVisible(false); lblStatoMsg.setManaged(false);
+        final HBox formStato = new HBox(8, txtStatoNome, txtStatoDesc, btnAggiungiStato, btnRimuoviStato, lblStatoMsg);
+        formStato.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxStato = new VBox(8, lblStato, tableStatoEsistenza, formStato);
+        
+        // --- Sezione Habitat ---
+        final Label lblHabitat = new Label("Habitat");
+        lblHabitat.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableHabitat = new TableView<>();
+        tableHabitat.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableHabitat.setPrefHeight(150);
+        
+        final TableColumn<HabitatRow, String> colHabId = new TableColumn<>("ID");
+        colHabId.setCellValueFactory(new PropertyValueFactory<>("idHabitat"));
+        colHabId.setMaxWidth(50);
+        final TableColumn<HabitatRow, String> colHabNome = new TableColumn<>("Nome");
+        colHabNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<HabitatRow, String> colHabDesc = new TableColumn<>("Descrizione");
+        colHabDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
+        tableHabitat.getColumns().addAll(colHabId, colHabNome, colHabDesc);
+        
+        btnAggiungiHabitat = new Button("Aggiungi");
+        btnAggiungiHabitat.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviHabitat = new Button("Rimuovi");
+        btnRimuoviHabitat.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtHabitatNome = new TextField(); txtHabitatNome.setPromptText("Nome...");
+        txtHabitatDesc = new TextField(); txtHabitatDesc.setPromptText("Descrizione...");
+        lblHabitatMsg = new Label(); lblHabitatMsg.setVisible(false); lblHabitatMsg.setManaged(false);
+        final HBox formHabitat = new HBox(8, txtHabitatNome, txtHabitatDesc, btnAggiungiHabitat, btnRimuoviHabitat, lblHabitatMsg);
+        formHabitat.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxHabitat = new VBox(8, lblHabitat, tableHabitat, formHabitat);
+        
+        // --- Sezione Famiglia Specie ---
+        final Label lblFamiglia = new Label("Famiglia Specie");
+        lblFamiglia.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableFamigliaSpecie = new TableView<>();
+        tableFamigliaSpecie.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableFamigliaSpecie.setPrefHeight(150);
+        
+        final TableColumn<FamigliaSpecieRow, String> colFamId = new TableColumn<>("ID");
+        colFamId.setCellValueFactory(new PropertyValueFactory<>("idFamiglia"));
+        colFamId.setMaxWidth(50);
+        final TableColumn<FamigliaSpecieRow, String> colFamNome = new TableColumn<>("Nome");
+        colFamNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<FamigliaSpecieRow, String> colFamDesc = new TableColumn<>("Descrizione");
+        colFamDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
+        tableFamigliaSpecie.getColumns().addAll(colFamId, colFamNome, colFamDesc);
+        
+        btnAggiungiFamiglia = new Button("Aggiungi");
+        btnAggiungiFamiglia.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviFamiglia = new Button("Rimuovi");
+        btnRimuoviFamiglia.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtFamigliaNome = new TextField(); txtFamigliaNome.setPromptText("Nome...");
+        txtFamigliaDesc = new TextField(); txtFamigliaDesc.setPromptText("Descrizione...");
+        lblFamigliaMsg = new Label(); lblFamigliaMsg.setVisible(false); lblFamigliaMsg.setManaged(false);
+        final HBox formFamiglia = new HBox(8, txtFamigliaNome, txtFamigliaDesc, btnAggiungiFamiglia, btnRimuoviFamiglia, lblFamigliaMsg);
+        formFamiglia.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxFamiglia = new VBox(8, lblFamiglia, tableFamigliaSpecie, formFamiglia);
+        
+        classificazioneContent.getChildren().addAll(boxStato, boxHabitat, boxFamiglia);
+        
+        final ScrollPane classificazioneScroll = new ScrollPane(classificazioneContent);
+        classificazioneScroll.setFitToWidth(true);
+        classificazioneScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        tabClassificazione.setContent(classificazioneScroll);
+
         /* ═══ TAB 8 - Aree ═══════════════════════════════ */
         tabAree = new Tab("\uD83D\uDDFA Aree");
         final VBox areeContent = new VBox(16);
@@ -1054,8 +1259,68 @@ public class GestioneView {
 
         panelNuovaArea.getChildren().addAll(new Label("Nuova Area"), txtAreaNome, metraturaRow, comboAreaTipo, btnSalvaArea, lblAreaMsg);
 
-        areeContent.getChildren().addAll(tableAree, btnNuovaArea, panelNuovaArea);
-        tabAree.setContent(areeContent);
+        // --- Sezione Tipo Area ---
+        final Label lblTipoArea = new Label("Tipi di Area");
+        lblTipoArea.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableTipoArea = new TableView<>();
+        tableTipoArea.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableTipoArea.setPrefHeight(150);
+        
+        final TableColumn<TipoAreaRow, String> colTipoAreaId = new TableColumn<>("ID");
+        colTipoAreaId.setCellValueFactory(new PropertyValueFactory<>("idTipoArea"));
+        colTipoAreaId.setMaxWidth(50);
+        final TableColumn<TipoAreaRow, String> colTipoAreaNome = new TableColumn<>("Nome");
+        colTipoAreaNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<TipoAreaRow, String> colTipoAreaDesc = new TableColumn<>("Descrizione");
+        colTipoAreaDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
+        tableTipoArea.getColumns().addAll(colTipoAreaId, colTipoAreaNome, colTipoAreaDesc);
+        
+        btnAggiungiTipoArea = new Button("Aggiungi");
+        btnAggiungiTipoArea.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviTipoArea = new Button("Rimuovi");
+        btnRimuoviTipoArea.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtTipoAreaNome = new TextField(); txtTipoAreaNome.setPromptText("Nome...");
+        txtTipoAreaDesc = new TextField(); txtTipoAreaDesc.setPromptText("Descrizione...");
+        lblTipoAreaMsg = new Label(); lblTipoAreaMsg.setVisible(false); lblTipoAreaMsg.setManaged(false);
+        final HBox formTipoArea = new HBox(8, txtTipoAreaNome, txtTipoAreaDesc, btnAggiungiTipoArea, btnRimuoviTipoArea, lblTipoAreaMsg);
+        formTipoArea.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxTipoArea = new VBox(8, lblTipoArea, tableTipoArea, formTipoArea);
+
+        // --- Sezione Tipo Recinto ---
+        final Label lblTipoRecinto = new Label("Tipi di Recinto");
+        lblTipoRecinto.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableTipoRecinto = new TableView<>();
+        tableTipoRecinto.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableTipoRecinto.setPrefHeight(150);
+        
+        final TableColumn<TipoRecintoRow, String> colTipoRecintoId = new TableColumn<>("ID");
+        colTipoRecintoId.setCellValueFactory(new PropertyValueFactory<>("idTipoRecinto"));
+        colTipoRecintoId.setMaxWidth(50);
+        final TableColumn<TipoRecintoRow, String> colTipoRecintoNome = new TableColumn<>("Nome");
+        colTipoRecintoNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<TipoRecintoRow, String> colTipoRecintoDesc = new TableColumn<>("Descrizione");
+        colTipoRecintoDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
+        tableTipoRecinto.getColumns().addAll(colTipoRecintoId, colTipoRecintoNome, colTipoRecintoDesc);
+        
+        btnAggiungiTipoRecinto = new Button("Aggiungi");
+        btnAggiungiTipoRecinto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviTipoRecinto = new Button("Rimuovi");
+        btnRimuoviTipoRecinto.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtTipoRecintoNome = new TextField(); txtTipoRecintoNome.setPromptText("Nome...");
+        txtTipoRecintoDesc = new TextField(); txtTipoRecintoDesc.setPromptText("Descrizione...");
+        lblTipoRecintoMsg = new Label(); lblTipoRecintoMsg.setVisible(false); lblTipoRecintoMsg.setManaged(false);
+        final HBox formTipoRecinto = new HBox(8, txtTipoRecintoNome, txtTipoRecintoDesc, btnAggiungiTipoRecinto, btnRimuoviTipoRecinto, lblTipoRecintoMsg);
+        formTipoRecinto.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxTipoRecinto = new VBox(8, lblTipoRecinto, tableTipoRecinto, formTipoRecinto);
+
+        areeContent.getChildren().addAll(tableAree, btnNuovaArea, panelNuovaArea, boxTipoArea, boxTipoRecinto);
+        
+        final ScrollPane areeScroll = new ScrollPane(areeContent);
+        areeScroll.setFitToWidth(true);
+        areeScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        tabAree.setContent(areeScroll);
 
         /* ═══ TAB 9 - Recinti ═════════════════════════════ */
         tabRecinti = new Tab("\uD83D\uDFEB Recinti");
@@ -1121,7 +1386,7 @@ public class GestioneView {
         tabRecinti.setContent(recintiContent);
 
         /* ── Assembla TabPane ────────────────────────────── */
-        tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabTipiBiglietti, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
+        tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabTipiBiglietti, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabClassificazione, tabAree, tabRecinti);
 
 
         root.getChildren().addAll(title, tabPane);
@@ -1135,7 +1400,7 @@ public class GestioneView {
         tabPane.getTabs().clear();
         if (ruolo == null) return;
         if ("amministratore".equalsIgnoreCase(ruolo) || "admin".equalsIgnoreCase(ruolo)) {
-            tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabTipiBiglietti, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
+            tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabTipiBiglietti, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabClassificazione, tabAree, tabRecinti);
         } else if ("guardiano".equalsIgnoreCase(ruolo) || "operatore".equalsIgnoreCase(ruolo)) {
             tabPane.getTabs().add(tabOrdini);
         } else if ("cassiere".equalsIgnoreCase(ruolo)) {
@@ -1343,6 +1608,7 @@ public class GestioneView {
 
     /* Tab 9 - Recinti */
     public void setRecinti(final List<RecintoRow> rows) { tableRecinti.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<RecintoRow> getTableRecinti() { return tableRecinti; }
     public Button getBtnNuovoRecinto() { return btnNuovoRecinto; }
     public VBox getPanelNuovoRecinto() { return panelNuovoRecinto; }
     public TextField getTxtRecintoNome() { return txtRecintoNome; }
@@ -1358,6 +1624,68 @@ public class GestioneView {
     }
     public void setPanelNuovoRecintoVisible(final boolean visible) {
         panelNuovoRecinto.setVisible(visible); panelNuovoRecinto.setManaged(visible);
+    }
+
+    /* Tab Classificazione */
+    public void setStatoEsistenza(final List<StatoEsistenzaRow> rows) { tableStatoEsistenza.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<StatoEsistenzaRow> getTableStatoEsistenza() { return tableStatoEsistenza; }
+    public Button getBtnAggiungiStato() { return btnAggiungiStato; }
+    public Button getBtnRimuoviStato() { return btnRimuoviStato; }
+    public TextField getTxtStatoNome() { return txtStatoNome; }
+    public TextField getTxtStatoDesc() { return txtStatoDesc; }
+    public void showStatoMsg(final String msg, final boolean success) {
+        lblStatoMsg.setText(msg);
+        lblStatoMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblStatoMsg.setVisible(true); lblStatoMsg.setManaged(true);
+    }
+
+    public void setHabitat(final List<HabitatRow> rows) { tableHabitat.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<HabitatRow> getTableHabitat() { return tableHabitat; }
+    public Button getBtnAggiungiHabitat() { return btnAggiungiHabitat; }
+    public Button getBtnRimuoviHabitat() { return btnRimuoviHabitat; }
+    public TextField getTxtHabitatNome() { return txtHabitatNome; }
+    public TextField getTxtHabitatDesc() { return txtHabitatDesc; }
+    public void showHabitatMsg(final String msg, final boolean success) {
+        lblHabitatMsg.setText(msg);
+        lblHabitatMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblHabitatMsg.setVisible(true); lblHabitatMsg.setManaged(true);
+    }
+
+    public void setFamigliaSpecie(final List<FamigliaSpecieRow> rows) { tableFamigliaSpecie.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<FamigliaSpecieRow> getTableFamigliaSpecie() { return tableFamigliaSpecie; }
+    public Button getBtnAggiungiFamiglia() { return btnAggiungiFamiglia; }
+    public Button getBtnRimuoviFamiglia() { return btnRimuoviFamiglia; }
+    public TextField getTxtFamigliaNome() { return txtFamigliaNome; }
+    public TextField getTxtFamigliaDesc() { return txtFamigliaDesc; }
+    public void showFamigliaMsg(final String msg, final boolean success) {
+        lblFamigliaMsg.setText(msg);
+        lblFamigliaMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblFamigliaMsg.setVisible(true); lblFamigliaMsg.setManaged(true);
+    }
+
+    /* Tipi Area e Recinto */
+    public void setTipoArea(final List<TipoAreaRow> rows) { tableTipoArea.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<TipoAreaRow> getTableTipoArea() { return tableTipoArea; }
+    public Button getBtnAggiungiTipoArea() { return btnAggiungiTipoArea; }
+    public Button getBtnRimuoviTipoArea() { return btnRimuoviTipoArea; }
+    public TextField getTxtTipoAreaNome() { return txtTipoAreaNome; }
+    public TextField getTxtTipoAreaDesc() { return txtTipoAreaDesc; }
+    public void showTipoAreaMsg(final String msg, final boolean success) {
+        lblTipoAreaMsg.setText(msg);
+        lblTipoAreaMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblTipoAreaMsg.setVisible(true); lblTipoAreaMsg.setManaged(true);
+    }
+
+    public void setTipoRecinto(final List<TipoRecintoRow> rows) { tableTipoRecinto.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<TipoRecintoRow> getTableTipoRecinto() { return tableTipoRecinto; }
+    public Button getBtnAggiungiTipoRecinto() { return btnAggiungiTipoRecinto; }
+    public Button getBtnRimuoviTipoRecinto() { return btnRimuoviTipoRecinto; }
+    public TextField getTxtTipoRecintoNome() { return txtTipoRecintoNome; }
+    public TextField getTxtTipoRecintoDesc() { return txtTipoRecintoDesc; }
+    public void showTipoRecintoMsg(final String msg, final boolean success) {
+        lblTipoRecintoMsg.setText(msg);
+        lblTipoRecintoMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblTipoRecintoMsg.setVisible(true); lblTipoRecintoMsg.setManaged(true);
     }
 
     /* ── Utility interna ─────────────────────────────── */

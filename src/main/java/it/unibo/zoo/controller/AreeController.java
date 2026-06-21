@@ -63,5 +63,91 @@ public class AreeController {
         }
     }
 
-    
+    public static void populateTipoArea(final GestioneView view) {
+        List<GestioneView.TipoAreaRow> rows = new TipoAreaDao().findAll().stream()
+                .map(t -> new GestioneView.TipoAreaRow(
+                        String.valueOf(t.getIdTipoArea()),
+                        t.getNome(),
+                        t.getDescrizione() != null ? t.getDescrizione() : "-"
+                )).collect(Collectors.toList());
+        view.setTipoArea(rows);
+    }
+
+    public static void handleAggiungiTipoArea(final GestioneView view) {
+        String nome = view.getTxtTipoAreaNome().getText();
+        String desc = view.getTxtTipoAreaDesc().getText();
+        if (nome == null || nome.trim().isEmpty()) return;
+        
+        try {
+            TipoArea entity = new TipoArea(nome.trim(), desc != null && !desc.trim().isEmpty() ? desc.trim() : null);
+            new TipoAreaDao().insert(entity);
+            view.getTxtTipoAreaNome().clear();
+            view.getTxtTipoAreaDesc().clear();
+            populateTipoArea(view);
+            populateAree(view);
+            view.showTipoAreaMsg("Tipo Area aggiunto con successo.", true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            view.showTipoAreaMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+
+    public static void handleRimuoviTipoArea(final GestioneView view) {
+        GestioneView.TipoAreaRow row = view.getTableTipoArea().getSelectionModel().getSelectedItem();
+        if (row != null) {
+            try {
+                new TipoAreaDao().delete(Integer.parseInt(row.getIdTipoArea()));
+                populateTipoArea(view);
+                populateAree(view);
+                view.showTipoAreaMsg("Tipo Area rimosso con successo.", true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                view.showTipoAreaMsg("Impossibile rimuovere (in uso).", false);
+            }
+        }
+    }
+
+    public static void populateTipoRecinto(final GestioneView view) {
+        List<GestioneView.TipoRecintoRow> rows = new it.unibo.zoo.model.jdbc.entityDao.TipoRecintoDao().findAll().stream()
+                .map(t -> new GestioneView.TipoRecintoRow(
+                        String.valueOf(t.getIdTipoRecinto()),
+                        t.getNome(),
+                        t.getDescrizione() != null ? t.getDescrizione() : "-"
+                )).collect(Collectors.toList());
+        view.setTipoRecinto(rows);
+    }
+
+    public static void handleAggiungiTipoRecinto(final GestioneView view) {
+        String nome = view.getTxtTipoRecintoNome().getText();
+        String desc = view.getTxtTipoRecintoDesc().getText();
+        if (nome == null || nome.trim().isEmpty()) return;
+        
+        try {
+            it.unibo.zoo.model.entity.TipoRecinto entity = new it.unibo.zoo.model.entity.TipoRecinto(nome.trim(), desc != null && !desc.trim().isEmpty() ? desc.trim() : null);
+            new it.unibo.zoo.model.jdbc.entityDao.TipoRecintoDao().insert(entity);
+            view.getTxtTipoRecintoNome().clear();
+            view.getTxtTipoRecintoDesc().clear();
+            populateTipoRecinto(view);
+            RecintoController.populateRecinti(view);
+            view.showTipoRecintoMsg("Tipo Recinto aggiunto con successo.", true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            view.showTipoRecintoMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+
+    public static void handleRimuoviTipoRecinto(final GestioneView view) {
+        GestioneView.TipoRecintoRow row = view.getTableTipoRecinto().getSelectionModel().getSelectedItem();
+        if (row != null) {
+            try {
+                new it.unibo.zoo.model.jdbc.entityDao.TipoRecintoDao().delete(Integer.parseInt(row.getIdTipoRecinto()));
+                populateTipoRecinto(view);
+                RecintoController.populateRecinti(view);
+                view.showTipoRecintoMsg("Tipo Recinto rimosso con successo.", true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                view.showTipoRecintoMsg("Impossibile rimuovere (in uso).", false);
+            }
+        }
+    }
 }

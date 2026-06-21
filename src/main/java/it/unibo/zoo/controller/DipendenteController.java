@@ -19,7 +19,6 @@ public class DipendenteController {
 
     public static void populatePersonale(final GestioneView view) {
         final List<Dipendente> dipendenti = new DipendenteDao().findAll();
-        System.out.println("Dipendenti: " + dipendenti.size());
         final Map<Integer, Mansione> mansMap = new MansioneDao().findAll().stream()
                 .collect(Collectors.toMap(Mansione::getIdMansione, m -> m));
 

@@ -48,7 +48,7 @@ public class RecintoController {
         }
     }
 
-    public static void handleSalvaRecinto(final GestioneView view) {
+    public static void handleSalvaRecinto(final GestioneView view, final Integer editingRecintoId) {
         try {
             String nome = view.getTxtRecintoNome().getText();
             String areaStr = view.getComboRecintoArea().getValue();
@@ -64,9 +64,16 @@ public class RecintoController {
             int idTipoRecinto = Integer.parseInt(tipoStr.split(" - ")[0]);
             
             Recinto r = new Recinto(nome.trim(), capienza, idArea, idTipoRecinto);
-            new RecintoDao().insert(r);
             
-            view.showRecintoMsg("Recinto aggiunto con successo!", true);
+            if (editingRecintoId != null) {
+                r.setIdRecinto(editingRecintoId);
+                new RecintoDao().update(r);
+                view.showRecintoMsg("Recinto modificato con successo!", true);
+            } else {
+                new RecintoDao().insert(r);
+                view.showRecintoMsg("Recinto aggiunto con successo!", true);
+            }
+            
             view.setPanelNuovoRecintoVisible(false);
             RecintoController.populateRecinti(view);
         } catch(Exception e) {

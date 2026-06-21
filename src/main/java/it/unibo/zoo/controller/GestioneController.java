@@ -29,6 +29,7 @@ public class GestioneController {
     private Integer editingVisitaId = null;
     private Integer editingDipendenteId = null;
     private Integer editingTurnoId = null;
+    private Integer editingRecintoId = null;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
@@ -256,9 +257,66 @@ public class GestioneController {
         // Toggle pannello nuovo recinto
         view.getBtnNuovoRecinto().setOnAction(e -> {
             panelRecintoVisible = !panelRecintoVisible;
+            if (!panelRecintoVisible) editingRecintoId = null;
             view.setPanelNuovoRecintoVisible(panelRecintoVisible);
         });
-        view.getBtnSalvaRecinto().setOnAction(e -> RecintoController.handleSalvaRecinto(view));
+        
+        view.getTableRecinti().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            if (newSel != null && newSel.getIdRecinto() != null) {
+                editingRecintoId = Integer.parseInt(newSel.getIdRecinto());
+                view.getTxtRecintoNome().setText(newSel.getNome());
+                
+                view.getComboRecintoArea().getItems().stream()
+                    .filter(i -> i.endsWith("- " + newSel.getArea()))
+                    .findFirst()
+                    .ifPresent(view.getComboRecintoArea()::setValue);
+                
+                view.getComboRecintoTipo().getItems().stream()
+                    .filter(i -> i.endsWith("- " + newSel.getTipo()))
+                    .findFirst()
+                    .ifPresent(view.getComboRecintoTipo()::setValue);
+                
+                try {
+                    view.getSpinnerRecintoCapienza().getValueFactory().setValue(Integer.parseInt(newSel.getCapienza()));
+                } catch(Exception ignored) {}
+                
+                panelRecintoVisible = true;
+                view.setPanelNuovoRecintoVisible(true);
+            }
+        });
+        
+        view.getBtnSalvaRecinto().setOnAction(e -> RecintoController.handleSalvaRecinto(view, editingRecintoId));
+        
+        // Tab Classificazione
+        view.getBtnAggiungiStato().setOnAction(e -> ClassificazioneController.handleAggiungiStato(view));
+        view.getBtnRimuoviStato().setOnAction(e -> ClassificazioneController.handleRimuoviStato(view));
+        view.getBtnAggiungiHabitat().setOnAction(e -> ClassificazioneController.handleAggiungiHabitat(view));
+        view.getBtnRimuoviHabitat().setOnAction(e -> ClassificazioneController.handleRimuoviHabitat(view));
+        view.getBtnAggiungiFamiglia().setOnAction(e -> ClassificazioneController.handleAggiungiFamiglia(view));
+        view.getBtnRimuoviFamiglia().setOnAction(e -> ClassificazioneController.handleRimuoviFamiglia(view));
+
+        view.getTableStatoEsistenza().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnRimuoviStato().setDisable(newSel == null);
+        });
+        view.getTableHabitat().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnRimuoviHabitat().setDisable(newSel == null);
+        });
+        view.getTableFamigliaSpecie().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnRimuoviFamiglia().setDisable(newSel == null);
+        });
+
+        // Tipi Area e Recinto
+        view.getBtnAggiungiTipoArea().setOnAction(e -> AreeController.handleAggiungiTipoArea(view));
+        view.getBtnRimuoviTipoArea().setOnAction(e -> AreeController.handleRimuoviTipoArea(view));
+        view.getTableTipoArea().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnRimuoviTipoArea().setDisable(newSel == null);
+        });
+
+        view.getBtnAggiungiTipoRecinto().setOnAction(e -> AreeController.handleAggiungiTipoRecinto(view));
+        view.getBtnRimuoviTipoRecinto().setOnAction(e -> AreeController.handleRimuoviTipoRecinto(view));
+        view.getTableTipoRecinto().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnRimuoviTipoRecinto().setDisable(newSel == null);
+        });
     }
 
     private void refresh(){
@@ -271,8 +329,11 @@ public class GestioneController {
         SpesaController.populateSpese(view);
         AnimaliController.populateAnimali(view);
         AreeController.populateAree(view);
+        AreeController.populateTipoArea(view);
         RecintoController.populateRecinti(view);
+        AreeController.populateTipoRecinto(view);
         TipiBigliettiController.populateTipiBiglietti(view);
+        ClassificazioneController.populateClassificazione(view);
     }
 
 }
