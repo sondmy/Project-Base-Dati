@@ -163,11 +163,12 @@ public class GestioneView {
         private final String sesso;
         private final String dataNascita;
         private final String dataArrivo;
+        private final String dataUscita;
         private final String specie;
         private final String vivo;
 
-        public AnimaleRow(final String idAnimale, final String nome, final String sesso, final String dataNascita, final String dataArrivo, final String specie, final String vivo) {
-            this.idAnimale = idAnimale; this.nome = nome; this.sesso = sesso; this.dataNascita = dataNascita; this.dataArrivo = dataArrivo; this.specie = specie; this.vivo = vivo;
+        public AnimaleRow(final String idAnimale, final String nome, final String sesso, final String dataNascita, final String dataArrivo, final String dataUscita, final String specie, final String vivo) {
+            this.idAnimale = idAnimale; this.nome = nome; this.sesso = sesso; this.dataNascita = dataNascita; this.dataArrivo = dataArrivo; this.dataUscita = dataUscita; this.specie = specie; this.vivo = vivo;
         }
 
         public String getIdAnimale() { return idAnimale; }
@@ -175,6 +176,7 @@ public class GestioneView {
         public String getSesso() { return sesso; }
         public String getDataNascita() { return dataNascita; }
         public String getDataArrivo() { return dataArrivo; }
+        public String getDataUscita() { return dataUscita; }
         public String getSpecie() { return specie; }
         public String getVivo() { return vivo; }
     }
@@ -220,6 +222,12 @@ public class GestioneView {
     private final Label lblUscite;
     private final Label lblSaldo;
     private final TableView<TransazioneRow> tableTransazioni;
+
+    // Tab 1b — Statistiche
+    private final ComboBox<String> comboStatPeriodo;
+    private final javafx.scene.chart.BarChart<String, Number> chartStatBiglietti;
+    private final Label lblStatTopBiglietto;
+    private final Label lblStatTotBiglietti;
 
     // Tab 2 — Ordini
     private final TableView<OrdineRow> tableOrdini;
@@ -285,6 +293,9 @@ public class GestioneView {
     private final TextField txtAnimaleNome;
     private final ComboBox<String> comboAnimaleSesso;
     private final DatePicker dateAnimaleNascita;
+    private final DatePicker dateAnimaleArrivo;
+    private final DatePicker dateAnimaleUscita;
+    private final ComboBox<String> comboAnimaleVivo;
     private final ComboBox<String> comboAnimaleSpecie;
     private final Button btnSalvaAnimale;
     private final Label lblAnimaleMsg;
@@ -375,6 +386,33 @@ public class GestioneView {
 
         saldoContent.getChildren().addAll(metricsBox, lblUltimeTransazioni, tableTransazioni);
         tabSaldo.setContent(saldoContent);
+
+        /* ═══ TAB 1b - Statistiche ═════════════════════════════ */
+        final Tab tabStatistiche = new Tab("\uD83D\uDCCA Statistiche");
+        final VBox statContent = new VBox(16);
+        statContent.setPadding(new Insets(20));
+
+        final javafx.scene.layout.HBox statCtrlRow = new javafx.scene.layout.HBox(12);
+        statCtrlRow.setAlignment(Pos.CENTER_LEFT);
+        comboStatPeriodo = new ComboBox<>();
+        comboStatPeriodo.getItems().addAll("Giorno", "Settimana", "Mese");
+        comboStatPeriodo.setValue("Giorno");
+        statCtrlRow.getChildren().addAll(new Label("Raggruppa per:"), comboStatPeriodo);
+
+        final javafx.scene.chart.CategoryAxis xAxis = new javafx.scene.chart.CategoryAxis();
+        xAxis.setLabel("Periodo");
+        final javafx.scene.chart.NumberAxis yAxis = new javafx.scene.chart.NumberAxis();
+        yAxis.setLabel("Biglietti Venduti");
+        chartStatBiglietti = new javafx.scene.chart.BarChart<>(xAxis, yAxis);
+        chartStatBiglietti.setTitle("Vendite Biglietti");
+        chartStatBiglietti.setLegendVisible(false);
+
+        lblStatTopBiglietto = createMetricLabel("Tipologia più venduta:", "-", StyleHelper.PRIMARY);
+        lblStatTotBiglietti = createMetricLabel("Totale Biglietti:", "0", StyleHelper.TEXT_MAIN);
+        final javafx.scene.layout.HBox statLabels = new javafx.scene.layout.HBox(20, lblStatTopBiglietto.getParent(), lblStatTotBiglietti.getParent());
+
+        statContent.getChildren().addAll(statCtrlRow, chartStatBiglietti, statLabels);
+        tabStatistiche.setContent(statContent);
 
         /* ═══ TAB 2 — Ordini giornalieri ═════════════════ */
         final Tab tabOrdini = new Tab("\uD83D\uDCE6 Ordini giornalieri");
@@ -776,6 +814,9 @@ public class GestioneView {
         final TableColumn<AnimaleRow, String> colAnDataA = new TableColumn<>("Arrivo");
         colAnDataA.setCellValueFactory(new PropertyValueFactory<>("dataArrivo"));
 
+        final TableColumn<AnimaleRow, String> colAnDataU = new TableColumn<>("Uscita");
+        colAnDataU.setCellValueFactory(new PropertyValueFactory<>("dataUscita"));
+
         final TableColumn<AnimaleRow, String> colAnSpecie = new TableColumn<>("Specie");
         colAnSpecie.setCellValueFactory(new PropertyValueFactory<>("specie"));
 
@@ -796,9 +837,9 @@ public class GestioneView {
             }
         });
 
-        tableAnimali.getColumns().addAll(colAnId, colAnNome, colAnSesso, colAnDataN, colAnDataA, colAnSpecie, colAnVivo);
+        tableAnimali.getColumns().addAll(colAnId, colAnNome, colAnSesso, colAnDataN, colAnDataA, colAnDataU, colAnSpecie, colAnVivo);
 
-        btnNuovoAnimale = new Button("Aggiungi Animale");
+        btnNuovoAnimale = new Button("Aggiungi / Resetta");
         btnNuovoAnimale.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
 
         panelNuovoAnimale = new VBox(12);
@@ -811,13 +852,17 @@ public class GestioneView {
         comboAnimaleSesso = new ComboBox<>(); comboAnimaleSesso.setPromptText("Sesso...");
         comboAnimaleSesso.getItems().addAll("M", "F", "I");
         dateAnimaleNascita = new DatePicker(); dateAnimaleNascita.setPromptText("Data Nascita...");
+        dateAnimaleArrivo = new DatePicker(); dateAnimaleArrivo.setPromptText("Data Arrivo...");
+        dateAnimaleUscita = new DatePicker(); dateAnimaleUscita.setPromptText("Data Uscita...");
+        comboAnimaleVivo = new ComboBox<>(); comboAnimaleVivo.setPromptText("Stato...");
+        comboAnimaleVivo.getItems().addAll("Vivo", "Morto");
         comboAnimaleSpecie = new ComboBox<>(); comboAnimaleSpecie.setPromptText("Seleziona Specie...");
         
         btnSalvaAnimale = new Button("Salva");
         btnSalvaAnimale.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
         lblAnimaleMsg = new Label(); lblAnimaleMsg.setVisible(false);
 
-        panelNuovoAnimale.getChildren().addAll(new Label("Nuovo Animale"), txtAnimaleNome, comboAnimaleSesso, dateAnimaleNascita, comboAnimaleSpecie, btnSalvaAnimale, lblAnimaleMsg);
+        panelNuovoAnimale.getChildren().addAll(new Label("Nuovo/Modifica Animale"), txtAnimaleNome, comboAnimaleSesso, dateAnimaleNascita, dateAnimaleArrivo, dateAnimaleUscita, comboAnimaleVivo, comboAnimaleSpecie, btnSalvaAnimale, lblAnimaleMsg);
 
         animaliContent.getChildren().addAll(tableAnimali, btnNuovoAnimale, panelNuovoAnimale);
         tabAnimali.setContent(animaliContent);
@@ -927,7 +972,7 @@ public class GestioneView {
         tabRecinti.setContent(recintiContent);
 
         /* ── Assembla TabPane ────────────────────────────── */
-        tabPane.getTabs().addAll(tabSaldo, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
+        tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
 
 
         root.getChildren().addAll(title, tabPane);
@@ -945,6 +990,12 @@ public class GestioneView {
     public void setTransazioni(final List<TransazioneRow> rows) {
         tableTransazioni.setItems(FXCollections.observableArrayList(rows));
     }
+
+    /* Tab 1b - Statistiche */
+    public ComboBox<String> getComboStatPeriodo() { return comboStatPeriodo; }
+    public javafx.scene.chart.BarChart<String, Number> getChartStatBiglietti() { return chartStatBiglietti; }
+    public Label getLblStatTopBiglietto() { return lblStatTopBiglietto; }
+    public Label getLblStatTotBiglietti() { return lblStatTotBiglietti; }
 
     /* Tab 2 — Ordini */
     public void setOrdini(final List<OrdineRow> rows) {
@@ -1058,10 +1109,14 @@ public class GestioneView {
     /* Tab 7 - Animali */
     public void setAnimali(final List<AnimaleRow> rows) { tableAnimali.setItems(FXCollections.observableArrayList(rows)); }
     public Button getBtnNuovoAnimale() { return btnNuovoAnimale; }
+    public TableView<AnimaleRow> getTableAnimali() { return tableAnimali; }
     public VBox getPanelNuovoAnimale() { return panelNuovoAnimale; }
     public TextField getTxtAnimaleNome() { return txtAnimaleNome; }
     public ComboBox<String> getComboAnimaleSesso() { return comboAnimaleSesso; }
     public DatePicker getDateAnimaleNascita() { return dateAnimaleNascita; }
+    public DatePicker getDateAnimaleArrivo() { return dateAnimaleArrivo; }
+    public DatePicker getDateAnimaleUscita() { return dateAnimaleUscita; }
+    public ComboBox<String> getComboAnimaleVivo() { return comboAnimaleVivo; }
     public ComboBox<String> getComboAnimaleSpecie() { return comboAnimaleSpecie; }
     public Button getBtnSalvaAnimale() { return btnSalvaAnimale; }
     public void showAnimaleMsg(final String msg, final boolean success) {

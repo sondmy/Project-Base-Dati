@@ -54,6 +54,7 @@ public class GestioneController {
     private boolean panelAnimaleVisible;
     private boolean panelAreaVisible;
     private boolean panelRecintoVisible;
+    private Integer editingAnimaleId = null;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
@@ -70,6 +71,7 @@ public class GestioneController {
 
     private void init() {
         populateSaldo();
+        populateStatistiche();
         populateOrdini();
         populateVisite();
         populateTurni();
@@ -116,17 +118,46 @@ public class GestioneController {
         });
 
         // Filtra spese per intervallo date
-        view.getBtnFiltraSpese().setOnAction(e -> handleFiltraSpese());
+        view.getBtnFiltraSpese().setOnAction(e -> populateSpese());
+
+        view.getComboStatPeriodo().valueProperty().addListener((obs, oldVal, newVal) -> {
+            populateStatistiche();
+        });
 
         // Salva nuova spesa
         view.getBtnSalvaSpesa().setOnAction(e -> handleSalvaSpesa());
 
-        // Toggle pannello nuovo animale
+        // Toggle pannello nuovo animale e selezione
         view.getBtnNuovoAnimale().setOnAction(e -> {
-            panelAnimaleVisible = !panelAnimaleVisible;
+            editingAnimaleId = null;
+            view.getTxtAnimaleNome().clear();
+            view.getComboAnimaleSesso().setValue(null);
+            view.getDateAnimaleNascita().setValue(null);
+            view.getDateAnimaleArrivo().setValue(null);
+            view.getDateAnimaleUscita().setValue(null);
+            view.getComboAnimaleVivo().setValue(null);
+            view.getComboAnimaleSpecie().setValue(null);
+            
+            panelAnimaleVisible = true;
             view.setPanelNuovoAnimaleVisible(panelAnimaleVisible);
         });
         view.getBtnSalvaAnimale().setOnAction(e -> handleSalvaAnimale());
+
+        view.getTableAnimali().getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                editingAnimaleId = Integer.parseInt(newSelection.getIdAnimale());
+                view.getTxtAnimaleNome().setText(newSelection.getNome());
+                view.getComboAnimaleSesso().setValue(newSelection.getSesso());
+                view.getDateAnimaleNascita().setValue(newSelection.getDataNascita() != null && !newSelection.getDataNascita().equals("-") ? LocalDate.parse(newSelection.getDataNascita(), DATE_FMT) : null);
+                view.getDateAnimaleArrivo().setValue(newSelection.getDataArrivo() != null && !newSelection.getDataArrivo().equals("-") ? LocalDate.parse(newSelection.getDataArrivo(), DATE_FMT) : null);
+                view.getDateAnimaleUscita().setValue(newSelection.getDataUscita() != null && !newSelection.getDataUscita().equals("-") ? LocalDate.parse(newSelection.getDataUscita(), DATE_FMT) : null);
+                view.getComboAnimaleVivo().setValue(newSelection.getVivo());
+                view.getComboAnimaleSpecie().getItems().stream().filter(s -> s.endsWith(newSelection.getSpecie())).findFirst().ifPresent(view.getComboAnimaleSpecie()::setValue);
+                
+                panelAnimaleVisible = true;
+                view.setPanelNuovoAnimaleVisible(true);
+            }
+        });
 
         // Toggle pannello nuova area
         view.getBtnNuovaArea().setOnAction(e -> {
@@ -147,38 +178,105 @@ public class GestioneController {
 
     private void populateSaldo() {
         final List<Transazione> transazioni = new TransazioneDao().findAll();
-        final Map<Integer, CategoriaTransazione> catMap = new CategoriaTransazioneDao().findAll().stream()
-                .collect(Collectors.toMap(CategoriaTransazione::getIdCategoria, c -> c));
+        final Map<Integer, it.unibo.zoo.model.entity.CategoriaTransazione> catMap = new it.unibo.zoo.model.jdbc.entityDao.CategoriaTransazioneDao().findAll().stream()
+                .collect(Collectors.toMap(it.unibo.zoo.model.entity.CategoriaTransazione::getIdCategoria, c -> c));
 
         double entrate = 0;
         double uscite = 0;
+
         for (final Transazione t : transazioni) {
-            if ("E".equals(t.getTipo())) {
+            if ("E".equalsIgnoreCase(t.getTipo())) {
                 entrate += t.getImporto();
             } else {
                 uscite += t.getImporto();
             }
         }
 
-        view.setEntrate(String.format("\u20AC%.2f", entrate));
-        view.setUscite(String.format("\u20AC%.2f", uscite));
-        view.setSaldo(String.format("\u20AC%.2f", entrate - uscite));
+        view.setEntrate(String.format("€%.2f", entrate));
+        view.setUscite(String.format("€%.2f", uscite));
+        final double saldo = entrate - uscite;
+        view.setSaldo(String.format("€%.2f", saldo));
 
         // Ultime 5 transazioni (le ultime nella lista)
         final int start = Math.max(0, transazioni.size() - 5);
         final List<GestioneView.TransazioneRow> rows = new ArrayList<>();
         for (int i = transazioni.size() - 1; i >= start; i--) {
             final Transazione t = transazioni.get(i);
-            final CategoriaTransazione cat = catMap.get(t.getIdCategoria());
+            final it.unibo.zoo.model.entity.CategoriaTransazione cat = catMap.get(t.getIdCategoria());
             rows.add(new GestioneView.TransazioneRow(
                     t.getData().format(DATE_FMT),
                     t.getTipo(),
-                    String.format("\u20AC%.2f", t.getImporto()),
+                    String.format("€%.2f", t.getImporto()),
                     cat != null ? cat.getNome() : "—",
-                    t.getDescrizione()
+                    t.getDescrizione() != null ? t.getDescrizione() : ""
             ));
         }
         view.setTransazioni(rows);
+    }
+
+    private void populateStatistiche() {
+        String periodo = view.getComboStatPeriodo().getValue();
+        
+        List<it.unibo.zoo.model.entity.Scontrino> scontrini = new it.unibo.zoo.model.jdbc.entityDao.ScontrinoDao().findAll();
+        List<it.unibo.zoo.model.entity.DettaglioScontrino> dettagli = new it.unibo.zoo.model.jdbc.entityDao.DettaglioScontrinoDao().findAll();
+        List<it.unibo.zoo.model.entity.TipoBiglietto> tipi = new it.unibo.zoo.model.jdbc.entityDao.TipoBigliettoDao().findAll();
+        
+        Map<Integer, LocalDate> scontrinoDataMap = scontrini.stream()
+                .collect(Collectors.toMap(it.unibo.zoo.model.entity.Scontrino::getIdScontrino, it.unibo.zoo.model.entity.Scontrino::getDataAcquisto));
+        Map<Integer, String> tipoNomeMap = tipi.stream()
+                .collect(Collectors.toMap(it.unibo.zoo.model.entity.TipoBiglietto::getIdBiglietto, it.unibo.zoo.model.entity.TipoBiglietto::getNome));
+
+        Map<String, Integer> venditePerPeriodo = new java.util.TreeMap<>();
+        Map<Integer, Integer> venditePerTipo = new java.util.HashMap<>();
+        
+        java.time.format.DateTimeFormatter monthFmt = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM");
+        
+        int totalTickets = 0;
+        
+        for (it.unibo.zoo.model.entity.DettaglioScontrino d : dettagli) {
+            LocalDate data = scontrinoDataMap.get(d.getIdScontrino());
+            if (data == null) continue;
+            
+            String periodKey;
+            if ("Mese".equals(periodo)) {
+                periodKey = data.format(monthFmt);
+            } else if ("Settimana".equals(periodo)) {
+                int week = data.get(java.time.temporal.IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+                int year = data.get(java.time.temporal.IsoFields.WEEK_BASED_YEAR);
+                periodKey = year + "-W" + String.format("%02d", week);
+            } else {
+                periodKey = data.format(DATE_FMT);
+            }
+            
+            venditePerPeriodo.put(periodKey, venditePerPeriodo.getOrDefault(periodKey, 0) + d.getQuantita());
+            venditePerTipo.put(d.getIdBiglietto(), venditePerTipo.getOrDefault(d.getIdBiglietto(), 0) + d.getQuantita());
+            totalTickets += d.getQuantita();
+        }
+        
+        javafx.scene.chart.XYChart.Series<String, Number> series = new javafx.scene.chart.XYChart.Series<>();
+        for (Map.Entry<String, Integer> entry : venditePerPeriodo.entrySet()) {
+            series.getData().add(new javafx.scene.chart.XYChart.Data<>(entry.getKey(), entry.getValue()));
+        }
+        
+        view.getChartStatBiglietti().getData().clear();
+        view.getChartStatBiglietti().getData().add(series);
+        
+        int topId = -1;
+        int max = -1;
+        for (Map.Entry<Integer, Integer> entry : venditePerTipo.entrySet()) {
+            if (entry.getValue() > max) {
+                max = entry.getValue();
+                topId = entry.getKey();
+            }
+        }
+        
+        if (topId != -1) {
+            view.getLblStatTopBiglietto().setText(tipoNomeMap.getOrDefault(topId, "-"));
+        } else {
+            view.getLblStatTopBiglietto().setText("-");
+        }
+        
+        view.getLblStatTotBiglietti().setText(String.valueOf(totalTickets));
     }
 
     /* ═══ TAB 2 — Ordini giornalieri ═════════════════════ */
@@ -593,8 +691,9 @@ public class GestioneController {
                     String.valueOf(a.getSesso()),
                     a.getDataNascita() != null ? a.getDataNascita().format(DATE_FMT) : "-",
                     a.getDataArrivo() != null ? a.getDataArrivo().format(DATE_FMT) : "-",
+                    a.getDataUscita() != null ? a.getDataUscita().format(DATE_FMT) : "-",
                     s != null ? s.getNomeComune() : "-",
-                    a.isVivo() ? "Vivo" : "Deceduto"
+                    a.isVivo() ? "Vivo" : "Morto"
             ));
         }
         view.setAnimali(rows);
@@ -610,6 +709,9 @@ public class GestioneController {
             String nome = view.getTxtAnimaleNome().getText();
             String sessoStr = view.getComboAnimaleSesso().getValue();
             LocalDate dataNascita = view.getDateAnimaleNascita().getValue();
+            LocalDate dataArrivo = view.getDateAnimaleArrivo().getValue();
+            LocalDate dataUscita = view.getDateAnimaleUscita().getValue();
+            String vivoStr = view.getComboAnimaleVivo().getValue();
             String specieStr = view.getComboAnimaleSpecie().getValue();
             
             if(nome == null || nome.isEmpty() || sessoStr == null || specieStr == null) {
@@ -619,13 +721,26 @@ public class GestioneController {
             
             int idSpecie = Integer.parseInt(specieStr.split(" - ")[0]);
             char sesso = sessoStr.charAt(0);
+            boolean vivo = "Vivo".equals(vivoStr);
             
-            Animale a = new Animale(0, nome, sesso, true, dataNascita, LocalDate.now(), null, idSpecie);
-            new AnimaleDao().insert(a);
+            if (dataArrivo == null) {
+                dataArrivo = LocalDate.now();
+            }
             
-            view.showAnimaleMsg("Animale aggiunto con successo!", true);
+            AnimaleDao dao = new AnimaleDao();
+            if (editingAnimaleId == null) {
+                Animale a = new Animale(0, nome, sesso, vivo, dataNascita, dataArrivo, dataUscita, idSpecie);
+                dao.insert(a);
+                view.showAnimaleMsg("Animale aggiunto con successo!", true);
+            } else {
+                Animale a = new Animale(editingAnimaleId, nome, sesso, vivo, dataNascita, dataArrivo, dataUscita, idSpecie);
+                dao.update(a);
+                view.showAnimaleMsg("Animale modificato con successo!", true);
+            }
+            
             view.setPanelNuovoAnimaleVisible(false);
             populateAnimali();
+            editingAnimaleId = null;
         } catch(Exception e) {
             view.showAnimaleMsg("Errore: " + e.getMessage(), false);
         }
