@@ -21,12 +21,12 @@ public class TurnoDao extends AbstractCrudDao<Turno> {
 
     @Override
     protected String insertSql() {
-        return "INSERT INTO turno (ora_inizio, ora_fine, id_dipendente, id_area) VALUES (?, ?, ?, ?)";
+        return "INSERT INTO turno (data_giorno, ora_inizio, ora_fine, id_dipendente, id_area) VALUES (?, ?, ?, ?, ?)";
     }
 
     @Override
     protected String updateSql() {
-        return "UPDATE turno SET ora_inizio = ?, ora_fine = ?, id_dipendente = ?, id_area = ? WHERE id_turno = ?";
+        return "UPDATE turno SET data_giorno = ?, ora_inizio = ?, ora_fine = ?, id_dipendente = ?, id_area = ? WHERE id_turno = ?";
     }
 
     @Override
@@ -43,6 +43,7 @@ public class TurnoDao extends AbstractCrudDao<Turno> {
     protected Turno mapRow(ResultSet resultSet) throws SQLException {
         return new Turno(
                 resultSet.getInt("id_turno"),
+                JdbcUtils.getNullableDate(resultSet, "data_giorno"),
                 JdbcUtils.getNullableDateTime(resultSet, "ora_inizio"),
                 JdbcUtils.getNullableDateTime(resultSet, "ora_fine"),
                 resultSet.getInt("id_dipendente"),
@@ -53,6 +54,7 @@ public class TurnoDao extends AbstractCrudDao<Turno> {
     @Override
     protected void bindInsert(PreparedStatement statement, Turno entity) throws SQLException {
         int index = 1;
+        statement.setDate(index++, java.sql.Date.valueOf(entity.getDataGiorno()));
         statement.setTimestamp(index++, java.sql.Timestamp.valueOf(entity.getOraInizio()));
         statement.setTimestamp(index++, java.sql.Timestamp.valueOf(entity.getOraFine()));
         statement.setInt(index++, entity.getIdDipendente());
@@ -62,6 +64,7 @@ public class TurnoDao extends AbstractCrudDao<Turno> {
     @Override
     protected void bindUpdate(PreparedStatement statement, Turno entity) throws SQLException {
         int index = 1;
+        statement.setDate(index++, java.sql.Date.valueOf(entity.getDataGiorno()));
         statement.setTimestamp(index++, java.sql.Timestamp.valueOf(entity.getOraInizio()));
         statement.setTimestamp(index++, java.sql.Timestamp.valueOf(entity.getOraFine()));
         statement.setInt(index++, entity.getIdDipendente());

@@ -29,6 +29,7 @@ public class RecintoController {
             final TipoRecinto t = tipoRecintoMap.get(r.getIdTipoRecinto());
             rows.add(new GestioneView.RecintoRow(
                     String.valueOf(r.getIdRecinto()),
+                    r.getNome(),
                     a != null ? a.getNome() : "-",
                     String.valueOf(r.getCapienzaMassima()),
                     t != null ? t.getNome() : "-"
@@ -49,11 +50,12 @@ public class RecintoController {
 
     public static void handleSalvaRecinto(final GestioneView view) {
         try {
+            String nome = view.getTxtRecintoNome().getText();
             String areaStr = view.getComboRecintoArea().getValue();
             String tipoStr = view.getComboRecintoTipo().getValue();
             Integer capienza = view.getSpinnerRecintoCapienza().getValue();
             
-            if(areaStr == null || tipoStr == null || capienza == null) {
+            if(nome == null || nome.isBlank() || areaStr == null || tipoStr == null || capienza == null) {
                 view.showRecintoMsg("Tutti i campi sono obbligatori.", false);
                 return;
             }
@@ -61,7 +63,7 @@ public class RecintoController {
             int idArea = Integer.parseInt(areaStr.split(" - ")[0]);
             int idTipoRecinto = Integer.parseInt(tipoStr.split(" - ")[0]);
             
-            Recinto r = new Recinto(0, capienza, idArea, idTipoRecinto);
+            Recinto r = new Recinto(nome.trim(), capienza, idArea, idTipoRecinto);
             new RecintoDao().insert(r);
             
             view.showRecintoMsg("Recinto aggiunto con successo!", true);

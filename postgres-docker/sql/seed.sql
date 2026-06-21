@@ -124,15 +124,15 @@ INSERT INTO AREA (nome, metratura, id_tipo_area) VALUES
 ('Palazzina Uffici', 300, 3);
 
 -- RECINTO
-INSERT INTO RECINTO (capienza_massima, id_tipo_recinto, id_area) VALUES
-(5, 5, 1),
-(3, 5, 1),
-(20, 2, 2),
-(10, 1, 3),
-(8, 4, 4),
-(6, 5, 1),
-(2, 1, 3),
-(2, 2, 5);
+INSERT INTO RECINTO (nome, capienza_massima, id_tipo_recinto, id_area) VALUES
+('Savana Esterna', 5, 5, 1),
+('Recinto Panoramico 1', 3, 5, 1),
+('Vasca Pinguini', 20, 2, 2),
+('Area Predatori', 10, 1, 3),
+('Terrario Rettili', 8, 4, 4),
+('Stalla Erbivori', 6, 5, 1),
+('Gabbia Lupi', 2, 1, 3),
+('Magazzino Acqua', 2, 2, 5);
 
 -- ANIMALE
 INSERT INTO ANIMALE (nome, sesso, vivo, data_nascita, data_arrivo, data_uscita, id_specie) VALUES
@@ -180,10 +180,10 @@ INSERT INTO STORICO_STIPENDIO (id_dipendente, prezzo_orario, data_inizio, data_f
 (6, 16.00, '2016-01-15', NULL);
 
 -- TURNO
-INSERT INTO TURNO (ora_inizio, ora_fine, id_dipendente, id_area) VALUES
-('2024-05-01 08:00:00', '2024-05-01 16:00:00', 2, 1),
-('2024-05-01 09:00:00', '2024-05-01 17:00:00', 1, 5),
-('2024-05-01 08:30:00', '2024-05-01 18:30:00', 4, 7);
+INSERT INTO TURNO (data_giorno, ora_inizio, ora_fine, id_dipendente, id_area) VALUES
+('2024-05-01', '2024-05-01 08:00:00', '2024-05-01 16:00:00', 2, 1),
+('2024-05-01', '2024-05-01 09:00:00', '2024-05-01 17:00:00', 1, 5),
+('2024-05-01', '2024-05-01 08:30:00', '2024-05-01 18:30:00', 4, 7);
 
 -- VISITA_MEDICA
 INSERT INTO VISITA_MEDICA (peso, diagnosi, note_trattamento, data_visita, data_fine, id_animale, id_veterinario) VALUES
@@ -205,12 +205,12 @@ INSERT INTO FORNITORE (nome_azienda, descrizione, indirizzo, iban, id_tipo_forni
 ('VetPharma', 'Distributore di farmaci veterinari', 'Viale Salute 55, Roma', 'IT55D0000000000000000000000', 2);
 
 -- FORNITORE_CIBO
-INSERT INTO FORNITORE_CIBO (id_fornitore, id_tipo_cibo) VALUES
-(1, 1),
-(1, 2),
-(2, 4),
-(2, 5),
-(3, 3);
+INSERT INTO FORNITORE_CIBO (id_fornitore, id_tipo_cibo, prezzo) VALUES
+(1, 1, 5.20),
+(1, 2, 4.80),
+(2, 4, 0.55),
+(2, 5, 0.75),
+(3, 3, 3.20);
 
 -- SCONTRINO
 INSERT INTO SCONTRINO (data_acquisto, nome_gruppo, num_persone, id_utente) VALUES

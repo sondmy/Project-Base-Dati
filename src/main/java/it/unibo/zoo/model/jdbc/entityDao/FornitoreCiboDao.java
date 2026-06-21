@@ -21,12 +21,12 @@ public class FornitoreCiboDao extends AbstractCompositeCrudDao<FornitoreCibo> {
 
     @Override
     protected String insertSql() {
-        return "INSERT INTO fornitore_cibo (id_fornitore, id_tipo_cibo) VALUES (?, ?)";
+        return "INSERT INTO fornitore_cibo (id_fornitore, id_tipo_cibo, prezzo) VALUES (?, ?, ?)";
     }
 
     @Override
     protected String updateSql() {
-        return "UPDATE fornitore_cibo SET id_fornitore = ?, id_tipo_cibo = ? WHERE id_fornitore = ? AND id_tipo_cibo = ?";
+        return "UPDATE fornitore_cibo SET prezzo = ? WHERE id_fornitore = ? AND id_tipo_cibo = ?";
     }
 
     @Override
@@ -45,7 +45,8 @@ public class FornitoreCiboDao extends AbstractCompositeCrudDao<FornitoreCibo> {
     protected FornitoreCibo mapRow(ResultSet resultSet) throws SQLException {
         return new FornitoreCibo(
                 resultSet.getInt("id_fornitore"),
-                resultSet.getInt("id_tipo_cibo")
+                resultSet.getInt("id_tipo_cibo"),
+                resultSet.getDouble("prezzo")
         );
     }
 
@@ -54,13 +55,13 @@ public class FornitoreCiboDao extends AbstractCompositeCrudDao<FornitoreCibo> {
         int index = 1;
         statement.setInt(index++, entity.getIdFornitore());
         statement.setInt(index++, entity.getIdTipoCibo());
+        statement.setDouble(index++, entity.getPrezzo());
     }
 
     @Override
     protected void bindUpdate(PreparedStatement statement, FornitoreCibo entity) throws SQLException {
         int index = 1;
-        statement.setInt(index++, entity.getIdFornitore());
-        statement.setInt(index++, entity.getIdTipoCibo());
+        statement.setDouble(index++, entity.getPrezzo());
         statement.setInt(index++, entity.getIdFornitore());
         statement.setInt(index++, entity.getIdTipoCibo());
     }
