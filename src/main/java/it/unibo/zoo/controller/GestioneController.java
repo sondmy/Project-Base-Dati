@@ -51,6 +51,8 @@ public class GestioneController {
     private boolean panelVisitaVisible;
     private boolean panelTurnoVisible;
     private boolean panelDipendenteVisible;
+    private boolean panelAnimaleVisible;
+    private boolean panelAreaVisible;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
@@ -59,6 +61,8 @@ public class GestioneController {
         this.panelVisitaVisible = false;
         this.panelTurnoVisible = false;
         this.panelDipendenteVisible = false;
+        this.panelAnimaleVisible = false;
+        this.panelAreaVisible = false;
         init();
     }
 
@@ -69,6 +73,8 @@ public class GestioneController {
         populateTurni();
         populatePersonale();
         populateSpese();
+        populateAnimali();
+        populateAree();
 
         // Toggle pannello nuovo ordine
         view.getBtnNuovoOrdine().setOnAction(e -> {
@@ -111,6 +117,20 @@ public class GestioneController {
 
         // Salva nuova spesa
         view.getBtnSalvaSpesa().setOnAction(e -> handleSalvaSpesa());
+
+        // Toggle pannello nuovo animale
+        view.getBtnNuovoAnimale().setOnAction(e -> {
+            panelAnimaleVisible = !panelAnimaleVisible;
+            view.setPanelNuovoAnimaleVisible(panelAnimaleVisible);
+        });
+        view.getBtnSalvaAnimale().setOnAction(e -> handleSalvaAnimale());
+
+        // Toggle pannello nuova area
+        view.getBtnNuovaArea().setOnAction(e -> {
+            panelAreaVisible = !panelAreaVisible;
+            view.setPanelNuovaAreaVisible(panelAreaVisible);
+        });
+        view.getBtnSalvaArea().setOnAction(e -> handleSalvaArea());
     }
 
     /* ═══ TAB 1 — Saldo ══════════════════════════════════ */
@@ -545,6 +565,107 @@ public class GestioneController {
         } catch (Exception e) {
             view.showSpesaMsg("Errore: " + e.getMessage(), false);
             e.printStackTrace();
+        }
+    }
+
+    /* ═══ TAB 7 - Animali ══════════════════════════════ */
+    private void populateAnimali() {
+        final List<Animale> animali = new AnimaleDao().findAll();
+        final java.util.Map<Integer, Specie> specieMap = new SpecieDao().findAll().stream()
+                .collect(Collectors.toMap(Specie::getIdSpecie, s -> s));
+
+        final List<GestioneView.AnimaleRow> rows = new ArrayList<>();
+        for (final Animale a : animali) {
+            final Specie s = specieMap.get(a.getIdSpecie());
+            rows.add(new GestioneView.AnimaleRow(
+                    String.valueOf(a.getIdAnimale()),
+                    a.getNome(),
+                    String.valueOf(a.getSesso()),
+                    a.getDataNascita() != null ? a.getDataNascita().format(DATE_FMT) : "-",
+                    a.getDataArrivo() != null ? a.getDataArrivo().format(DATE_FMT) : "-",
+                    s != null ? s.getNomeComune() : "-",
+                    a.isVivo() ? "Vivo" : "Deceduto"
+            ));
+        }
+        view.setAnimali(rows);
+
+        view.getComboAnimaleSpecie().getItems().clear();
+        for (final Specie s : new SpecieDao().findAll()) {
+            view.getComboAnimaleSpecie().getItems().add(s.getIdSpecie() + " - " + s.getNomeComune());
+        }
+    }
+
+    private void handleSalvaAnimale() {
+        try {
+            String nome = view.getTxtAnimaleNome().getText();
+            String sessoStr = view.getComboAnimaleSesso().getValue();
+            LocalDate dataNascita = view.getDateAnimaleNascita().getValue();
+            String specieStr = view.getComboAnimaleSpecie().getValue();
+            
+            if(nome == null || nome.isEmpty() || sessoStr == null || specieStr == null) {
+                view.showAnimaleMsg("Nome, Sesso e Specie sono obbligatori.", false);
+                return;
+            }
+            
+            int idSpecie = Integer.parseInt(specieStr.split(" - ")[0]);
+            char sesso = sessoStr.charAt(0);
+            
+            Animale a = new Animale(0, nome, sesso, true, dataNascita, LocalDate.now(), null, idSpecie);
+            new AnimaleDao().insert(a);
+            
+            view.showAnimaleMsg("Animale aggiunto con successo!", true);
+            view.setPanelNuovoAnimaleVisible(false);
+            populateAnimali();
+        } catch(Exception e) {
+            view.showAnimaleMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+
+    /* ═══ TAB 8 - Aree ═══════════════════════════════ */
+    private void populateAree() {
+        final List<Area> aree = new AreaDao().findAll();
+        final java.util.Map<Integer, it.unibo.zoo.model.entity.TipoArea> tipoAreaMap = new it.unibo.zoo.model.jdbc.entityDao.TipoAreaDao().findAll().stream()
+                .collect(Collectors.toMap(it.unibo.zoo.model.entity.TipoArea::getIdTipoArea, t -> t));
+
+        final List<GestioneView.AreaRow> rows = new ArrayList<>();
+        for (final Area a : aree) {
+            final it.unibo.zoo.model.entity.TipoArea t = tipoAreaMap.get(a.getIdTipoArea());
+            rows.add(new GestioneView.AreaRow(
+                    String.valueOf(a.getIdArea()),
+                    a.getNome(),
+                    String.valueOf(a.getMetratura()),
+                    t != null ? t.getNome() : "-"
+            ));
+        }
+        view.setAree(rows);
+
+        view.getComboAreaTipo().getItems().clear();
+        for (final it.unibo.zoo.model.entity.TipoArea t : new it.unibo.zoo.model.jdbc.entityDao.TipoAreaDao().findAll()) {
+            view.getComboAreaTipo().getItems().add(t.getIdTipoArea() + " - " + t.getNome());
+        }
+    }
+
+    private void handleSalvaArea() {
+        try {
+            String nome = view.getTxtAreaNome().getText();
+            Integer metratura = view.getSpinnerAreaMetratura().getValue();
+            String tipoStr = view.getComboAreaTipo().getValue();
+            
+            if(nome == null || nome.isEmpty() || tipoStr == null || metratura == null) {
+                view.showAreaMsg("Tutti i campi sono obbligatori.", false);
+                return;
+            }
+            
+            int idTipoArea = Integer.parseInt(tipoStr.split(" - ")[0]);
+            
+            Area a = new Area(0, nome, metratura, idTipoArea);
+            new AreaDao().insert(a);
+            
+            view.showAreaMsg("Area aggiunta con successo!", true);
+            view.setPanelNuovaAreaVisible(false);
+            populateAree();
+        } catch(Exception e) {
+            view.showAreaMsg("Errore: " + e.getMessage(), false);
         }
     }
 

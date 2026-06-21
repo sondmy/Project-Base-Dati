@@ -19,6 +19,7 @@ public class MainView {
     private Button btnHome;
     private Button btnAnimali;
     private Button btnBiglietti;
+    private Button btnDonazioni;
     private Button btnGestione;
 
     public MainView() {
@@ -39,11 +40,12 @@ public class MainView {
         btnHome = createNavButton("Home");
         btnAnimali = createNavButton("Animali");
         btnBiglietti = createNavButton("Biglietti");
+        btnDonazioni = createNavButton("Donazioni");
         btnGestione = createNavButton("Login");
         btnGestione.setVisible(false);
         btnGestione.setManaged(false);
 
-        navButtonsBox = new HBox(8, btnHome, btnAnimali, btnBiglietti, btnGestione);
+        navButtonsBox = new HBox(8, btnHome, btnAnimali, btnBiglietti, btnDonazioni, btnGestione);
         navButtonsBox.setAlignment(Pos.CENTER_RIGHT);
 
         navbar.getChildren().addAll(title, spacer, navButtonsBox);
@@ -70,6 +72,7 @@ public class MainView {
     public Button getBtnHome()      { return btnHome; }
     public Button getBtnAnimali()   { return btnAnimali; }
     public Button getBtnBiglietti() { return btnBiglietti; }
+    public Button getBtnDonazioni() { return btnDonazioni; }
     public Button getBtnGestione()  { return btnGestione; }
 
     /**

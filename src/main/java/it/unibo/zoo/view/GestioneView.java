@@ -157,6 +157,60 @@ public class GestioneView {
         public String getImporto() { return importo; }
     }
 
+    public static class AnimaleRow {
+        private final String idAnimale;
+        private final String nome;
+        private final String sesso;
+        private final String dataNascita;
+        private final String dataArrivo;
+        private final String specie;
+        private final String vivo;
+
+        public AnimaleRow(final String idAnimale, final String nome, final String sesso, final String dataNascita, final String dataArrivo, final String specie, final String vivo) {
+            this.idAnimale = idAnimale; this.nome = nome; this.sesso = sesso; this.dataNascita = dataNascita; this.dataArrivo = dataArrivo; this.specie = specie; this.vivo = vivo;
+        }
+
+        public String getIdAnimale() { return idAnimale; }
+        public String getNome() { return nome; }
+        public String getSesso() { return sesso; }
+        public String getDataNascita() { return dataNascita; }
+        public String getDataArrivo() { return dataArrivo; }
+        public String getSpecie() { return specie; }
+        public String getVivo() { return vivo; }
+    }
+
+    public static class AreaRow {
+        private final String idArea;
+        private final String nome;
+        private final String metratura;
+        private final String tipoArea;
+
+        public AreaRow(final String idArea, final String nome, final String metratura, final String tipoArea) {
+            this.idArea = idArea; this.nome = nome; this.metratura = metratura; this.tipoArea = tipoArea;
+        }
+
+        public String getIdArea() { return idArea; }
+        public String getNome() { return nome; }
+        public String getMetratura() { return metratura; }
+        public String getTipoArea() { return tipoArea; }
+    }
+
+    public static class RecintoRow {
+        private final String idRecinto;
+        private final String area;
+        private final String capienza;
+        private final String tipo;
+
+        public RecintoRow(final String idRecinto, final String area, final String capienza, final String tipo) {
+            this.idRecinto = idRecinto; this.area = area; this.capienza = capienza; this.tipo = tipo;
+        }
+
+        public String getIdRecinto() { return idRecinto; }
+        public String getArea() { return area; }
+        public String getCapienza() { return capienza; }
+        public String getTipo() { return tipo; }
+    }
+
     /* ── Campi UI ─────────────────────────────────────── */
 
     private final VBox root;
@@ -223,6 +277,37 @@ public class GestioneView {
     private final ComboBox<String> comboSpesaFornitore;
     private final Button btnSalvaSpesa;
     private final Label lblSpesaMsg;
+
+    // Tab 7 - Animali
+    private final TableView<AnimaleRow> tableAnimali;
+    private final Button btnNuovoAnimale;
+    private final VBox panelNuovoAnimale;
+    private final TextField txtAnimaleNome;
+    private final ComboBox<String> comboAnimaleSesso;
+    private final DatePicker dateAnimaleNascita;
+    private final ComboBox<String> comboAnimaleSpecie;
+    private final Button btnSalvaAnimale;
+    private final Label lblAnimaleMsg;
+
+    // Tab 8 - Aree
+    private final TableView<AreaRow> tableAree;
+    private final Button btnNuovaArea;
+    private final VBox panelNuovaArea;
+    private final TextField txtAreaNome;
+    private final Spinner<Integer> spinnerAreaMetratura;
+    private final ComboBox<String> comboAreaTipo;
+    private final Button btnSalvaArea;
+    private final Label lblAreaMsg;
+
+    // Tab 9 - Recinti
+    private final TableView<RecintoRow> tableRecinti;
+    private final Button btnNuovoRecinto;
+    private final VBox panelNuovoRecinto;
+    private final ComboBox<String> comboRecintoArea;
+    private final ComboBox<String> comboRecintoTipo;
+    private final Spinner<Integer> spinnerRecintoCapienza;
+    private final Button btnSalvaRecinto;
+    private final Label lblRecintoMsg;
 
     @SuppressWarnings("unchecked")
     public GestioneView() {
@@ -667,8 +752,182 @@ public class GestioneView {
         speseScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
         tabSpese.setContent(speseScroll);
 
+        /* ═══ TAB 7 - Animali ════════════════════════════ */
+        final Tab tabAnimali = new Tab("\uD83D\uDC3E Animali");
+        final VBox animaliContent = new VBox(16);
+        animaliContent.setPadding(new Insets(20));
+
+        tableAnimali = new TableView<>();
+        tableAnimali.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        final TableColumn<AnimaleRow, String> colAnId = new TableColumn<>("ID");
+        colAnId.setCellValueFactory(new PropertyValueFactory<>("idAnimale"));
+        colAnId.setMaxWidth(50);
+
+        final TableColumn<AnimaleRow, String> colAnNome = new TableColumn<>("Nome");
+        colAnNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+
+        final TableColumn<AnimaleRow, String> colAnSesso = new TableColumn<>("Sesso");
+        colAnSesso.setCellValueFactory(new PropertyValueFactory<>("sesso"));
+
+        final TableColumn<AnimaleRow, String> colAnDataN = new TableColumn<>("Nascita");
+        colAnDataN.setCellValueFactory(new PropertyValueFactory<>("dataNascita"));
+
+        final TableColumn<AnimaleRow, String> colAnDataA = new TableColumn<>("Arrivo");
+        colAnDataA.setCellValueFactory(new PropertyValueFactory<>("dataArrivo"));
+
+        final TableColumn<AnimaleRow, String> colAnSpecie = new TableColumn<>("Specie");
+        colAnSpecie.setCellValueFactory(new PropertyValueFactory<>("specie"));
+
+        final TableColumn<AnimaleRow, String> colAnVivo = new TableColumn<>("Stato");
+        colAnVivo.setCellValueFactory(new PropertyValueFactory<>("vivo"));
+        colAnVivo.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
+            @Override
+            protected void updateItem(final String item, final boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setGraphic(null);
+                } else {
+                    final Label badge = new Label(item);
+                    badge.setStyle(StyleHelper.badge("Vivo".equals(item) ? StyleHelper.GREEN : StyleHelper.RED));
+                    setGraphic(badge);
+                }
+                setText(null);
+            }
+        });
+
+        tableAnimali.getColumns().addAll(colAnId, colAnNome, colAnSesso, colAnDataN, colAnDataA, colAnSpecie, colAnVivo);
+
+        btnNuovoAnimale = new Button("Aggiungi Animale");
+        btnNuovoAnimale.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+
+        panelNuovoAnimale = new VBox(12);
+        panelNuovoAnimale.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovoAnimale.setPadding(new Insets(16));
+        panelNuovoAnimale.setVisible(false);
+        panelNuovoAnimale.setManaged(false);
+
+        txtAnimaleNome = new TextField(); txtAnimaleNome.setPromptText("Nome...");
+        comboAnimaleSesso = new ComboBox<>(); comboAnimaleSesso.setPromptText("Sesso...");
+        comboAnimaleSesso.getItems().addAll("M", "F", "I");
+        dateAnimaleNascita = new DatePicker(); dateAnimaleNascita.setPromptText("Data Nascita...");
+        comboAnimaleSpecie = new ComboBox<>(); comboAnimaleSpecie.setPromptText("Seleziona Specie...");
+        
+        btnSalvaAnimale = new Button("Salva");
+        btnSalvaAnimale.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        lblAnimaleMsg = new Label(); lblAnimaleMsg.setVisible(false);
+
+        panelNuovoAnimale.getChildren().addAll(new Label("Nuovo Animale"), txtAnimaleNome, comboAnimaleSesso, dateAnimaleNascita, comboAnimaleSpecie, btnSalvaAnimale, lblAnimaleMsg);
+
+        animaliContent.getChildren().addAll(tableAnimali, btnNuovoAnimale, panelNuovoAnimale);
+        tabAnimali.setContent(animaliContent);
+
+        /* ═══ TAB 8 - Aree ═══════════════════════════════ */
+        final Tab tabAree = new Tab("\uD83C\uDFDE Aree");
+        final VBox areeContent = new VBox(16);
+        areeContent.setPadding(new Insets(20));
+
+        tableAree = new TableView<>();
+        tableAree.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        final TableColumn<AreaRow, String> colArId = new TableColumn<>("ID");
+        colArId.setCellValueFactory(new PropertyValueFactory<>("idArea"));
+        colArId.setMaxWidth(50);
+
+        final TableColumn<AreaRow, String> colArNome = new TableColumn<>("Nome");
+        colArNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+
+        final TableColumn<AreaRow, String> colArMet = new TableColumn<>("Metratura");
+        colArMet.setCellValueFactory(new PropertyValueFactory<>("metratura"));
+
+        final TableColumn<AreaRow, String> colArTipo = new TableColumn<>("Tipo");
+        colArTipo.setCellValueFactory(new PropertyValueFactory<>("tipoArea"));
+
+        tableAree.getColumns().addAll(colArId, colArNome, colArMet, colArTipo);
+
+        btnNuovaArea = new Button("Aggiungi Area");
+        btnNuovaArea.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+
+        panelNuovaArea = new VBox(12);
+        panelNuovaArea.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovaArea.setPadding(new Insets(16));
+        panelNuovaArea.setVisible(false);
+        panelNuovaArea.setManaged(false);
+
+        txtAreaNome = new TextField(); txtAreaNome.setPromptText("Nome Area...");
+        spinnerAreaMetratura = new Spinner<>(10, 100000, 100); spinnerAreaMetratura.setEditable(true);
+        comboAreaTipo = new ComboBox<>(); comboAreaTipo.setPromptText("Seleziona Tipo Area...");
+
+        btnSalvaArea = new Button("Salva");
+        btnSalvaArea.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        lblAreaMsg = new Label(); lblAreaMsg.setVisible(false);
+
+        final HBox metraturaRow = new HBox(12, new Label("Metratura (mq):"), spinnerAreaMetratura);
+        metraturaRow.setAlignment(Pos.CENTER_LEFT);
+        for (javafx.scene.Node n : metraturaRow.getChildren()) {
+            if (n instanceof Label) {
+                n.setStyle(StyleHelper.STYLE_LABEL);
+            }
+        }
+
+        panelNuovaArea.getChildren().addAll(new Label("Nuova Area"), txtAreaNome, metraturaRow, comboAreaTipo, btnSalvaArea, lblAreaMsg);
+
+        areeContent.getChildren().addAll(tableAree, btnNuovaArea, panelNuovaArea);
+        tabAree.setContent(areeContent);
+
+        /* ═══ TAB 9 - Recinti ═════════════════════════════ */
+        final Tab tabRecinti = new Tab("\uD83D\uDEA7 Recinti");
+        final VBox recintiContent = new VBox(16);
+        recintiContent.setPadding(new Insets(20));
+
+        tableRecinti = new TableView<>();
+        tableRecinti.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        final TableColumn<RecintoRow, String> colRecId = new TableColumn<>("ID");
+        colRecId.setCellValueFactory(new PropertyValueFactory<>("idRecinto"));
+        colRecId.setMaxWidth(50);
+
+        final TableColumn<RecintoRow, String> colRecArea = new TableColumn<>("Area");
+        colRecArea.setCellValueFactory(new PropertyValueFactory<>("area"));
+
+        final TableColumn<RecintoRow, String> colRecTipo = new TableColumn<>("Tipo");
+        colRecTipo.setCellValueFactory(new PropertyValueFactory<>("tipo"));
+
+        final TableColumn<RecintoRow, String> colRecCapienza = new TableColumn<>("Capienza Massima");
+        colRecCapienza.setCellValueFactory(new PropertyValueFactory<>("capienza"));
+
+        tableRecinti.getColumns().addAll(colRecId, colRecArea, colRecTipo, colRecCapienza);
+
+        btnNuovoRecinto = new Button("Aggiungi Recinto");
+        btnNuovoRecinto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+
+        panelNuovoRecinto = new VBox(12);
+        panelNuovoRecinto.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovoRecinto.setPadding(new Insets(16));
+        panelNuovoRecinto.setVisible(false);
+        panelNuovoRecinto.setManaged(false);
+
+        comboRecintoArea = new ComboBox<>(); comboRecintoArea.setPromptText("Seleziona Area...");
+        comboRecintoTipo = new ComboBox<>(); comboRecintoTipo.setPromptText("Seleziona Tipo Recinto...");
+        spinnerRecintoCapienza = new Spinner<>(1, 1000, 10); spinnerRecintoCapienza.setEditable(true);
+
+        btnSalvaRecinto = new Button("Salva");
+        btnSalvaRecinto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        lblRecintoMsg = new Label(); lblRecintoMsg.setVisible(false);
+
+        final HBox capienzaRow = new HBox(12, new Label("Capienza Massima:"), spinnerRecintoCapienza);
+        capienzaRow.setAlignment(Pos.CENTER_LEFT);
+        for (javafx.scene.Node n : capienzaRow.getChildren()) {
+            if (n instanceof Label) n.setStyle(StyleHelper.STYLE_LABEL);
+        }
+
+        panelNuovoRecinto.getChildren().addAll(new Label("Nuovo Recinto"), comboRecintoArea, comboRecintoTipo, capienzaRow, btnSalvaRecinto, lblRecintoMsg);
+
+        recintiContent.getChildren().addAll(tableRecinti, btnNuovoRecinto, panelNuovoRecinto);
+        tabRecinti.setContent(recintiContent);
+
         /* ── Assembla TabPane ────────────────────────────── */
-        tabPane.getTabs().addAll(tabSaldo, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale);
+        tabPane.getTabs().addAll(tabSaldo, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
 
 
         root.getChildren().addAll(title, tabPane);
@@ -795,6 +1054,58 @@ public class GestioneView {
         panelNuovaSpesa.setVisible(visible); panelNuovaSpesa.setManaged(visible);
     }
 
+
+    /* Tab 7 - Animali */
+    public void setAnimali(final List<AnimaleRow> rows) { tableAnimali.setItems(FXCollections.observableArrayList(rows)); }
+    public Button getBtnNuovoAnimale() { return btnNuovoAnimale; }
+    public VBox getPanelNuovoAnimale() { return panelNuovoAnimale; }
+    public TextField getTxtAnimaleNome() { return txtAnimaleNome; }
+    public ComboBox<String> getComboAnimaleSesso() { return comboAnimaleSesso; }
+    public DatePicker getDateAnimaleNascita() { return dateAnimaleNascita; }
+    public ComboBox<String> getComboAnimaleSpecie() { return comboAnimaleSpecie; }
+    public Button getBtnSalvaAnimale() { return btnSalvaAnimale; }
+    public void showAnimaleMsg(final String msg, final boolean success) {
+        lblAnimaleMsg.setText(msg);
+        lblAnimaleMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblAnimaleMsg.setVisible(true);
+    }
+    public void setPanelNuovoAnimaleVisible(final boolean visible) {
+        panelNuovoAnimale.setVisible(visible); panelNuovoAnimale.setManaged(visible);
+    }
+
+    /* Tab 8 - Aree */
+    public void setAree(final List<AreaRow> rows) { tableAree.setItems(FXCollections.observableArrayList(rows)); }
+    public Button getBtnNuovaArea() { return btnNuovaArea; }
+    public VBox getPanelNuovaArea() { return panelNuovaArea; }
+    public TextField getTxtAreaNome() { return txtAreaNome; }
+    public Spinner<Integer> getSpinnerAreaMetratura() { return spinnerAreaMetratura; }
+    public ComboBox<String> getComboAreaTipo() { return comboAreaTipo; }
+    public Button getBtnSalvaArea() { return btnSalvaArea; }
+    public void showAreaMsg(final String msg, final boolean success) {
+        lblAreaMsg.setText(msg);
+        lblAreaMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblAreaMsg.setVisible(true);
+    }
+    public void setPanelNuovaAreaVisible(final boolean visible) {
+        panelNuovaArea.setVisible(visible); panelNuovaArea.setManaged(visible);
+    }
+
+    /* Tab 9 - Recinti */
+    public void setRecinti(final List<RecintoRow> rows) { tableRecinti.setItems(FXCollections.observableArrayList(rows)); }
+    public Button getBtnNuovoRecinto() { return btnNuovoRecinto; }
+    public VBox getPanelNuovoRecinto() { return panelNuovoRecinto; }
+    public ComboBox<String> getComboRecintoArea() { return comboRecintoArea; }
+    public ComboBox<String> getComboRecintoTipo() { return comboRecintoTipo; }
+    public Spinner<Integer> getSpinnerRecintoCapienza() { return spinnerRecintoCapienza; }
+    public Button getBtnSalvaRecinto() { return btnSalvaRecinto; }
+    public void showRecintoMsg(final String msg, final boolean success) {
+        lblRecintoMsg.setText(msg);
+        lblRecintoMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblRecintoMsg.setVisible(true);
+    }
+    public void setPanelNuovoRecintoVisible(final boolean visible) {
+        panelNuovoRecinto.setVisible(visible); panelNuovoRecinto.setManaged(visible);
+    }
 
     /* ── Utility interna ─────────────────────────────── */
 
