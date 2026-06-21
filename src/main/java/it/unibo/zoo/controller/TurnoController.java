@@ -25,7 +25,20 @@ public class TurnoController {
     private static final DateTimeFormatter TIME_FMT = DateTimeFormatter.ofPattern("HH:mm");
 
     public static void populateTurni(final GestioneView view) {
-        final List<Turno> turni = new TurnoDao().findAll();
+        String filterMode = view.getComboFiltroTurni().getValue();
+        LocalDate filterDate = view.getDateFiltroTurni().getValue();
+        
+        List<Turno> turni;
+        if ("Giorno".equals(filterMode) && filterDate != null) {
+            turni = new TurnoDao().findByData(filterDate);
+        } else if ("Settimana".equals(filterMode) && filterDate != null) {
+            // Calcola da Lunedì a Domenica per la settimana della data selezionata
+            LocalDate start = filterDate.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+            LocalDate end = filterDate.with(java.time.temporal.TemporalAdjusters.nextOrSame(java.time.DayOfWeek.SUNDAY));
+            turni = new TurnoDao().findByDateRange(start, end);
+        } else {
+            turni = new TurnoDao().findAll();
+        }
         final Map<Integer, Dipendente> dipMap = new DipendenteDao().findAll().stream()
                 .collect(Collectors.toMap(Dipendente::getIdDipendente, d -> d));
         final Map<Integer, Mansione> mansMap = new MansioneDao().findAll().stream()
@@ -52,12 +65,14 @@ public class TurnoController {
             }
             final Area area = areaMap.get(t.getIdArea());
             final String nomeArea = area != null ? area.getNome() : "—";
+            
+            final String giornoStr = t.getDataGiorno() != null ? t.getDataGiorno().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) : "—";
 
             rows.add(new GestioneView.TurnoRow(
                     String.valueOf(t.getIdTurno()),
                     String.valueOf(t.getIdDipendente()),
                     String.valueOf(t.getIdArea()),
-                    nomeDip, mansione, nomeArea,
+                    giornoStr, nomeDip, mansione, nomeArea,
                     t.getOraInizio().format(TIME_FMT),
                     t.getOraFine().format(TIME_FMT)
             ));
@@ -104,10 +119,11 @@ public class TurnoController {
         try {
             String dip = view.getComboTurnoDip().getValue();
             String area = view.getComboTurnoArea().getValue();
+            LocalDate giorno = view.getDateTurnoGiorno().getValue();
             String inizio = view.getComboTurnoOraInizio().getValue();
             String fine = view.getComboTurnoOraFine().getValue();
             
-            if(dip == null || area == null || inizio == null || fine == null) {
+            if(dip == null || area == null || giorno == null || inizio == null || fine == null) {
                 view.showTurnoMsg("Tutti i campi sono obbligatori.", false);
                 return;
             }
@@ -115,10 +131,15 @@ public class TurnoController {
             int idDip = Integer.parseInt(dip.split(" - ")[0]);
             int idArea = Integer.parseInt(area.split(" - ")[0]);
             
-            LocalDateTime dtInizio = LocalDate.now().atTime(LocalTime.parse(inizio));
-            LocalDateTime dtFine = LocalDate.now().atTime(LocalTime.parse(fine));
+            LocalDateTime dtInizio = giorno.atTime(LocalTime.parse(inizio));
+            LocalDateTime dtFine = giorno.atTime(LocalTime.parse(fine));
             
-            Turno t = new Turno(0, dtInizio, dtFine, idDip, idArea);
+            if (dtFine.isBefore(dtInizio) || dtFine.equals(dtInizio)) {
+                view.showTurnoMsg("L'ora di fine deve essere successiva all'ora di inizio.", false);
+                return;
+            }
+            
+            Turno t = new Turno(0, giorno, dtInizio, dtFine, idDip, idArea);
             new TurnoDao().insert(t);
             
             view.showTurnoMsg("Turno salvato con successo!", true);

@@ -81,7 +81,14 @@ public class TurnoDao extends AbstractCrudDao<Turno> {
     }
 
     public List<Turno> findByData(LocalDate data) {
-        return queryMany("SELECT * FROM turno WHERE ora_inizio::date = ? ORDER BY ora_inizio", statement -> statement.setDate(1, java.sql.Date.valueOf(data)));
+        return queryMany("SELECT * FROM turno WHERE data_giorno = ? ORDER BY ora_inizio", statement -> statement.setDate(1, java.sql.Date.valueOf(data)));
+    }
+
+    public List<Turno> findByDateRange(LocalDate start, LocalDate end) {
+        return queryMany("SELECT * FROM turno WHERE data_giorno >= ? AND data_giorno <= ? ORDER BY data_giorno, ora_inizio", statement -> {
+            statement.setDate(1, java.sql.Date.valueOf(start));
+            statement.setDate(2, java.sql.Date.valueOf(end));
+        });
     }
 
 }

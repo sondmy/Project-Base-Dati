@@ -116,6 +116,7 @@ public class GestioneView {
         private final String idTurno;
         private final String idDipendente;
         private final String idArea;
+        private final String giorno;
         private final String dipendente;
         private final String mansione;
         private final String area;
@@ -123,11 +124,12 @@ public class GestioneView {
         private final String oraFine;
 
         public TurnoRow(final String idTurno, final String idDipendente, final String idArea, 
-                        final String dipendente, final String mansione, final String area,
+                        final String giorno, final String dipendente, final String mansione, final String area,
                         final String oraInizio, final String oraFine) {
             this.idTurno = idTurno;
             this.idDipendente = idDipendente;
             this.idArea = idArea;
+            this.giorno = giorno;
             this.dipendente = dipendente;
             this.mansione = mansione;
             this.area = area;
@@ -139,6 +141,7 @@ public class GestioneView {
         public String getIdDipendente() { return idDipendente; }
         public String getIdArea() { return idArea; }
 
+        public String getGiorno() { return giorno; }
         public String getDipendente() { return dipendente; }
         public String getMansione() { return mansione; }
         public String getArea() { return area; }
@@ -392,16 +395,20 @@ public class GestioneView {
 
     // Tab 4 — Turni
     private final TableView<TurnoRow> tableTurni;
+    private final ComboBox<String> comboFiltroTurni;
+    private final DatePicker dateFiltroTurni;
+    private final Button btnFiltraTurni;
     private final Button btnNuovoTurno;
     private final Button btnEliminaTurno;
-    private final javafx.scene.control.ListView<String> listTopTurni;
     private final VBox panelNuovoTurno;
     private final ComboBox<String> comboTurnoDip;
     private final ComboBox<String> comboTurnoArea;
+    private final DatePicker dateTurnoGiorno;
     private final ComboBox<String> comboTurnoOraInizio;
     private final ComboBox<String> comboTurnoOraFine;
     private final Button btnSalvaTurno;
     private final Label lblTurnoMsg;
+    private final javafx.scene.control.ListView<String> listTopTurni;
 
     // Tab 5 — Personale
     private final TableView<DipendenteRow> tablePersonale;
@@ -802,10 +809,27 @@ public class GestioneView {
         visiteContent.getChildren().addAll(tableVisite, btnNuovaVisita, panelNuovaVisita);
         tabVisite.setContent(visiteContent);
 
-        /* ═══ TAB 4 — Turni del giorno ═══════════════════ */
-        tabTurni = new Tab("\uD83D\uDC77 Turni del giorno");
+        /* ═══ TAB 4 — Turni ══════════════════════════════ */
+        tabTurni = new Tab("\uD83D\uDC77 Turni");
         final VBox turniContent = new VBox(16);
         turniContent.setPadding(new Insets(20));
+
+        // Filtri
+        final Label lblFiltroTurni = new Label("Filtra Turni:");
+        lblFiltroTurni.setStyle(StyleHelper.STYLE_LABEL);
+        comboFiltroTurni = new ComboBox<>();
+        comboFiltroTurni.getItems().addAll("Tutti", "Giorno", "Settimana");
+        comboFiltroTurni.setValue("Tutti");
+        dateFiltroTurni = new DatePicker(java.time.LocalDate.now());
+        dateFiltroTurni.setDisable(true); // disabled unless Giorno/Settimana selected
+        btnFiltraTurni = new Button("Filtra");
+        btnFiltraTurni.setStyle(StyleHelper.STYLE_BTN_OUTLINE);
+        comboFiltroTurni.setOnAction(e -> {
+            boolean disable = "Tutti".equals(comboFiltroTurni.getValue());
+            dateFiltroTurni.setDisable(disable);
+        });
+        final HBox boxFiltroTurni = new HBox(12, lblFiltroTurni, comboFiltroTurni, dateFiltroTurni, btnFiltraTurni);
+        boxFiltroTurni.setAlignment(Pos.CENTER_LEFT);
 
         tableTurni = new TableView<>();
         tableTurni.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
@@ -819,13 +843,16 @@ public class GestioneView {
         final TableColumn<TurnoRow, String> colTArea = new TableColumn<>("Area");
         colTArea.setCellValueFactory(new PropertyValueFactory<>("area"));
 
+        final TableColumn<TurnoRow, String> colTGiorno = new TableColumn<>("Giorno");
+        colTGiorno.setCellValueFactory(new PropertyValueFactory<>("giorno"));
+
         final TableColumn<TurnoRow, String> colTInizio = new TableColumn<>("Ora inizio");
         colTInizio.setCellValueFactory(new PropertyValueFactory<>("oraInizio"));
 
         final TableColumn<TurnoRow, String> colTFine = new TableColumn<>("Ora fine");
         colTFine.setCellValueFactory(new PropertyValueFactory<>("oraFine"));
 
-        tableTurni.getColumns().addAll(colTDip, colTMans, colTArea, colTInizio, colTFine);
+        tableTurni.getColumns().addAll(colTDip, colTMans, colTArea, colTGiorno, colTInizio, colTFine);
 
         btnNuovoTurno = new Button("Nuovo turno");
         btnNuovoTurno.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
@@ -844,6 +871,7 @@ public class GestioneView {
 
         comboTurnoDip = new ComboBox<>(); comboTurnoDip.setPromptText("Seleziona dipendente...");
         comboTurnoArea = new ComboBox<>(); comboTurnoArea.setPromptText("Seleziona area...");
+        dateTurnoGiorno = new DatePicker(java.time.LocalDate.now()); dateTurnoGiorno.setPromptText("Giorno...");
         comboTurnoOraInizio = new ComboBox<>(); comboTurnoOraInizio.setPromptText("Ora inizio (HH:mm)...");
         comboTurnoOraFine = new ComboBox<>(); comboTurnoOraFine.setPromptText("Ora fine (HH:mm)...");
         
@@ -856,13 +884,13 @@ public class GestioneView {
         btnSalvaTurno.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
         lblTurnoMsg = new Label(); lblTurnoMsg.setVisible(false);
 
-        panelNuovoTurno.getChildren().addAll(new Label("Nuovo Turno"), comboTurnoDip, comboTurnoArea, comboTurnoOraInizio, comboTurnoOraFine, btnSalvaTurno, lblTurnoMsg);
+        panelNuovoTurno.getChildren().addAll(new Label("Nuovo Turno"), comboTurnoDip, comboTurnoArea, dateTurnoGiorno, comboTurnoOraInizio, comboTurnoOraFine, btnSalvaTurno, lblTurnoMsg);
 
         listTopTurni = new javafx.scene.control.ListView<>();
         listTopTurni.setPrefHeight(100);
         final VBox topTurniBox = new VBox(8, new Label("Dipendenti con più turni assegnati:"), listTopTurni);
 
-        turniContent.getChildren().addAll(tableTurni, turniActionBox, panelNuovoTurno, topTurniBox);
+        turniContent.getChildren().addAll(boxFiltroTurni, tableTurni, turniActionBox, panelNuovoTurno, topTurniBox);
         tabTurni.setContent(turniContent);
 
 
@@ -1511,7 +1539,11 @@ public class GestioneView {
     public ComboBox<String> getComboTurnoArea() { return comboTurnoArea; }
     public ComboBox<String> getComboTurnoOraInizio() { return comboTurnoOraInizio; }
     public ComboBox<String> getComboTurnoOraFine() { return comboTurnoOraFine; }
+    public DatePicker getDateTurnoGiorno() { return dateTurnoGiorno; }
     public Button getBtnSalvaTurno() { return btnSalvaTurno; }
+    public ComboBox<String> getComboFiltroTurni() { return comboFiltroTurni; }
+    public DatePicker getDateFiltroTurni() { return dateFiltroTurni; }
+    public Button getBtnFiltraTurni() { return btnFiltraTurni; }
     public void showTurnoMsg(final String msg, final boolean success) {
         lblTurnoMsg.setText(msg);
         lblTurnoMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);

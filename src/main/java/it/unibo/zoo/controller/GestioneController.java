@@ -128,6 +128,11 @@ public class GestioneController {
                     .findFirst()
                     .ifPresent(view.getComboTurnoArea()::setValue);
                     
+                if (newSel.getGiorno() != null && !newSel.getGiorno().equals("—")) {
+                    view.getDateTurnoGiorno().setValue(LocalDate.parse(newSel.getGiorno(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+                } else {
+                    view.getDateTurnoGiorno().setValue(LocalDate.now());
+                }
                 view.getComboTurnoOraInizio().setValue(newSel.getOraInizio());
                 view.getComboTurnoOraFine().setValue(newSel.getOraFine());
                 
@@ -137,6 +142,7 @@ public class GestioneController {
         });
         view.getBtnSalvaTurno().setOnAction(e -> TurnoController.handleSalvaTurno(view));
         view.getBtnEliminaTurno().setOnAction(e -> TurnoController.handleEliminaTurno(view));
+        view.getBtnFiltraTurni().setOnAction(e -> TurnoController.populateTurni(view));
 
         // Toggle pannello nuovo dipendente
         view.getBtnNuovoDipendente().setOnAction(e -> {
