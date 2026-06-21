@@ -1201,6 +1201,7 @@ public class GestioneView {
     public ComboBox<String> getComboRecintoTipo() { return comboRecintoTipo; }
     public Spinner<Integer> getSpinnerRecintoCapienza() { return spinnerRecintoCapienza; }
     public Button getBtnSalvaRecinto() { return btnSalvaRecinto; }
+    public Label getLblTopRecintoAnimali() { return lblTopRecintoAnimali; }
     public void showRecintoMsg(final String msg, final boolean success) {
         lblRecintoMsg.setText(msg);
         lblRecintoMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);

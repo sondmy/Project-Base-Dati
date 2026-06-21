@@ -880,6 +880,47 @@ public class GestioneController {
         }
         view.setRecinti(rows);
 
+        // Compute top Recinto
+        final List<Animale> animali = new AnimaleDao().findAll();
+        final java.util.Set<Integer> animaliAttivi = animali.stream()
+                .filter(an -> an.getDataUscita() == null && an.isVivo())
+                .map(Animale::getIdAnimale)
+                .collect(Collectors.toSet());
+
+        final List<it.unibo.zoo.model.entity.StoricoCollocazione> storici = new it.unibo.zoo.model.jdbc.entityDao.StoricoCollocazioneDao().findAll();
+        final java.util.Map<Integer, Integer> recintoCount = new java.util.HashMap<>();
+        for (it.unibo.zoo.model.entity.StoricoCollocazione sc : storici) {
+            if (sc.getDataFine() == null && animaliAttivi.contains(sc.getIdAnimale())) {
+                recintoCount.put(sc.getIdRecinto(), recintoCount.getOrDefault(sc.getIdRecinto(), 0) + 1);
+            }
+        }
+
+        int maxAnimali = -1;
+        int topRecintoId = -1;
+        for (java.util.Map.Entry<Integer, Integer> entry : recintoCount.entrySet()) {
+            if (entry.getValue() > maxAnimali) {
+                maxAnimali = entry.getValue();
+                topRecintoId = entry.getKey();
+            }
+        }
+
+        if (topRecintoId != -1) {
+            it.unibo.zoo.model.entity.Recinto topR = null;
+            for (it.unibo.zoo.model.entity.Recinto r : recinti) {
+                if (r.getIdRecinto() == topRecintoId) { topR = r; break; }
+            }
+            if (topR != null) {
+                it.unibo.zoo.model.entity.Area a = areaMap.get(topR.getIdArea());
+                String nomeArea = a != null ? a.getNome() : "Area " + topR.getIdArea();
+                view.getLblTopRecintoAnimali().setText(String.format("Recinto con più animali: Recinto %d in %s (%d animali)", 
+                        topR.getIdRecinto(), nomeArea, maxAnimali));
+            } else {
+                view.getLblTopRecintoAnimali().setText("Recinto con più animali: Nessun dato");
+            }
+        } else {
+            view.getLblTopRecintoAnimali().setText("Recinto con più animali: Nessun dato");
+        }
+
         view.getComboRecintoArea().getItems().clear();
         for (final it.unibo.zoo.model.entity.Area a : new AreaDao().findAll()) {
             view.getComboRecintoArea().getItems().add(a.getIdArea() + " - " + a.getNome());
