@@ -222,6 +222,10 @@ public class GestioneView {
     private final Label lblUscite;
     private final Label lblSaldo;
     private final TableView<TransazioneRow> tableTransazioni;
+    private final DatePicker dateSaldoInizio;
+    private final DatePicker dateSaldoFine;
+    private final Button btnCalcolaRicavo;
+    private final Label lblRicavoTotale;
 
     // Tab 1b — Statistiche
     private final ComboBox<String> comboStatPeriodo;
@@ -384,7 +388,24 @@ public class GestioneView {
 
         tableTransazioni.getColumns().addAll(colTData, colTTipo, colTImporto, colTCat, colTDesc);
 
-        saldoContent.getChildren().addAll(metricsBox, lblUltimeTransazioni, tableTransazioni);
+        final javafx.scene.layout.HBox dateRangeBox = new javafx.scene.layout.HBox(12);
+        dateRangeBox.setAlignment(Pos.CENTER_LEFT);
+        dateRangeBox.setPadding(new Insets(10, 0, 0, 0));
+        
+        dateSaldoInizio = new DatePicker();
+        dateSaldoInizio.setPromptText("Data Inizio");
+        dateSaldoFine = new DatePicker();
+        dateSaldoFine.setPromptText("Data Fine");
+        
+        btnCalcolaRicavo = new Button("Calcola Ricavo");
+        btnCalcolaRicavo.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        
+        lblRicavoTotale = new Label("Ricavo nel periodo: -");
+        lblRicavoTotale.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.PRIMARY + ";");
+        
+        dateRangeBox.getChildren().addAll(dateSaldoInizio, dateSaldoFine, btnCalcolaRicavo, lblRicavoTotale);
+
+        saldoContent.getChildren().addAll(metricsBox, lblUltimeTransazioni, tableTransazioni, dateRangeBox);
         tabSaldo.setContent(saldoContent);
 
         /* ═══ TAB 1b - Statistiche ═════════════════════════════ */
@@ -990,6 +1011,10 @@ public class GestioneView {
     public void setTransazioni(final List<TransazioneRow> rows) {
         tableTransazioni.setItems(FXCollections.observableArrayList(rows));
     }
+    public DatePicker getDateSaldoInizio() { return dateSaldoInizio; }
+    public DatePicker getDateSaldoFine() { return dateSaldoFine; }
+    public Button getBtnCalcolaRicavo() { return btnCalcolaRicavo; }
+    public Label getLblRicavoTotale() { return lblRicavoTotale; }
 
     /* Tab 1b - Statistiche */
     public ComboBox<String> getComboStatPeriodo() { return comboStatPeriodo; }

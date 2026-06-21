@@ -111,6 +111,33 @@ public class GestioneController {
         });
         view.getBtnSalvaDipendente().setOnAction(e -> handleSalvaDipendente());
 
+        // Calcola ricavo totale
+        view.getBtnCalcolaRicavo().setOnAction(e -> {
+            LocalDate inizio = view.getDateSaldoInizio().getValue();
+            LocalDate fine = view.getDateSaldoFine().getValue();
+            if (inizio != null && fine != null) {
+                if (inizio.isAfter(fine)) {
+                    view.getLblRicavoTotale().setText("Errore: Date non valide.");
+                    view.getLblRicavoTotale().setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: red;");
+                    return;
+                }
+                List<Transazione> tList = new TransazioneDao().findByDateRange(inizio, fine);
+                double ricavo = 0;
+                for (Transazione t : tList) {
+                    if ("E".equalsIgnoreCase(t.getTipo())) {
+                        ricavo += t.getImporto();
+                    } else {
+                        ricavo -= t.getImporto();
+                    }
+                }
+                view.getLblRicavoTotale().setText(String.format("Ricavo nel periodo: €%.2f", ricavo));
+                view.getLblRicavoTotale().setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: #1976D2;");
+            } else {
+                view.getLblRicavoTotale().setText("Seleziona entrambe le date.");
+                view.getLblRicavoTotale().setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: red;");
+            }
+        });
+
         // Toggle pannello nuova spesa
         view.getBtnNuovaSpesa().setOnAction(e -> {
             panelSpesaVisible = !panelSpesaVisible;
