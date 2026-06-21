@@ -24,6 +24,7 @@ public class GestioneController {
     private boolean panelAnimaleVisible;
     private boolean panelAreaVisible;
     private boolean panelRecintoVisible;
+    private boolean panelTipiBigliettiVisible;
     private Integer editingAnimaleId = null;
     private Integer editingVisitaId = null;
     private Integer editingDipendenteId = null;
@@ -39,12 +40,25 @@ public class GestioneController {
         this.panelAnimaleVisible = false;
         this.panelAreaVisible = false;
         this.panelRecintoVisible = false;
+        this.panelTipiBigliettiVisible = false;
         init();
     }
 
     private void init() {
 
         refresh();
+
+        // Toggle pannello nuovo tipo biglietto
+        view.getBtnNuovoTipoBiglietto().setOnAction(e -> {
+            panelTipiBigliettiVisible = !panelTipiBigliettiVisible;
+            view.setPanelNuovoTipoBigliettoVisible(panelTipiBigliettiVisible);
+        });
+        view.getBtnSalvaTipoBiglietto().setOnAction(e -> TipiBigliettiController.handleSalvaTipoBiglietto(view));
+        view.getBtnEliminaTipoBiglietto().setOnAction(e -> TipiBigliettiController.handleEliminaTipoBiglietto(view));
+
+        view.getTableTipiBiglietti().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnEliminaTipoBiglietto().setDisable(newSel == null);
+        });
 
         // Toggle pannello nuovo ordine
         view.getBtnNuovoOrdine().setOnAction(e -> {
@@ -257,7 +271,8 @@ public class GestioneController {
         SpesaController.populateSpese(view);
         AnimaliController.populateAnimali(view);
         AreeController.populateAree(view);
-        RecintoController.populateRecinti(view);;
+        RecintoController.populateRecinti(view);
+        TipiBigliettiController.populateTipiBiglietti(view);
     }
 
 }

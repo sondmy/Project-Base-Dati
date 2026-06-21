@@ -240,6 +240,22 @@ public class GestioneView {
         public String getTipo() { return tipo; }
     }
 
+    public static class TipiBigliettiRow {
+        private final String idBiglietto;
+        private final String nome;
+        private final String prezzo;
+
+        public TipiBigliettiRow(final String idBiglietto, final String nome, final String prezzo) {
+            this.idBiglietto = idBiglietto;
+            this.nome = nome;
+            this.prezzo = prezzo;
+        }
+
+        public String getIdBiglietto() { return idBiglietto; }
+        public String getNome() { return nome; }
+        public String getPrezzo() { return prezzo; }
+    }
+
     /* ── Campi UI ─────────────────────────────────────── */
 
     private final VBox root;
@@ -254,6 +270,17 @@ public class GestioneView {
     private final Tab tabAnimali;
     private final Tab tabAree;
     private final Tab tabRecinti;
+    private final Tab tabTipiBiglietti;
+
+    // Tab TipiBiglietti
+    private final TableView<TipiBigliettiRow> tableTipiBiglietti;
+    private final Button btnNuovoTipoBiglietto;
+    private final Button btnSalvaTipoBiglietto;
+    private final Button btnEliminaTipoBiglietto;
+    private final VBox panelNuovoTipoBiglietto;
+    private final TextField txtTipoBigliettoNome;
+    private final TextField txtTipoBigliettoPrezzo;
+    private final Label lblTipiBigliettiMsg;
 
     // Tab 1 — Saldo
     private final Label lblEntrate;
@@ -478,6 +505,58 @@ public class GestioneView {
 
         statContent.getChildren().addAll(statCtrlRow, chartStatBiglietti, statLabels);
         tabStatistiche.setContent(statContent);
+
+        /* ═══ TAB Tipi Biglietto ═════════════════════════ */
+        tabTipiBiglietti = new Tab("\uD83C\uDFAB Tipi Biglietto");
+        final VBox tipiBigliettiContent = new VBox(16);
+        tipiBigliettiContent.setPadding(new Insets(20));
+
+        tableTipiBiglietti = new TableView<>();
+        tableTipiBiglietti.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableTipiBiglietti.setPrefHeight(200);
+
+        final TableColumn<TipiBigliettiRow, String> colTbNome = new TableColumn<>("Nome");
+        colTbNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<TipiBigliettiRow, String> colTbPrezzo = new TableColumn<>("Prezzo");
+        colTbPrezzo.setCellValueFactory(new PropertyValueFactory<>("prezzo"));
+
+        tableTipiBiglietti.getColumns().addAll(colTbNome, colTbPrezzo);
+
+        panelNuovoTipoBiglietto = new VBox(12);
+        panelNuovoTipoBiglietto.setPadding(new Insets(15));
+        panelNuovoTipoBiglietto.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovoTipoBiglietto.setVisible(false);
+        panelNuovoTipoBiglietto.setManaged(false);
+
+        txtTipoBigliettoNome = new TextField();
+        txtTipoBigliettoNome.setPromptText("Nome (es. Intero, Ridotto)");
+        txtTipoBigliettoPrezzo = new TextField();
+        txtTipoBigliettoPrezzo.setPromptText("Prezzo (es. 15.00)");
+        
+        btnSalvaTipoBiglietto = new Button("Salva Tipo Biglietto");
+        btnSalvaTipoBiglietto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        
+        lblTipiBigliettiMsg = new Label();
+        lblTipiBigliettiMsg.setManaged(true);
+        lblTipiBigliettiMsg.setVisible(true);
+
+        panelNuovoTipoBiglietto.getChildren().addAll(
+                new Label("Crea Nuovo Tipo Biglietto"),
+                new javafx.scene.layout.HBox(10, txtTipoBigliettoNome, txtTipoBigliettoPrezzo),
+                btnSalvaTipoBiglietto
+        );
+
+        btnNuovoTipoBiglietto = new Button("Nuovo Tipo");
+        btnNuovoTipoBiglietto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        
+        btnEliminaTipoBiglietto = new Button("Elimina Selezionato");
+        btnEliminaTipoBiglietto.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        btnEliminaTipoBiglietto.setDisable(true);
+        
+        final javafx.scene.layout.HBox tipiBigliettiCtrl = new javafx.scene.layout.HBox(12, btnNuovoTipoBiglietto, btnEliminaTipoBiglietto);
+
+        tipiBigliettiContent.getChildren().addAll(tableTipiBiglietti, tipiBigliettiCtrl, panelNuovoTipoBiglietto, lblTipiBigliettiMsg);
+        tabTipiBiglietti.setContent(tipiBigliettiContent);
 
         /* ═══ TAB 2 — Ordini giornalieri ═════════════════ */
         tabOrdini = new Tab("\uD83D\uDCDD Ordini Giornalieri");
@@ -1030,7 +1109,7 @@ public class GestioneView {
         tabRecinti.setContent(recintiContent);
 
         /* ── Assembla TabPane ────────────────────────────── */
-        tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
+        tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabTipiBiglietti, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
 
 
         root.getChildren().addAll(title, tabPane);
@@ -1044,11 +1123,11 @@ public class GestioneView {
         tabPane.getTabs().clear();
         if (ruolo == null) return;
         if ("amministratore".equalsIgnoreCase(ruolo) || "admin".equalsIgnoreCase(ruolo)) {
-            tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
+            tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabTipiBiglietti, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
         } else if ("guardiano".equalsIgnoreCase(ruolo) || "operatore".equalsIgnoreCase(ruolo)) {
             tabPane.getTabs().add(tabOrdini);
         } else if ("cassiere".equalsIgnoreCase(ruolo)) {
-            tabPane.getTabs().add(tabStatistiche);
+            tabPane.getTabs().addAll(tabStatistiche, tabTipiBiglietti);
         } else if ("veterinario".equalsIgnoreCase(ruolo)) {
             tabPane.getTabs().add(tabVisite);
         }
@@ -1072,6 +1151,27 @@ public class GestioneView {
     public javafx.scene.chart.BarChart<String, Number> getChartStatBiglietti() { return chartStatBiglietti; }
     public Label getLblStatTopBiglietto() { return lblStatTopBiglietto; }
     public Label getLblStatTotBiglietti() { return lblStatTotBiglietti; }
+
+    /* Tab Tipi Biglietto */
+    public void setTipiBiglietti(final List<TipiBigliettiRow> rows) {
+        tableTipiBiglietti.setItems(FXCollections.observableArrayList(rows));
+    }
+    public TableView<TipiBigliettiRow> getTableTipiBiglietti() { return tableTipiBiglietti; }
+    public Button getBtnNuovoTipoBiglietto() { return btnNuovoTipoBiglietto; }
+    public Button getBtnSalvaTipoBiglietto() { return btnSalvaTipoBiglietto; }
+    public Button getBtnEliminaTipoBiglietto() { return btnEliminaTipoBiglietto; }
+    public TextField getTxtTipoBigliettoNome() { return txtTipoBigliettoNome; }
+    public TextField getTxtTipoBigliettoPrezzo() { return txtTipoBigliettoPrezzo; }
+    public void setPanelNuovoTipoBigliettoVisible(boolean visible) {
+        panelNuovoTipoBiglietto.setVisible(visible);
+        panelNuovoTipoBiglietto.setManaged(visible);
+    }
+    public void showTipiBigliettiMsg(String msg, boolean success) {
+        lblTipiBigliettiMsg.setText(msg);
+        lblTipiBigliettiMsg.setStyle(StyleHelper.badge(success ? StyleHelper.GREEN : StyleHelper.RED));
+        lblTipiBigliettiMsg.setVisible(true);
+        lblTipiBigliettiMsg.setManaged(true);
+    }
 
     /* Tab 2 — Ordini */
     public void setOrdini(final List<OrdineRow> rows) {
