@@ -3,8 +3,6 @@ package it.unibo.zoo.controller;
 import it.unibo.zoo.model.entity.Transazione;
 import it.unibo.zoo.view.GestioneView;
 
-import it.unibo.zoo.view.dtoRowTables.AnimaleRow;
-
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import it.unibo.zoo.model.jdbc.entityDao.*;
@@ -90,7 +88,7 @@ public class GestioneController {
                 view.setPanelNuovaVisitaVisible(true);
             }
         });
-        view.getBtnSalvaVisita().setOnAction(e -> handleSalvaVisita());
+        view.getBtnSalvaVisita().setOnAction(e -> VisiteController.handleSalvaVisita(view));
 
         // Toggle pannello nuovo turno
         view.getBtnNuovoTurno().setOnAction(e -> {
@@ -122,8 +120,8 @@ public class GestioneController {
                 view.setPanelNuovoTurnoVisible(true);
             }
         });
-        view.getBtnSalvaTurno().setOnAction(e -> handleSalvaTurno());
-        view.getBtnEliminaTurno().setOnAction(e -> handleEliminaTurno());
+        view.getBtnSalvaTurno().setOnAction(e -> TurnoController.handleSalvaTurno(view));
+        view.getBtnEliminaTurno().setOnAction(e -> TurnoController.handleEliminaTurno(view));
 
         // Toggle pannello nuovo dipendente
         view.getBtnNuovoDipendente().setOnAction(e -> {
@@ -148,7 +146,7 @@ public class GestioneController {
                 view.setPanelNuovoDipendenteVisible(true);
             }
         });
-        view.getBtnSalvaDipendente().setOnAction(e -> handleSalvaDipendente());
+        view.getBtnSalvaDipendente().setOnAction(e -> DipendenteController.handleSalvaDipendente(view));
 
         // Calcola ricavo totale
         view.getBtnCalcolaRicavo().setOnAction(e -> {
