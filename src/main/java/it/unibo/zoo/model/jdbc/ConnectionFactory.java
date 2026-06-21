@@ -31,8 +31,7 @@ public final class ConnectionFactory {
 
     public Connection getConnection() throws SQLException {
         String url = "jdbc:postgresql://" + host + ':' + port + '/' + database;
-        Connection conn = DriverManager.getConnection(url, user, password);
-        System.out.println("OK CONNESSO");
-        return conn;
+        return DriverManager.getConnection(url, user, password);
+        
     }
 }
