@@ -3,6 +3,8 @@ package it.unibo.zoo.controller;
 import it.unibo.zoo.model.entity.Transazione;
 import it.unibo.zoo.view.GestioneView;
 
+import it.unibo.zoo.view.dtoRowTables.AnimaleRow;
+
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import it.unibo.zoo.model.jdbc.entityDao.*;
@@ -40,16 +42,8 @@ public class GestioneController {
     }
 
     private void init() {
-        SaldoController.populateSaldo(view);
-        SaldoController.populateStatistiche(view);
-        OrdiniController.populateOrdini(view);
-        VisiteController.populateVisite(view);
-        TurnoController.populateTurni(view);
-        DipendenteController.populatePersonale(view);
-        SpesaController.populateSpese(view);
-        AnimaliController.populateAnimali(view);
-        AreeController.populateAree(view);
-        RecintoController.populateRecinti(view);;
+
+        refresh();
 
         // Toggle pannello nuovo ordine
         view.getBtnNuovoOrdine().setOnAction(e -> {
@@ -120,7 +114,9 @@ public class GestioneController {
         });
 
         // Filtra spese per intervallo date
-        view.getBtnFiltraSpese().setOnAction(e -> SpesaController.populateSpese(view));
+        view.getBtnFiltraSpese().setOnAction(e -> {
+            SpesaController.populateSpese(view);
+        });
 
         view.getComboStatPeriodo().valueProperty().addListener((obs, oldVal, newVal) -> {
             SaldoController.populateStatistiche(view);
@@ -130,6 +126,7 @@ public class GestioneController {
         view.getBtnSalvaSpesa().setOnAction(e -> {
             panelSpesaVisible = false;
             SpesaController.handleSalvaSpesa(view);
+            refresh();
         });
 
         // Toggle pannello nuovo animale e selezione
@@ -180,6 +177,19 @@ public class GestioneController {
             view.setPanelNuovoRecintoVisible(panelRecintoVisible);
         });
         view.getBtnSalvaRecinto().setOnAction(e -> RecintoController.handleSalvaRecinto(view));
+    }
+
+    private void refresh(){
+        SaldoController.populateSaldo(view);
+        SaldoController.populateStatistiche(view);
+        OrdiniController.populateOrdini(view);
+        VisiteController.populateVisite(view);
+        TurnoController.populateTurni(view);
+        DipendenteController.populatePersonale(view);
+        SpesaController.populateSpese(view);
+        AnimaliController.populateAnimali(view);
+        AreeController.populateAree(view);
+        RecintoController.populateRecinti(view);;
     }
 
 }
