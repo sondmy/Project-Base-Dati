@@ -243,6 +243,17 @@ public class GestioneView {
     /* ── Campi UI ─────────────────────────────────────── */
 
     private final VBox root;
+    private final TabPane tabPane;
+    private final Tab tabSaldo;
+    private final Tab tabStatistiche;
+    private final Tab tabSpese;
+    private final Tab tabOrdini;
+    private final Tab tabVisite;
+    private final Tab tabTurni;
+    private final Tab tabPersonale;
+    private final Tab tabAnimali;
+    private final Tab tabAree;
+    private final Tab tabRecinti;
 
     // Tab 1 — Saldo
     private final Label lblEntrate;
@@ -366,11 +377,11 @@ public class GestioneView {
         final Label title = new Label("Pannello di gestione");
         title.setStyle(StyleHelper.STYLE_TITLE);
 
-        final TabPane tabPane = new TabPane();
+        tabPane = new TabPane();
         tabPane.setTabClosingPolicy(TabPane.TabClosingPolicy.UNAVAILABLE);
 
         /* ═══ TAB 1 — Saldo ══════════════════════════════ */
-        final Tab tabSaldo = new Tab("\uD83D\uDCB0 Saldo");
+        tabSaldo = new Tab("\uD83D\uDCB0 Saldo");
         final VBox saldoContent = new VBox(16);
         saldoContent.setPadding(new Insets(20));
 
@@ -442,7 +453,7 @@ public class GestioneView {
         tabSaldo.setContent(saldoContent);
 
         /* ═══ TAB 1b - Statistiche ═════════════════════════════ */
-        final Tab tabStatistiche = new Tab("\uD83D\uDCCA Statistiche");
+        tabStatistiche = new Tab("\uD83D\uDCCA Statistiche");
         final VBox statContent = new VBox(16);
         statContent.setPadding(new Insets(20));
 
@@ -469,7 +480,7 @@ public class GestioneView {
         tabStatistiche.setContent(statContent);
 
         /* ═══ TAB 2 — Ordini giornalieri ═════════════════ */
-        final Tab tabOrdini = new Tab("\uD83D\uDCE6 Ordini giornalieri");
+        tabOrdini = new Tab("\uD83D\uDCDD Ordini Giornalieri");
         final VBox ordiniContent = new VBox(16);
         ordiniContent.setPadding(new Insets(20));
 
@@ -538,7 +549,7 @@ public class GestioneView {
         tabOrdini.setContent(ordiniContent);
 
         /* ═══ TAB 3 — Animali in cura ════════════════════ */
-        final Tab tabVisite = new Tab("\uD83C\uDFE5 Animali in cura");
+        tabVisite = new Tab("\uD83C\uDFE5 Animali in cura");
         final VBox visiteContent = new VBox(16);
         visiteContent.setPadding(new Insets(20));
 
@@ -601,7 +612,7 @@ public class GestioneView {
         tabVisite.setContent(visiteContent);
 
         /* ═══ TAB 4 — Turni del giorno ═══════════════════ */
-        final Tab tabTurni = new Tab("\uD83D\uDC77 Turni del giorno");
+        tabTurni = new Tab("\uD83D\uDC77 Turni del giorno");
         final VBox turniContent = new VBox(16);
         turniContent.setPadding(new Insets(20));
 
@@ -665,7 +676,7 @@ public class GestioneView {
 
 
         /* ═══ TAB 5 — Personale ══════════════════════════ */
-        final Tab tabPersonale = new Tab("\uD83D\uDC65 Personale");
+        tabPersonale = new Tab("\uD83D\uDC65 Personale");
         final VBox personaleContent = new VBox(16);
         personaleContent.setPadding(new Insets(20));
 
@@ -718,7 +729,7 @@ public class GestioneView {
         tabPersonale.setContent(personaleContent);
 
         /* ═══ TAB 6 — Spese ══════════════════════════════ */
-        final Tab tabSpese = new Tab("\uD83D\uDCB8 Spese");
+        tabSpese = new Tab("\uD83D\uDED2 Spese e Forniture");
         final VBox speseContent = new VBox(16);
         speseContent.setPadding(new Insets(20));
 
@@ -835,7 +846,7 @@ public class GestioneView {
         tabSpese.setContent(speseScroll);
 
         /* ═══ TAB 7 - Animali ════════════════════════════ */
-        final Tab tabAnimali = new Tab("\uD83D\uDC3E Animali");
+        tabAnimali = new Tab("\uD83D\uDC3E Animali");
         final VBox animaliContent = new VBox(16);
         animaliContent.setPadding(new Insets(20));
 
@@ -912,7 +923,7 @@ public class GestioneView {
         tabAnimali.setContent(animaliContent);
 
         /* ═══ TAB 8 - Aree ═══════════════════════════════ */
-        final Tab tabAree = new Tab("\uD83C\uDFDE Aree");
+        tabAree = new Tab("\uD83D\uDDFA Aree");
         final VBox areeContent = new VBox(16);
         areeContent.setPadding(new Insets(20));
 
@@ -965,7 +976,7 @@ public class GestioneView {
         tabAree.setContent(areeContent);
 
         /* ═══ TAB 9 - Recinti ═════════════════════════════ */
-        final Tab tabRecinti = new Tab("\uD83D\uDEA7 Recinti");
+        tabRecinti = new Tab("\uD83D\uDFEB Recinti");
         final VBox recintiContent = new VBox(16);
         recintiContent.setPadding(new Insets(20));
 
@@ -1028,6 +1039,20 @@ public class GestioneView {
     /* ── Metodi pubblici ─────────────────────────────── */
 
     public VBox getRoot() { return root; }
+    
+    public void filterTabsByRuolo(String ruolo) {
+        tabPane.getTabs().clear();
+        if (ruolo == null) return;
+        if ("amministratore".equalsIgnoreCase(ruolo) || "admin".equalsIgnoreCase(ruolo)) {
+            tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabAree, tabRecinti);
+        } else if ("guardiano".equalsIgnoreCase(ruolo) || "operatore".equalsIgnoreCase(ruolo)) {
+            tabPane.getTabs().add(tabOrdini);
+        } else if ("cassiere".equalsIgnoreCase(ruolo)) {
+            tabPane.getTabs().add(tabStatistiche);
+        } else if ("veterinario".equalsIgnoreCase(ruolo)) {
+            tabPane.getTabs().add(tabVisite);
+        }
+    }
 
     /* Tab 1 — Saldo */
     public void setEntrate(final String value) { lblEntrate.setText(value); }

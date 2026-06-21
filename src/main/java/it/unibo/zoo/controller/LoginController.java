@@ -10,9 +10,9 @@ public class LoginController {
 
     private final UtenteDao utenteDao;
     private final LoginView view;
-    private final Runnable onSuccess;
+    private final java.util.function.Consumer<Utente> onSuccess;
 
-    public LoginController(LoginView view, Runnable onSuccess) {
+    public LoginController(LoginView view, java.util.function.Consumer<Utente> onSuccess) {
         this.utenteDao = new UtenteDao();
         this.view = view;
         this.onSuccess = onSuccess;
@@ -31,10 +31,10 @@ public class LoginController {
         String password = view.getTxtPassword().getText();
 
         try {
-            login(email, password);
+            Utente u = login(email, password);
             view.hideError();
             if (onSuccess != null) {
-                onSuccess.run();
+                onSuccess.accept(u);
             }
         } catch (Exception ex) {
             view.showError(ex.getMessage() != null ? ex.getMessage() : "Credenziali non valide");
