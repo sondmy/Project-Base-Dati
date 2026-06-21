@@ -13,7 +13,10 @@ import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
 import it.unibo.zoo.model.jdbc.entityDao.StatoEsistenzaDao;
 import it.unibo.zoo.model.jdbc.entityDao.StoricoCollocazioneDao;
 import it.unibo.zoo.view.AnimaliView;
+import it.unibo.zoo.view.GestioneView;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +36,8 @@ public class AnimaliController {
     private final Map<Integer, Recinto> recintoMap;
     private final Map<Integer, Integer> animaleRecintoMap; // idAnimale -> idRecinto (collocazione attuale)
 
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    
     public AnimaliController(final AnimaliView view) {
         this.view = view;
         this.animali = new AnimaleDao().findAll();
@@ -107,5 +112,73 @@ public class AnimaliController {
             rows.add(new AnimaliView.AnimaleRow(a.getNome(), nomeSpecie, sesso, habitat, stato, recinto));
         }
         return rows;
+    }
+
+    public static void populateAnimali(final GestioneView view) {
+        final List<Animale> animali = new AnimaleDao().findAll();
+        final java.util.Map<Integer, Specie> specieMap = new SpecieDao().findAll().stream()
+                .collect(Collectors.toMap(Specie::getIdSpecie, s -> s));
+
+        final List<GestioneView.AnimaleRow> rows = new ArrayList<>();
+        for (final Animale a : animali) {
+            final Specie s = specieMap.get(a.getIdSpecie());
+            rows.add(new GestioneView.AnimaleRow(
+                    String.valueOf(a.getIdAnimale()),
+                    a.getNome(),
+                    String.valueOf(a.getSesso()),
+                    a.getDataNascita() != null ? a.getDataNascita().format(DATE_FMT) : "-",
+                    a.getDataArrivo() != null ? a.getDataArrivo().format(DATE_FMT) : "-",
+                    a.getDataUscita() != null ? a.getDataUscita().format(DATE_FMT) : "-",
+                    s != null ? s.getNomeComune() : "-",
+                    a.isVivo() ? "Vivo" : "Morto"
+            ));
+        }
+        view.setAnimali(rows);
+
+        view.getComboAnimaleSpecie().getItems().clear();
+        for (final Specie s : new SpecieDao().findAll()) {
+            view.getComboAnimaleSpecie().getItems().add(s.getIdSpecie() + " - " + s.getNomeComune());
+        }
+    }
+
+    public static void handleSalvaAnimale(final GestioneView view, final Integer editingAnimaleId) {
+        try {
+            String nome = view.getTxtAnimaleNome().getText();
+            String sessoStr = view.getComboAnimaleSesso().getValue();
+            LocalDate dataNascita = view.getDateAnimaleNascita().getValue();
+            LocalDate dataArrivo = view.getDateAnimaleArrivo().getValue();
+            LocalDate dataUscita = view.getDateAnimaleUscita().getValue();
+            String vivoStr = view.getComboAnimaleVivo().getValue();
+            String specieStr = view.getComboAnimaleSpecie().getValue();
+            
+            if(nome == null || nome.isEmpty() || sessoStr == null || specieStr == null) {
+                view.showAnimaleMsg("Nome, Sesso e Specie sono obbligatori.", false);
+                return;
+            }
+            
+            int idSpecie = Integer.parseInt(specieStr.split(" - ")[0]);
+            char sesso = sessoStr.charAt(0);
+            boolean vivo = "Vivo".equals(vivoStr);
+            
+            if (dataArrivo == null) {
+                dataArrivo = LocalDate.now();
+            }
+            
+            AnimaleDao dao = new AnimaleDao();
+            if (editingAnimaleId == null) {
+                Animale a = new Animale(0, nome, sesso, vivo, dataNascita, dataArrivo, dataUscita, idSpecie);
+                dao.insert(a);
+                view.showAnimaleMsg("Animale aggiunto con successo!", true);
+            } else {
+                Animale a = new Animale(editingAnimaleId, nome, sesso, vivo, dataNascita, dataArrivo, dataUscita, idSpecie);
+                dao.update(a);
+                view.showAnimaleMsg("Animale modificato con successo!", true);
+            }
+            
+            view.setPanelNuovoAnimaleVisible(false);
+            AnimaliController.populateAnimali(view);
+        } catch(Exception e) {
+            view.showAnimaleMsg("Errore: " + e.getMessage(), false);
+        }
     }
 }
