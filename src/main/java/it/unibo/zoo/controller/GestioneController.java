@@ -48,11 +48,17 @@ public class GestioneController {
     private final GestioneView view;
     private boolean panelOrdineVisible;
     private boolean panelSpesaVisible;
+    private boolean panelVisitaVisible;
+    private boolean panelTurnoVisible;
+    private boolean panelDipendenteVisible;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
         this.panelOrdineVisible = false;
         this.panelSpesaVisible = false;
+        this.panelVisitaVisible = false;
+        this.panelTurnoVisible = false;
+        this.panelDipendenteVisible = false;
         init();
     }
 
@@ -61,6 +67,7 @@ public class GestioneController {
         populateOrdini();
         populateVisite();
         populateTurni();
+        populatePersonale();
         populateSpese();
 
         // Toggle pannello nuovo ordine
@@ -71,6 +78,27 @@ public class GestioneController {
 
         // Salva ordine (mock)
         view.getBtnSalvaOrdine().setOnAction(e -> handleSalvaOrdine());
+
+        // Toggle pannello nuova visita
+        view.getBtnNuovaVisita().setOnAction(e -> {
+            panelVisitaVisible = !panelVisitaVisible;
+            view.setPanelNuovaVisitaVisible(panelVisitaVisible);
+        });
+        view.getBtnSalvaVisita().setOnAction(e -> handleSalvaVisita());
+
+        // Toggle pannello nuovo turno
+        view.getBtnNuovoTurno().setOnAction(e -> {
+            panelTurnoVisible = !panelTurnoVisible;
+            view.setPanelNuovoTurnoVisible(panelTurnoVisible);
+        });
+        view.getBtnSalvaTurno().setOnAction(e -> handleSalvaTurno());
+
+        // Toggle pannello nuovo dipendente
+        view.getBtnNuovoDipendente().setOnAction(e -> {
+            panelDipendenteVisible = !panelDipendenteVisible;
+            view.setPanelNuovoDipendenteVisible(panelDipendenteVisible);
+        });
+        view.getBtnSalvaDipendente().setOnAction(e -> handleSalvaDipendente());
 
         // Toggle pannello nuova spesa
         view.getBtnNuovaSpesa().setOnAction(e -> {

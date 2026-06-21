@@ -183,8 +183,8 @@ public class GestioneView {
     private final VBox panelNuovaVisita;
     private final ComboBox<String> comboVisitaAnimale;
     private final ComboBox<String> comboVisitaVet;
-    private final javafx.scene.control.TextField txtDiagnosi;
-    private final javafx.scene.control.DatePicker dateVisita;
+    private final TextField txtDiagnosi;
+    private final DatePicker dateVisita;
     private final Button btnSalvaVisita;
     private final Label lblVisitaMsg;
 
@@ -203,10 +203,10 @@ public class GestioneView {
     private final TableView<DipendenteRow> tablePersonale;
     private final Button btnNuovoDipendente;
     private final VBox panelNuovoDipendente;
-    private final javafx.scene.control.TextField txtDipCf;
-    private final javafx.scene.control.TextField txtDipNome;
-    private final javafx.scene.control.TextField txtDipCognome;
-    private final javafx.scene.control.DatePicker dateDipNascita;
+    private final TextField txtDipCf;
+    private final TextField txtDipNome;
+    private final TextField txtDipCognome;
+    private final DatePicker dateDipNascita;
     private final ComboBox<String> comboDipMansione;
     private final Button btnSalvaDipendente;
     private final Label lblDipMsg;
@@ -755,7 +755,7 @@ public class GestioneView {
     public void setPersonale(final List<DipendenteRow> rows) {
         tablePersonale.setItems(FXCollections.observableArrayList(rows));
     }
-    
+
     public Button getBtnNuovoDipendente() { return btnNuovoDipendente; }
     public VBox getPanelNuovoDipendente() { return panelNuovoDipendente; }
     public javafx.scene.control.TextField getTxtDipCf() { return txtDipCf; }
