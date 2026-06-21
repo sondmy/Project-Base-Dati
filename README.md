@@ -11,11 +11,12 @@ Verifica che nella cartella `postgres-docker/` sia presente il file `.env` con q
 ```env
 COMPOSE_PROJECT_NAME=zoo_gestionale
 
+POSTGRES_HOST=localhost
 POSTGRES_DB=zoo_gestionale
 POSTGRES_USER=zoo_user
 POSTGRES_PASSWORD=zoo_password_sicura
-
 POSTGRES_PORT=5432
+
 PGADMIN_PORT=8080
 PGADMIN_EMAIL=admin@local.dev
 PGADMIN_PASSWORD=admin
