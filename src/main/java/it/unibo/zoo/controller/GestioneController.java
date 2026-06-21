@@ -104,6 +104,11 @@ public class GestioneController {
         });
         view.getBtnSalvaTurno().setOnAction(e -> handleSalvaTurno());
 
+        view.getTableTurni().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnEliminaTurno().setDisable(newSel == null);
+        });
+        view.getBtnEliminaTurno().setOnAction(e -> handleEliminaTurno());
+
         // Toggle pannello nuovo dipendente
         view.getBtnNuovoDipendente().setOnAction(e -> {
             panelDipendenteVisible = !panelDipendenteVisible;
@@ -437,8 +442,14 @@ public class GestioneController {
                 .collect(Collectors.toMap(Area::getIdArea, a -> a));
 
         final List<GestioneView.TurnoRow> rows = new ArrayList<>();
+        Map<Integer, Integer> turniCount = new java.util.HashMap<>();
+        
         for (final Turno t : turni) {
             final Dipendente d = dipMap.get(t.getIdDipendente());
+            if (d != null) {
+                turniCount.put(d.getIdDipendente(), turniCount.getOrDefault(d.getIdDipendente(), 0) + 1);
+            }
+            
             final String nomeDip = d != null ? d.getNome() + " " + d.getCognome() : "—";
             final String mansione;
             if (d != null) {
@@ -451,12 +462,27 @@ public class GestioneController {
             final String nomeArea = area != null ? area.getNome() : "—";
 
             rows.add(new GestioneView.TurnoRow(
+                    String.valueOf(t.getIdTurno()),
                     nomeDip, mansione, nomeArea,
                     t.getOraInizio().format(TIME_FMT),
                     t.getOraFine().format(TIME_FMT)
             ));
         }
         view.setTurni(rows);
+        
+        List<Map.Entry<Integer, Integer>> topEntries = new ArrayList<>(turniCount.entrySet());
+        topEntries.sort((e1, e2) -> e2.getValue().compareTo(e1.getValue()));
+        List<String> topList = new ArrayList<>();
+        int count = 0;
+        for (Map.Entry<Integer, Integer> entry : topEntries) {
+            Dipendente d = dipMap.get(entry.getKey());
+            if (d != null) {
+                topList.add(d.getNome() + " " + d.getCognome() + " (" + entry.getValue() + " turni)");
+                count++;
+                if (count >= 5) break;
+            }
+        }
+        view.getListTopTurni().setItems(javafx.collections.FXCollections.observableArrayList(topList));
         
         view.getComboTurnoDip().getItems().clear();
         for(Dipendente d : new DipendenteDao().findAll()) {
@@ -552,6 +578,18 @@ public class GestioneController {
         }
     }
     
+    private void handleEliminaTurno() {
+        GestioneView.TurnoRow sel = view.getTableTurni().getSelectionModel().getSelectedItem();
+        if (sel != null) {
+            try {
+                new TurnoDao().delete(Integer.parseInt(sel.getIdTurno()));
+                populateTurni();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
     private void handleSalvaTurno() {
         try {
             String dip = view.getComboTurnoDip().getValue();

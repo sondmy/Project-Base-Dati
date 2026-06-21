@@ -100,20 +100,24 @@ public class GestioneView {
     }
 
     public static class TurnoRow {
+        private final String idTurno;
         private final String dipendente;
         private final String mansione;
         private final String area;
         private final String oraInizio;
         private final String oraFine;
 
-        public TurnoRow(final String dipendente, final String mansione, final String area,
+        public TurnoRow(final String idTurno, final String dipendente, final String mansione, final String area,
                         final String oraInizio, final String oraFine) {
+            this.idTurno = idTurno;
             this.dipendente = dipendente;
             this.mansione = mansione;
             this.area = area;
             this.oraInizio = oraInizio;
             this.oraFine = oraFine;
         }
+
+        public String getIdTurno() { return idTurno; }
 
         public String getDipendente() { return dipendente; }
         public String getMansione() { return mansione; }
@@ -257,6 +261,8 @@ public class GestioneView {
     // Tab 4 — Turni
     private final TableView<TurnoRow> tableTurni;
     private final Button btnNuovoTurno;
+    private final Button btnEliminaTurno;
+    private final javafx.scene.control.ListView<String> listTopTurni;
     private final VBox panelNuovoTurno;
     private final ComboBox<String> comboTurnoDip;
     private final ComboBox<String> comboTurnoArea;
@@ -323,6 +329,7 @@ public class GestioneView {
     private final Spinner<Integer> spinnerRecintoCapienza;
     private final Button btnSalvaRecinto;
     private final Label lblRecintoMsg;
+    private final Label lblTopRecintoAnimali;
 
     @SuppressWarnings("unchecked")
     public GestioneView() {
@@ -618,6 +625,12 @@ public class GestioneView {
 
         btnNuovoTurno = new Button("Nuovo turno");
         btnNuovoTurno.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        
+        btnEliminaTurno = new Button("Elimina Turno");
+        btnEliminaTurno.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        btnEliminaTurno.setDisable(true);
+        
+        final javafx.scene.layout.HBox turniActionBox = new javafx.scene.layout.HBox(12, btnNuovoTurno, btnEliminaTurno);
 
         panelNuovoTurno = new VBox(12);
         panelNuovoTurno.setStyle(StyleHelper.STYLE_CARD);
@@ -641,7 +654,11 @@ public class GestioneView {
 
         panelNuovoTurno.getChildren().addAll(new Label("Nuovo Turno"), comboTurnoDip, comboTurnoArea, comboTurnoOraInizio, comboTurnoOraFine, btnSalvaTurno, lblTurnoMsg);
 
-        turniContent.getChildren().addAll(tableTurni, btnNuovoTurno, panelNuovoTurno);
+        listTopTurni = new javafx.scene.control.ListView<>();
+        listTopTurni.setPrefHeight(100);
+        final VBox topTurniBox = new VBox(8, new Label("Dipendenti con più turni assegnati:"), listTopTurni);
+
+        turniContent.getChildren().addAll(tableTurni, turniActionBox, panelNuovoTurno, topTurniBox);
         tabTurni.setContent(turniContent);
 
 
@@ -989,7 +1006,10 @@ public class GestioneView {
 
         panelNuovoRecinto.getChildren().addAll(new Label("Nuovo Recinto"), comboRecintoArea, comboRecintoTipo, capienzaRow, btnSalvaRecinto, lblRecintoMsg);
 
-        recintiContent.getChildren().addAll(tableRecinti, btnNuovoRecinto, panelNuovoRecinto);
+        lblTopRecintoAnimali = new Label("Recinto con più animali: -");
+        lblTopRecintoAnimali.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.PRIMARY + ";");
+
+        recintiContent.getChildren().addAll(tableRecinti, btnNuovoRecinto, panelNuovoRecinto, lblTopRecintoAnimali);
         tabRecinti.setContent(recintiContent);
 
         /* ── Assembla TabPane ────────────────────────────── */
@@ -1070,7 +1090,10 @@ public class GestioneView {
     public void setTurni(final List<TurnoRow> rows) {
         tableTurni.setItems(FXCollections.observableArrayList(rows));
     }
+    public TableView<TurnoRow> getTableTurni() { return tableTurni; }
     public Button getBtnNuovoTurno() { return btnNuovoTurno; }
+    public Button getBtnEliminaTurno() { return btnEliminaTurno; }
+    public javafx.scene.control.ListView<String> getListTopTurni() { return listTopTurni; }
     public VBox getPanelNuovoTurno() { return panelNuovoTurno; }
     public ComboBox<String> getComboTurnoDip() { return comboTurnoDip; }
     public ComboBox<String> getComboTurnoArea() { return comboTurnoArea; }
