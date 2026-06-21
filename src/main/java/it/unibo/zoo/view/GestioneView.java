@@ -5,13 +5,16 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -119,6 +122,41 @@ public class GestioneView {
         public String getOraFine() { return oraFine; }
     }
 
+    
+    public static class DipendenteRow {
+        private final String codiceFiscale;
+        private final String nome;
+        private final String cognome;
+        private final String dataNascita;
+        private final String mansione;
+
+        public DipendenteRow(final String cf, final String nome, final String cognome, final String dataNascita, final String mansione) {
+            this.codiceFiscale = cf; this.nome = nome; this.cognome = cognome; this.dataNascita = dataNascita; this.mansione = mansione;
+        }
+
+        public String getCodiceFiscale() { return codiceFiscale; }
+        public String getNome() { return nome; }
+        public String getCognome() { return cognome; }
+        public String getDataNascita() { return dataNascita; }
+        public String getMansione() { return mansione; }
+    }
+
+    public static class SpesaRow {
+        private final String data;
+        private final String descrizione;
+        private final String importo;
+
+        public SpesaRow(final String data, final String descrizione, final String importo) {
+            this.data = data;
+            this.descrizione = descrizione;
+            this.importo = importo;
+        }
+
+        public String getData() { return data; }
+        public String getDescrizione() { return descrizione; }
+        public String getImporto() { return importo; }
+    }
+
     /* ── Campi UI ─────────────────────────────────────── */
 
     private final VBox root;
@@ -141,9 +179,50 @@ public class GestioneView {
 
     // Tab 3 — Animali in cura
     private final TableView<VisitaRow> tableVisite;
+    private final Button btnNuovaVisita;
+    private final VBox panelNuovaVisita;
+    private final ComboBox<String> comboVisitaAnimale;
+    private final ComboBox<String> comboVisitaVet;
+    private final javafx.scene.control.TextField txtDiagnosi;
+    private final javafx.scene.control.DatePicker dateVisita;
+    private final Button btnSalvaVisita;
+    private final Label lblVisitaMsg;
 
     // Tab 4 — Turni
     private final TableView<TurnoRow> tableTurni;
+    private final Button btnNuovoTurno;
+    private final VBox panelNuovoTurno;
+    private final ComboBox<String> comboTurnoDip;
+    private final ComboBox<String> comboTurnoArea;
+    private final ComboBox<String> comboTurnoOraInizio;
+    private final ComboBox<String> comboTurnoOraFine;
+    private final Button btnSalvaTurno;
+    private final Label lblTurnoMsg;
+
+    // Tab 5 — Personale
+    private final TableView<DipendenteRow> tablePersonale;
+    private final Button btnNuovoDipendente;
+    private final VBox panelNuovoDipendente;
+    private final javafx.scene.control.TextField txtDipCf;
+    private final javafx.scene.control.TextField txtDipNome;
+    private final javafx.scene.control.TextField txtDipCognome;
+    private final javafx.scene.control.DatePicker dateDipNascita;
+    private final ComboBox<String> comboDipMansione;
+    private final Button btnSalvaDipendente;
+    private final Label lblDipMsg;
+
+    // Tab 6 — Spese
+    private final TableView<SpesaRow> tableSpese;
+    private final DatePicker dateSpesaInizio;
+    private final DatePicker dateSpesaFine;
+    private final Button btnFiltraSpese;
+    private final Button btnNuovaSpesa;
+    private final VBox panelNuovaSpesa;
+    private final TextField txtSpesaImporto;
+    private final TextField txtSpesaDescrizione;
+    private final ComboBox<String> comboSpesaFornitore;
+    private final Button btnSalvaSpesa;
+    private final Label lblSpesaMsg;
 
     @SuppressWarnings("unchecked")
     public GestioneView() {
@@ -346,7 +425,26 @@ public class GestioneView {
 
         tableVisite.getColumns().addAll(colVAnimale, colVSpecie, colVDiag, colVData, colVVet, colVStato);
 
-        visiteContent.getChildren().add(tableVisite);
+        btnNuovaVisita = new Button("Nuova visita");
+        btnNuovaVisita.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+
+        panelNuovaVisita = new VBox(12);
+        panelNuovaVisita.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovaVisita.setPadding(new Insets(16));
+        panelNuovaVisita.setVisible(false);
+        panelNuovaVisita.setManaged(false);
+
+        comboVisitaAnimale = new ComboBox<>(); comboVisitaAnimale.setPromptText("Seleziona animale...");
+        comboVisitaVet = new ComboBox<>(); comboVisitaVet.setPromptText("Seleziona veterinario...");
+        txtDiagnosi = new javafx.scene.control.TextField(); txtDiagnosi.setPromptText("Diagnosi...");
+        dateVisita = new javafx.scene.control.DatePicker(); dateVisita.setPromptText("Data visita...");
+        btnSalvaVisita = new Button("Salva");
+        btnSalvaVisita.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        lblVisitaMsg = new Label(); lblVisitaMsg.setVisible(false);
+
+        panelNuovaVisita.getChildren().addAll(new Label("Nuova Visita"), comboVisitaAnimale, comboVisitaVet, txtDiagnosi, dateVisita, btnSalvaVisita, lblVisitaMsg);
+
+        visiteContent.getChildren().addAll(tableVisite, btnNuovaVisita, panelNuovaVisita);
         tabVisite.setContent(visiteContent);
 
         /* ═══ TAB 4 — Turni del giorno ═══════════════════ */
@@ -374,11 +472,204 @@ public class GestioneView {
 
         tableTurni.getColumns().addAll(colTDip, colTMans, colTArea, colTInizio, colTFine);
 
-        turniContent.getChildren().add(tableTurni);
+        btnNuovoTurno = new Button("Nuovo turno");
+        btnNuovoTurno.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+
+        panelNuovoTurno = new VBox(12);
+        panelNuovoTurno.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovoTurno.setPadding(new Insets(16));
+        panelNuovoTurno.setVisible(false);
+        panelNuovoTurno.setManaged(false);
+
+        comboTurnoDip = new ComboBox<>(); comboTurnoDip.setPromptText("Seleziona dipendente...");
+        comboTurnoArea = new ComboBox<>(); comboTurnoArea.setPromptText("Seleziona area...");
+        comboTurnoOraInizio = new ComboBox<>(); comboTurnoOraInizio.setPromptText("Ora inizio (HH:mm)...");
+        comboTurnoOraFine = new ComboBox<>(); comboTurnoOraFine.setPromptText("Ora fine (HH:mm)...");
+        
+        for(int i=8; i<=20; i++) {
+            comboTurnoOraInizio.getItems().add(String.format("%02d:00", i));
+            comboTurnoOraFine.getItems().add(String.format("%02d:00", i));
+        }
+
+        btnSalvaTurno = new Button("Salva");
+        btnSalvaTurno.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        lblTurnoMsg = new Label(); lblTurnoMsg.setVisible(false);
+
+        panelNuovoTurno.getChildren().addAll(new Label("Nuovo Turno"), comboTurnoDip, comboTurnoArea, comboTurnoOraInizio, comboTurnoOraFine, btnSalvaTurno, lblTurnoMsg);
+
+        turniContent.getChildren().addAll(tableTurni, btnNuovoTurno, panelNuovoTurno);
         tabTurni.setContent(turniContent);
 
+
+        /* ═══ TAB 5 — Personale ══════════════════════════ */
+        final Tab tabPersonale = new Tab("\uD83D\uDC65 Personale");
+        final VBox personaleContent = new VBox(16);
+        personaleContent.setPadding(new Insets(20));
+
+        tablePersonale = new TableView<>();
+        tablePersonale.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+
+        final TableColumn<DipendenteRow, String> colDipCf = new TableColumn<>("CF");
+        colDipCf.setCellValueFactory(new PropertyValueFactory<>("codiceFiscale"));
+
+        final TableColumn<DipendenteRow, String> colDipNome = new TableColumn<>("Nome");
+        colDipNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+
+        final TableColumn<DipendenteRow, String> colDipCognome = new TableColumn<>("Cognome");
+        colDipCognome.setCellValueFactory(new PropertyValueFactory<>("cognome"));
+
+        final TableColumn<DipendenteRow, String> colDipDataN = new TableColumn<>("Data Nascita");
+        colDipDataN.setCellValueFactory(new PropertyValueFactory<>("dataNascita"));
+
+        final TableColumn<DipendenteRow, String> colDipMans = new TableColumn<>("Mansione");
+        colDipMans.setCellValueFactory(new PropertyValueFactory<>("mansione"));
+
+        tablePersonale.getColumns().addAll(colDipCf, colDipNome, colDipCognome, colDipDataN, colDipMans);
+
+        btnNuovoDipendente = new Button("Assumi Dipendente");
+        btnNuovoDipendente.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+
+        panelNuovoDipendente = new VBox(12);
+        panelNuovoDipendente.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovoDipendente.setPadding(new Insets(16));
+        panelNuovoDipendente.setVisible(false);
+        panelNuovoDipendente.setManaged(false);
+
+        txtDipCf = new javafx.scene.control.TextField(); txtDipCf.setPromptText("Codice Fiscale...");
+        txtDipNome = new javafx.scene.control.TextField(); txtDipNome.setPromptText("Nome...");
+        txtDipCognome = new javafx.scene.control.TextField(); txtDipCognome.setPromptText("Cognome...");
+        dateDipNascita = new javafx.scene.control.DatePicker(); dateDipNascita.setPromptText("Data Nascita...");
+        comboDipMansione = new ComboBox<>(); comboDipMansione.setPromptText("Seleziona Mansione...");
+        
+        btnSalvaDipendente = new Button("Salva");
+        btnSalvaDipendente.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        lblDipMsg = new Label(); lblDipMsg.setVisible(false);
+
+        panelNuovoDipendente.getChildren().addAll(new Label("Nuovo Dipendente"), txtDipCf, txtDipNome, txtDipCognome, dateDipNascita, comboDipMansione, btnSalvaDipendente, lblDipMsg);
+
+        personaleContent.getChildren().addAll(tablePersonale, btnNuovoDipendente, panelNuovoDipendente);
+        tabPersonale.setContent(personaleContent);
+
+        /* ═══ TAB 6 — Spese ══════════════════════════════ */
+        final Tab tabSpese = new Tab("\uD83D\uDCB8 Spese");
+        final VBox speseContent = new VBox(16);
+        speseContent.setPadding(new Insets(20));
+
+        // Filtro per intervallo di tempo
+        final Label lblFiltroSpese = new Label("Filtra per periodo");
+        lblFiltroSpese.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: "
+                + StyleHelper.TEXT_MAIN + ";");
+
+        dateSpesaInizio = new DatePicker();
+        dateSpesaInizio.setPromptText("Data Inizio...");
+        dateSpesaInizio.setPrefWidth(160);
+
+        dateSpesaFine = new DatePicker();
+        dateSpesaFine.setPromptText("Data Fine...");
+        dateSpesaFine.setPrefWidth(160);
+
+        btnFiltraSpese = new Button("Filtra");
+        btnFiltraSpese.setStyle(StyleHelper.STYLE_BTN_OUTLINE);
+        btnFiltraSpese.setOnMouseEntered(e -> btnFiltraSpese.setStyle(StyleHelper.STYLE_BTN_OUTLINE_HOVER));
+        btnFiltraSpese.setOnMouseExited(e -> btnFiltraSpese.setStyle(StyleHelper.STYLE_BTN_OUTLINE));
+
+        final Button btnResetFiltro = new Button("Reset");
+        btnResetFiltro.setStyle(StyleHelper.STYLE_BTN_OUTLINE);
+        btnResetFiltro.setOnMouseEntered(e -> btnResetFiltro.setStyle(StyleHelper.STYLE_BTN_OUTLINE_HOVER));
+        btnResetFiltro.setOnMouseExited(e -> btnResetFiltro.setStyle(StyleHelper.STYLE_BTN_OUTLINE));
+        btnResetFiltro.setOnAction(e -> {
+            dateSpesaInizio.setValue(null);
+            dateSpesaFine.setValue(null);
+        });
+
+        final HBox filtroRow = new HBox(12, new Label("Da:"), dateSpesaInizio, new Label("A:"), dateSpesaFine, btnFiltraSpese, btnResetFiltro);
+        filtroRow.setAlignment(Pos.CENTER_LEFT);
+        filtroRow.setStyle(StyleHelper.STYLE_CARD);
+        filtroRow.setPadding(new Insets(12));
+        for (javafx.scene.Node n : filtroRow.getChildren()) {
+            if (n instanceof Label) {
+                n.setStyle(StyleHelper.STYLE_LABEL);
+            }
+        }
+
+        // Tabella spese
+        final Label lblElencoSpese = new Label("Elenco spese");
+        lblElencoSpese.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: "
+                + StyleHelper.TEXT_MAIN + ";");
+
+        tableSpese = new TableView<>();
+        tableSpese.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableSpese.setPrefHeight(300);
+
+        final TableColumn<SpesaRow, String> colSData = new TableColumn<>("Data");
+        colSData.setCellValueFactory(new PropertyValueFactory<>("data"));
+
+        final TableColumn<SpesaRow, String> colSDesc = new TableColumn<>("Descrizione");
+        colSDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
+
+        final TableColumn<SpesaRow, String> colSImporto = new TableColumn<>("Importo");
+        colSImporto.setCellValueFactory(new PropertyValueFactory<>("importo"));
+
+        tableSpese.getColumns().addAll(colSData, colSDesc, colSImporto);
+
+        // Bottone aggiungi spesa
+        btnNuovaSpesa = new Button("Aggiungi Spesa");
+        btnNuovaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnNuovaSpesa.setOnMouseEntered(e -> btnNuovaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY_HOVER));
+        btnNuovaSpesa.setOnMouseExited(e -> btnNuovaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY));
+
+        // Pannello nuova spesa
+        panelNuovaSpesa = new VBox(12);
+        panelNuovaSpesa.setStyle(StyleHelper.STYLE_CARD);
+        panelNuovaSpesa.setPadding(new Insets(16));
+        panelNuovaSpesa.setVisible(false);
+        panelNuovaSpesa.setManaged(false);
+
+        final Label lblNewSpesa = new Label("Nuova Spesa");
+        lblNewSpesa.setStyle("-fx-font-size: 15px; -fx-font-weight: bold; -fx-text-fill: "
+                + StyleHelper.TEXT_MAIN + ";");
+
+        final Label lblSpesaImporto = new Label("Importo (€):");
+        lblSpesaImporto.setStyle(StyleHelper.STYLE_LABEL);
+        txtSpesaImporto = new TextField();
+        txtSpesaImporto.setPromptText("Es. 49.90");
+        txtSpesaImporto.setMaxWidth(200);
+
+        final Label lblSpesaDesc = new Label("Descrizione:");
+        lblSpesaDesc.setStyle(StyleHelper.STYLE_LABEL);
+        txtSpesaDescrizione = new TextField();
+        txtSpesaDescrizione.setPromptText("Descrizione della spesa...");
+        txtSpesaDescrizione.setMaxWidth(Double.MAX_VALUE);
+
+        final Label lblSpesaForn = new Label("Fornitore:");
+        lblSpesaForn.setStyle(StyleHelper.STYLE_LABEL);
+        comboSpesaFornitore = new ComboBox<>();
+        comboSpesaFornitore.setPromptText("Seleziona fornitore...");
+        comboSpesaFornitore.setMaxWidth(Double.MAX_VALUE);
+
+        final Label lblInfoData = new Label("\u2139 La data verrà assegnata automaticamente alla data odierna.");
+        lblInfoData.setStyle("-fx-font-size: 12px; -fx-text-fill: " + StyleHelper.TEXT_MUTED + "; -fx-font-style: italic;");
+
+        btnSalvaSpesa = new Button("Salva");
+        btnSalvaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnSalvaSpesa.setOnMouseEntered(e -> btnSalvaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY_HOVER));
+        btnSalvaSpesa.setOnMouseExited(e -> btnSalvaSpesa.setStyle(StyleHelper.STYLE_BTN_PRIMARY));
+
+        lblSpesaMsg = new Label();
+        lblSpesaMsg.setVisible(false);
+
+        panelNuovaSpesa.getChildren().addAll(lblNewSpesa, lblSpesaImporto, txtSpesaImporto, lblSpesaDesc, txtSpesaDescrizione, lblSpesaForn, comboSpesaFornitore, lblInfoData, btnSalvaSpesa, lblSpesaMsg);
+
+        speseContent.getChildren().addAll(lblFiltroSpese, filtroRow, lblElencoSpese, tableSpese, btnNuovaSpesa, panelNuovaSpesa);
+
+        final ScrollPane speseScroll = new ScrollPane(speseContent);
+        speseScroll.setFitToWidth(true);
+        speseScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        tabSpese.setContent(speseScroll);
+
         /* ── Assembla TabPane ────────────────────────────── */
-        tabPane.getTabs().addAll(tabSaldo, tabOrdini, tabVisite, tabTurni);
+        tabPane.getTabs().addAll(tabSaldo, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale);
+
 
         root.getChildren().addAll(title, tabPane);
     }
@@ -419,15 +710,89 @@ public class GestioneView {
         panelNuovoOrdine.setManaged(visible);
     }
 
+
     /* Tab 3 — Visite */
     public void setVisite(final List<VisitaRow> rows) {
         tableVisite.setItems(FXCollections.observableArrayList(rows));
+    }
+    public Button getBtnNuovaVisita() { return btnNuovaVisita; }
+    public VBox getPanelNuovaVisita() { return panelNuovaVisita; }
+    public ComboBox<String> getComboVisitaAnimale() { return comboVisitaAnimale; }
+    public ComboBox<String> getComboVisitaVet() { return comboVisitaVet; }
+    public javafx.scene.control.TextField getTxtDiagnosi() { return txtDiagnosi; }
+    public javafx.scene.control.DatePicker getDateVisita() { return dateVisita; }
+    public Button getBtnSalvaVisita() { return btnSalvaVisita; }
+    public void showVisitaMsg(final String msg, final boolean success) {
+        lblVisitaMsg.setText(msg);
+        lblVisitaMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblVisitaMsg.setVisible(true);
+    }
+    public void setPanelNuovaVisitaVisible(final boolean visible) {
+        panelNuovaVisita.setVisible(visible); panelNuovaVisita.setManaged(visible);
     }
 
     /* Tab 4 — Turni */
     public void setTurni(final List<TurnoRow> rows) {
         tableTurni.setItems(FXCollections.observableArrayList(rows));
     }
+    public Button getBtnNuovoTurno() { return btnNuovoTurno; }
+    public VBox getPanelNuovoTurno() { return panelNuovoTurno; }
+    public ComboBox<String> getComboTurnoDip() { return comboTurnoDip; }
+    public ComboBox<String> getComboTurnoArea() { return comboTurnoArea; }
+    public ComboBox<String> getComboTurnoOraInizio() { return comboTurnoOraInizio; }
+    public ComboBox<String> getComboTurnoOraFine() { return comboTurnoOraFine; }
+    public Button getBtnSalvaTurno() { return btnSalvaTurno; }
+    public void showTurnoMsg(final String msg, final boolean success) {
+        lblTurnoMsg.setText(msg);
+        lblTurnoMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblTurnoMsg.setVisible(true);
+    }
+    public void setPanelNuovoTurnoVisible(final boolean visible) {
+        panelNuovoTurno.setVisible(visible); panelNuovoTurno.setManaged(visible);
+    }
+
+    /* Tab 5 — Personale */
+    public void setPersonale(final List<DipendenteRow> rows) {
+        tablePersonale.setItems(FXCollections.observableArrayList(rows));
+    }
+    public Button getBtnNuovoDipendente() { return btnNuovoDipendente; }
+    public VBox getPanelNuovoDipendente() { return panelNuovoDipendente; }
+    public javafx.scene.control.TextField getTxtDipCf() { return txtDipCf; }
+    public javafx.scene.control.TextField getTxtDipNome() { return txtDipNome; }
+    public javafx.scene.control.TextField getTxtDipCognome() { return txtDipCognome; }
+    public javafx.scene.control.DatePicker getDateDipNascita() { return dateDipNascita; }
+    public ComboBox<String> getComboDipMansione() { return comboDipMansione; }
+    public Button getBtnSalvaDipendente() { return btnSalvaDipendente; }
+    public void showDipendenteMsg(final String msg, final boolean success) {
+        lblDipMsg.setText(msg);
+        lblDipMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblDipMsg.setVisible(true);
+    }
+    public void setPanelNuovoDipendenteVisible(final boolean visible) {
+        panelNuovoDipendente.setVisible(visible); panelNuovoDipendente.setManaged(visible);
+    }
+
+    /* Tab 6 — Spese */
+    public void setSpese(final List<SpesaRow> rows) {
+        tableSpese.setItems(FXCollections.observableArrayList(rows));
+    }
+    public DatePicker getDateSpesaInizio() { return dateSpesaInizio; }
+    public DatePicker getDateSpesaFine() { return dateSpesaFine; }
+    public Button getBtnFiltraSpese() { return btnFiltraSpese; }
+    public Button getBtnNuovaSpesa() { return btnNuovaSpesa; }
+    public VBox getPanelNuovaSpesa() { return panelNuovaSpesa; }
+    public TextField getTxtSpesaImporto() { return txtSpesaImporto; }
+    public TextField getTxtSpesaDescrizione() { return txtSpesaDescrizione; }
+    public Button getBtnSalvaSpesa() { return btnSalvaSpesa; }
+    public void showSpesaMsg(final String msg, final boolean success) {
+        lblSpesaMsg.setText(msg);
+        lblSpesaMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblSpesaMsg.setVisible(true);
+    }
+    public void setPanelNuovaSpesaVisible(final boolean visible) {
+        panelNuovaSpesa.setVisible(visible); panelNuovaSpesa.setManaged(visible);
+    }
+
 
     /* ── Utility interna ─────────────────────────────── */
 

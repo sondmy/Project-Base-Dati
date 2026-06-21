@@ -105,4 +105,11 @@ public class TransazioneDao extends AbstractCrudDao<Transazione> {
         return queryMany("SELECT * FROM transazione WHERE data = ? ORDER BY id_transazione DESC", statement -> statement.setDate(1, java.sql.Date.valueOf(data)));
     }
 
+    public List<Transazione> findByDateRange(LocalDate from, LocalDate to) {
+        return queryMany("SELECT * FROM transazione WHERE data >= ? AND data <= ? ORDER BY data DESC, id_transazione DESC", statement -> {
+            statement.setDate(1, java.sql.Date.valueOf(from));
+            statement.setDate(2, java.sql.Date.valueOf(to));
+        });
+    }
+
 }

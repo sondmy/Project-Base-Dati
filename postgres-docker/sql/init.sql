@@ -262,7 +262,8 @@ CREATE TABLE TRANSAZIONE (
                                CONSTRAINT chk_transazione_importo CHECK (importo > 0),
                                CONSTRAINT chk_transazione_coerente CHECK ((tipo = 'E' AND id_scontrino IS NOT NULL AND id_fornitore IS NULL)
                                    OR
-                                                                            (tipo = 'U' AND id_fornitore IS NOT NULL AND id_scontrino IS NULL)),
+                                                                            (tipo = 'U' AND id_fornitore IS NOT NULL AND id_scontrino IS NULL)
+                                                                            OR (tipo='U' AND id_fornitore IS NULL AND id_scontrino IS NULL)),
                                PRIMARY KEY (id_transazione)
 );
 

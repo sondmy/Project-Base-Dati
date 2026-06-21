@@ -30,7 +30,11 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import it.unibo.zoo.model.entity.*;
+import it.unibo.zoo.model.jdbc.entityDao.*;
+import java.time.LocalDate;
 import java.util.stream.Collectors;
+
 
 /**
  * Controller per il pannello di gestione (4 tab).
@@ -42,10 +46,12 @@ public class GestioneController {
 
     private final GestioneView view;
     private boolean panelOrdineVisible;
+    private boolean panelSpesaVisible;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
         this.panelOrdineVisible = false;
+        this.panelSpesaVisible = false;
         init();
     }
 
@@ -54,6 +60,7 @@ public class GestioneController {
         populateOrdini();
         populateVisite();
         populateTurni();
+        populateSpese();
 
         // Toggle pannello nuovo ordine
         view.getBtnNuovoOrdine().setOnAction(e -> {
@@ -63,6 +70,18 @@ public class GestioneController {
 
         // Salva ordine (mock)
         view.getBtnSalvaOrdine().setOnAction(e -> handleSalvaOrdine());
+
+        // Toggle pannello nuova spesa
+        view.getBtnNuovaSpesa().setOnAction(e -> {
+            panelSpesaVisible = !panelSpesaVisible;
+            view.setPanelNuovaSpesaVisible(panelSpesaVisible);
+        });
+
+        // Filtra spese per intervallo date
+        view.getBtnFiltraSpese().setOnAction(e -> handleFiltraSpese());
+
+        // Salva nuova spesa
+        view.getBtnSalvaSpesa().setOnAction(e -> handleSalvaSpesa());
     }
 
     /* ═══ TAB 1 — Saldo ══════════════════════════════════ */
@@ -145,9 +164,37 @@ public class GestioneController {
             view.showOrdineMsg("Seleziona fornitore e tipo cibo.", false);
             return;
         }
-
-        view.showOrdineMsg(String.format(
-                "Ordine salvato! %s — %s — %d kg", fornitore, tipoCibo, qta), true);
+        
+        try {
+            int idFornitore = 0;
+            for (Fornitore f : new FornitoreDao().findAll()) {
+                if (f.getNomeAzienda().equals(fornitore)) {
+                    idFornitore = f.getIdFornitore();
+                    break;
+                }
+            }
+            int idTipoCibo = 0;
+            for (TipoCibo c : new TipoCiboDao().findAll()) {
+                if (c.getNome().equals(tipoCibo)) {
+                    idTipoCibo = c.getIdTipoCibo();
+                    break;
+                }
+            }
+            
+            double costoTotale = qta * 2.50; // Prezzo fittizio
+            Transazione t = new Transazione(0, "U", costoTotale, LocalDate.now(), "Acquisto cibo: " + tipoCibo + " da " + fornitore, 2, 1, idFornitore, null);
+            t = new TransazioneDao().insert(t);
+            
+            OrdineGiornalieroCibo ordine = new OrdineGiornalieroCibo(0, LocalDate.now(), (double)qta, idFornitore, idTipoCibo, t.getIdTransazione());
+            new OrdineGiornalieroCiboDao().insert(ordine);
+            
+            populateSaldo();
+            populateOrdini();
+            view.showOrdineMsg("Ordine salvato! Costo: €" + String.format("%.2f", costoTotale), true);
+        } catch(Exception e) {
+            view.showOrdineMsg("Errore db: " + e.getMessage(), false);
+            e.printStackTrace();
+        }
     }
 
     /* ═══ TAB 3 — Animali in cura ════════════════════════ */
@@ -183,6 +230,15 @@ public class GestioneController {
             ));
         }
         view.setVisite(rows);
+        
+        view.getComboVisitaAnimale().getItems().clear();
+        for(Animale a : new AnimaleDao().findAll()) {
+            view.getComboVisitaAnimale().getItems().add(a.getIdAnimale() + " - " + a.getNome());
+        }
+        view.getComboVisitaVet().getItems().clear();
+        for(Dipendente d : new DipendenteDao().findAll()) { // Here we just take any dipendente for now
+            view.getComboVisitaVet().getItems().add(d.getIdDipendente() + " - " + d.getNome() + " " + d.getCognome());
+        }
     }
 
     /* ═══ TAB 4 — Turni del giorno ═══════════════════════ */
@@ -217,5 +273,248 @@ public class GestioneController {
             ));
         }
         view.setTurni(rows);
+        
+        view.getComboTurnoDip().getItems().clear();
+        for(Dipendente d : new DipendenteDao().findAll()) {
+            view.getComboTurnoDip().getItems().add(d.getIdDipendente() + " - " + d.getNome() + " " + d.getCognome());
+        }
+        view.getComboTurnoArea().getItems().clear();
+        for(Area a : new AreaDao().findAll()) {
+            view.getComboTurnoArea().getItems().add(a.getIdArea() + " - " + a.getNome());
+        }
     }
+
+    /* ═══ TAB 5 — Personale ══════════════════════════ */
+    private void populatePersonale() {
+        final List<Dipendente> dipendenti = new DipendenteDao().findAll();
+        final Map<Integer, Mansione> mansMap = new MansioneDao().findAll().stream()
+                .collect(Collectors.toMap(Mansione::getIdMansione, m -> m));
+
+        final List<GestioneView.DipendenteRow> rows = new ArrayList<>();
+        for (final Dipendente d : dipendenti) {
+            final Mansione m = mansMap.get(d.getIdMansione());
+            rows.add(new GestioneView.DipendenteRow(
+                    d.getCodiceFiscale(),
+                    d.getNome(),
+                    d.getCognome(),
+                    d.getDataNascita() != null ? d.getDataNascita().format(DATE_FMT) : "—",
+                    m != null ? m.getNome() : "—"
+            ));
+        }
+        view.setPersonale(rows);
+
+        view.getComboDipMansione().getItems().clear();
+        for (final Mansione m : new MansioneDao().findAll()) {
+            view.getComboDipMansione().getItems().add(m.getNome());
+        }
+    }
+
+    private void handleSalvaDipendente() {
+        try {
+            String cf = view.getTxtDipCf().getText();
+            String nome = view.getTxtDipNome().getText();
+            String cognome = view.getTxtDipCognome().getText();
+            LocalDate dataNascita = view.getDateDipNascita().getValue();
+            String mansioneNome = view.getComboDipMansione().getValue();
+            
+            if(cf == null || cf.isEmpty() || nome == null || nome.isEmpty() || cognome == null || cognome.isEmpty() || dataNascita == null || mansioneNome == null) {
+                view.showDipendenteMsg("Tutti i campi sono obbligatori.", false);
+                return;
+            }
+            
+            int idMans = 0;
+            for (Mansione m : new MansioneDao().findAll()) {
+                if (m.getNome().equals(mansioneNome)) {
+                    idMans = m.getIdMansione();
+                    break;
+                }
+            }
+            
+            Dipendente d = new Dipendente(0, cf, nome, cognome, dataNascita, LocalDate.now(), idMans);
+            new DipendenteDao().insert(d);
+            
+            view.showDipendenteMsg("Dipendente assunto con successo!", true);
+            view.setPanelNuovoDipendenteVisible(false);
+            populatePersonale();
+        } catch(Exception e) {
+            view.showDipendenteMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+
+    private void handleSalvaVisita() {
+        try {
+            String animale = view.getComboVisitaAnimale().getValue();
+            String vet = view.getComboVisitaVet().getValue();
+            String diagnosi = view.getTxtDiagnosi().getText();
+            LocalDate data = view.getDateVisita().getValue();
+            
+            if(animale == null || vet == null || data == null) {
+                view.showVisitaMsg("Animale, Veterinario e Data sono obbligatori.", false);
+                return;
+            }
+            
+            int idAnimale = Integer.parseInt(animale.split(" - ")[0]);
+            int idVet = Integer.parseInt(vet.split(" - ")[0]);
+            
+            VisitaMedica v = new VisitaMedica(0, null, diagnosi, null, data, null, idAnimale, idVet);
+            new VisitaMedicaDao().insert(v);
+            
+            view.showVisitaMsg("Visita registrata con successo!", true);
+            view.setPanelNuovaVisitaVisible(false);
+            populateVisite();
+        } catch(Exception e) {
+            view.showVisitaMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+    
+    private void handleSalvaTurno() {
+        try {
+            String dip = view.getComboTurnoDip().getValue();
+            String area = view.getComboTurnoArea().getValue();
+            String inizio = view.getComboTurnoOraInizio().getValue();
+            String fine = view.getComboTurnoOraFine().getValue();
+            
+            if(dip == null || area == null || inizio == null || fine == null) {
+                view.showTurnoMsg("Tutti i campi sono obbligatori.", false);
+                return;
+            }
+            
+            int idDip = Integer.parseInt(dip.split(" - ")[0]);
+            int idArea = Integer.parseInt(area.split(" - ")[0]);
+            
+            java.time.LocalDateTime dtInizio = LocalDate.now().atTime(java.time.LocalTime.parse(inizio));
+            java.time.LocalDateTime dtFine = LocalDate.now().atTime(java.time.LocalTime.parse(fine));
+            
+            Turno t = new Turno(0, dtInizio, dtFine, idDip, idArea);
+            new TurnoDao().insert(t);
+            
+            view.showTurnoMsg("Turno salvato con successo!", true);
+            view.setPanelNuovoTurnoVisible(false);
+            populateTurni();
+        } catch(Exception e) {
+            view.showTurnoMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+
+    /* ═══ TAB 6 — Spese ══════════════════════════════════ */
+
+    private void populateSpese() {
+        final List<Transazione> transazioni = new TransazioneDao().findAll();
+        // Mostra solo le uscite (spese)
+        final List<Transazione> spese = transazioni.stream()
+                .filter(t -> "U".equals(t.getTipo()))
+                .collect(Collectors.toList());
+
+        final List<GestioneView.SpesaRow> rows = new ArrayList<>();
+        for (final Transazione t : spese) {
+            rows.add(new GestioneView.SpesaRow(
+                    t.getData().format(DATE_FMT),
+                    t.getDescrizione() != null ? t.getDescrizione() : "—",
+                    String.format("\u20AC%.2f", t.getImporto())
+            ));
+        }
+        view.setSpese(rows);
+    }
+
+    private void handleFiltraSpese() {
+        final LocalDate from = view.getDateSpesaInizio().getValue();
+        final LocalDate to = view.getDateSpesaFine().getValue();
+
+        if (from == null || to == null) {
+            // Se nessun filtro, ricarica tutte le spese
+            populateSpese();
+            return;
+        }
+
+        if (from.isAfter(to)) {
+            view.showSpesaMsg("La data di inizio deve essere precedente alla data di fine.", false);
+            return;
+        }
+
+        final List<Transazione> transazioni = new TransazioneDao().findByDateRange(from, to);
+        final List<Transazione> spese = transazioni.stream()
+                .filter(t -> "U".equals(t.getTipo()))
+                .collect(Collectors.toList());
+
+        final List<GestioneView.SpesaRow> rows = new ArrayList<>();
+        for (final Transazione t : spese) {
+            rows.add(new GestioneView.SpesaRow(
+                    t.getData().format(DATE_FMT),
+                    t.getDescrizione() != null ? t.getDescrizione() : "—",
+                    String.format("\u20AC%.2f", t.getImporto())
+            ));
+        }
+        view.setSpese(rows);
+    }
+
+    private void handleSalvaSpesa() {
+        try {
+            final String importoStr = view.getTxtSpesaImporto().getText();
+            final String descrizione = view.getTxtSpesaDescrizione().getText();
+
+            if (importoStr == null || importoStr.trim().isEmpty()) {
+                view.showSpesaMsg("L'importo è obbligatorio.", false);
+                return;
+            }
+
+            final double importo;
+            try {
+                importo = Double.parseDouble(importoStr.replace(",", ".").trim());
+            } catch (NumberFormatException ex) {
+                view.showSpesaMsg("Importo non valido. Inserisci un valore numerico.", false);
+                return;
+            }
+
+            if (importo <= 0) {
+                view.showSpesaMsg("L'importo deve essere maggiore di zero.", false);
+                return;
+            }
+
+            if (descrizione == null || descrizione.trim().isEmpty()) {
+                view.showSpesaMsg("La descrizione è obbligatoria.", false);
+                return;
+            }
+
+            // Data automatica = oggi
+            // Recupera dinamicamente la prima categoria di tipo Uscita
+            final List<CategoriaTransazione> catUscita = new CategoriaTransazioneDao().findByTipo("U");
+            final int idCategoria;
+            if (!catUscita.isEmpty()) {
+                idCategoria = catUscita.get(0).getIdCategoria();
+            } else {
+                // Fallback: prova tutte le categorie
+                final List<CategoriaTransazione> tutteCat = new CategoriaTransazioneDao().findAll();
+                if (tutteCat.isEmpty()) {
+                    view.showSpesaMsg("Nessuna categoria transazione disponibile nel database.", false);
+                    return;
+                }
+                idCategoria = tutteCat.get(0).getIdCategoria();
+            }
+
+            // Recupera dinamicamente il primo utente disponibile
+            final List<it.unibo.zoo.model.entity.Utente> utenti = new it.unibo.zoo.model.jdbc.entityDao.UtenteDao().findAll();
+            if (utenti.isEmpty()) {
+                view.showSpesaMsg("Nessun utente disponibile nel database.", false);
+                return;
+            }
+            final int idUtente = utenti.get(0).getIdUtente();
+
+            final Transazione t = new Transazione(0, "U", importo, LocalDate.now(), descrizione.trim(), idCategoria, idUtente, null, null);
+            new TransazioneDao().insert(t);
+
+            view.showSpesaMsg("Spesa registrata con successo!", true);
+            view.getTxtSpesaImporto().clear();
+            view.getTxtSpesaDescrizione().clear();
+            view.setPanelNuovaSpesaVisible(false);
+            panelSpesaVisible = false;
+
+            // Aggiorna sia la tab Spese che il Saldo
+            populateSpese();
+            populateSaldo();
+        } catch (Exception e) {
+            view.showSpesaMsg("Errore: " + e.getMessage(), false);
+            e.printStackTrace();
+        }
+    }
+
 }
