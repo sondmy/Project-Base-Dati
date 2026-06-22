@@ -46,8 +46,31 @@ public class OrdiniController {
             view.getComboFornitore().getItems().add(f.getNomeAzienda());
         }
         view.getComboTipoCibo().getItems().clear();
-        for (final TipoCibo c : new TipoCiboDao().findAll()) {
-            view.getComboTipoCibo().getItems().add(c.getNome());
+    }
+
+    public static void updateCibiDisponibili(final GestioneView view, final String fornitoreNome) {
+        view.getComboTipoCibo().getItems().clear();
+        if (fornitoreNome == null) return;
+        
+        try {
+            Fornitore f = new FornitoreDao().findAll().stream()
+                .filter(forn -> forn.getNomeAzienda().equals(fornitoreNome))
+                .findFirst().orElse(null);
+                
+            if (f != null) {
+                List<it.unibo.zoo.model.entity.FornitoreCibo> fcList = new it.unibo.zoo.model.jdbc.entityDao.FornitoreCiboDao().findByFornitore(f.getIdFornitore());
+                Map<Integer, TipoCibo> ciboMap = new TipoCiboDao().findAll().stream()
+                    .collect(Collectors.toMap(TipoCibo::getIdTipoCibo, c -> c));
+                    
+                for (it.unibo.zoo.model.entity.FornitoreCibo fc : fcList) {
+                    TipoCibo c = ciboMap.get(fc.getIdTipoCibo());
+                    if (c != null) {
+                        view.getComboTipoCibo().getItems().add(c.getNome() + " - €" + String.format("%.2f", fc.getPrezzo()) + "/kg");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
@@ -69,16 +92,21 @@ public class OrdiniController {
                     break;
                 }
             }
+            
+            String nomeCiboSelezionato = tipoCibo.split(" - €")[0];
+            String prezzoStr = tipoCibo.split(" - €")[1].replace("/kg", "").replace(",", ".");
+            double prezzoAlKg = Double.parseDouble(prezzoStr);
+            
             int idTipoCibo = 0;
             for (TipoCibo c : new TipoCiboDao().findAll()) {
-                if (c.getNome().equals(tipoCibo)) {
+                if (c.getNome().equals(nomeCiboSelezionato)) {
                     idTipoCibo = c.getIdTipoCibo();
                     break;
                 }
             }
             
-            double costoTotale = qta * 2.50; // Prezzo fittizio
-            Transazione t = new Transazione(0, "U", costoTotale, LocalDate.now(), "Acquisto cibo: " + tipoCibo + " da " + fornitore, 2, 1, idFornitore, null);
+            double costoTotale = qta * prezzoAlKg;
+            Transazione t = new Transazione(0, "U", costoTotale, LocalDate.now(), "Acquisto cibo: " + nomeCiboSelezionato + " da " + fornitore, 2, 1, idFornitore, null);
             t = new TransazioneDao().insert(t);
             
             OrdineGiornalieroCibo ordine = new OrdineGiornalieroCibo(0, LocalDate.now(), (double)qta, idFornitore, idTipoCibo, t.getIdTransazione());

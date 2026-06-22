@@ -67,8 +67,12 @@ public class GestioneController {
             view.setPanelNuovoOrdineVisible(panelOrdineVisible);
         });
 
-        // Salva ordine (mock)
+        // Salva ordine
         view.getBtnSalvaOrdine().setOnAction(e -> OrdiniController.handleSalvaOrdine(view));
+        
+        view.getComboFornitore().valueProperty().addListener((obs, oldVal, newVal) -> {
+            OrdiniController.updateCibiDisponibili(view, newVal);
+        });
 
         // Toggle pannello nuova visita
         view.getBtnNuovaVisita().setOnAction(e -> {
