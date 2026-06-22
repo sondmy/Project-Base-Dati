@@ -81,4 +81,18 @@ public class RecintoController {
         }
     }
 
+    public static void handleEliminaRecinto(final GestioneView view) {
+        GestioneView.RecintoRow row = view.getTableRecinti().getSelectionModel().getSelectedItem();
+        if (row != null) {
+            try {
+                new RecintoDao().delete(Integer.parseInt(row.getIdRecinto()));
+                populateRecinti(view);
+                view.showRecintoMsg("Recinto eliminato con successo.", true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                view.showRecintoMsg("Impossibile eliminare (in uso).", false);
+            }
+        }
+    }
+
 }

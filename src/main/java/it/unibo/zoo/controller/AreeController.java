@@ -63,6 +63,20 @@ public class AreeController {
         }
     }
 
+    public static void handleEliminaArea(final GestioneView view) {
+        GestioneView.AreaRow row = view.getTableAree().getSelectionModel().getSelectedItem();
+        if (row != null) {
+            try {
+                new AreaDao().delete(Integer.parseInt(row.getIdArea()));
+                populateAree(view);
+                view.showAreaMsg("Area eliminata con successo.", true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                view.showAreaMsg("Impossibile eliminare (in uso).", false);
+            }
+        }
+    }
+
     public static void populateTipoArea(final GestioneView view) {
         List<GestioneView.TipoAreaRow> rows = new TipoAreaDao().findAll().stream()
                 .map(t -> new GestioneView.TipoAreaRow(

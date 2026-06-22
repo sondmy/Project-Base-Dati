@@ -327,6 +327,18 @@ public class GestioneView {
         public String getDescrizione() { return descrizione; }
     }
 
+    public static class TipoMansioneRow {
+        private final String idTipoMansione;
+        private final String nome;
+        private final String descrizione;
+        public TipoMansioneRow(String idTipoMansione, String nome, String descrizione) {
+            this.idTipoMansione = idTipoMansione; this.nome = nome; this.descrizione = descrizione;
+        }
+        public String getIdTipoMansione() { return idTipoMansione; }
+        public String getNome() { return nome; }
+        public String getDescrizione() { return descrizione; }
+    }
+
     /* ── Campi UI ─────────────────────────────────────── */
 
     private final VBox root;
@@ -422,6 +434,14 @@ public class GestioneView {
     private final Button btnSalvaDipendente;
     private final Label lblDipMsg;
 
+    // Tipo Mansione
+    private final TableView<TipoMansioneRow> tableTipoMansione;
+    private final Button btnAggiungiTipoMansione;
+    private final Button btnRimuoviTipoMansione;
+    private final TextField txtTipoMansioneNome;
+    private final TextField txtTipoMansioneDesc;
+    private final Label lblTipoMansioneMsg;
+
     // Tab 6 — Spese
     private final TableView<SpesaRow> tableSpese;
     private final DatePicker dateSpesaInizio;
@@ -452,6 +472,7 @@ public class GestioneView {
     // Tab 8 - Aree
     private final TableView<AreaRow> tableAree;
     private final Button btnNuovaArea;
+    private final Button btnEliminaArea;
     private final VBox panelNuovaArea;
     private final TextField txtAreaNome;
     private final Spinner<Integer> spinnerAreaMetratura;
@@ -478,6 +499,7 @@ public class GestioneView {
     // Tab 9 - Recinti
     private final TableView<RecintoRow> tableRecinti;
     private final Button btnNuovoRecinto;
+    private final Button btnEliminaRecinto;
     private final VBox panelNuovoRecinto;
     private final TextField txtRecintoNome;
     private final ComboBox<String> comboRecintoArea;
@@ -891,7 +913,10 @@ public class GestioneView {
         final VBox topTurniBox = new VBox(8, new Label("Dipendenti con più turni assegnati:"), listTopTurni);
 
         turniContent.getChildren().addAll(boxFiltroTurni, tableTurni, turniActionBox, panelNuovoTurno, topTurniBox);
-        tabTurni.setContent(turniContent);
+        final ScrollPane turniScroll = new ScrollPane(turniContent);
+        turniScroll.setFitToWidth(true);
+        turniScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        tabTurni.setContent(turniScroll);
 
 
         /* ═══ TAB 5 — Personale ══════════════════════════ */
@@ -944,11 +969,43 @@ public class GestioneView {
 
         panelNuovoDipendente.getChildren().addAll(new Label("Nuovo Dipendente"), txtDipCf, txtDipNome, txtDipCognome, dateDipNascita, comboDipMansione, btnSalvaDipendente, lblDipMsg);
 
-        personaleContent.getChildren().addAll(tablePersonale, btnNuovoDipendente, panelNuovoDipendente);
-        tabPersonale.setContent(personaleContent);
+        // --- Sezione Tipo Mansione ---
+        final Label lblTipoMansione = new Label("Tipi di Mansione");
+        lblTipoMansione.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableTipoMansione = new TableView<>();
+        tableTipoMansione.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableTipoMansione.setPrefHeight(150);
+        
+        final TableColumn<TipoMansioneRow, String> colTipoMansioneId = new TableColumn<>("ID");
+        colTipoMansioneId.setCellValueFactory(new PropertyValueFactory<>("idTipoMansione"));
+        colTipoMansioneId.setMaxWidth(50);
+        final TableColumn<TipoMansioneRow, String> colTipoMansioneNome = new TableColumn<>("Nome");
+        colTipoMansioneNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<TipoMansioneRow, String> colTipoMansioneDesc = new TableColumn<>("Descrizione");
+        colTipoMansioneDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
+        tableTipoMansione.getColumns().addAll(colTipoMansioneId, colTipoMansioneNome, colTipoMansioneDesc);
+        
+        btnAggiungiTipoMansione = new Button("Aggiungi");
+        btnAggiungiTipoMansione.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviTipoMansione = new Button("Rimuovi");
+        btnRimuoviTipoMansione.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtTipoMansioneNome = new TextField(); txtTipoMansioneNome.setPromptText("Nome...");
+        txtTipoMansioneDesc = new TextField(); txtTipoMansioneDesc.setPromptText("Descrizione...");
+        lblTipoMansioneMsg = new Label(); lblTipoMansioneMsg.setVisible(false); lblTipoMansioneMsg.setManaged(false);
+        final HBox formTipoMansione = new HBox(8, txtTipoMansioneNome, txtTipoMansioneDesc, btnAggiungiTipoMansione, btnRimuoviTipoMansione, lblTipoMansioneMsg);
+        formTipoMansione.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxTipoMansione = new VBox(8, lblTipoMansione, tableTipoMansione, formTipoMansione);
+
+        personaleContent.getChildren().addAll(tablePersonale, btnNuovoDipendente, panelNuovoDipendente, boxTipoMansione);
+        
+        final ScrollPane personaleScroll = new ScrollPane(personaleContent);
+        personaleScroll.setFitToWidth(true);
+        personaleScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        tabPersonale.setContent(personaleScroll);
 
         /* ═══ TAB 6 — Spese ══════════════════════════════ */
-        tabSpese = new Tab("\uD83D\uDED2 Spese e Forniture");
+        tabSpese = new Tab("\uD83D\uDED2 Spese");
         final VBox speseContent = new VBox(16);
         speseContent.setPadding(new Insets(20));
 
@@ -1262,6 +1319,10 @@ public class GestioneView {
 
         btnNuovaArea = new Button("Aggiungi Area");
         btnNuovaArea.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnEliminaArea = new Button("Elimina Area");
+        btnEliminaArea.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        btnEliminaArea.setDisable(true);
+        final javafx.scene.layout.HBox areeActionBox = new javafx.scene.layout.HBox(12, btnNuovaArea, btnEliminaArea);
 
         panelNuovaArea = new VBox(12);
         panelNuovaArea.setStyle(StyleHelper.STYLE_CARD);
@@ -1285,7 +1346,7 @@ public class GestioneView {
             }
         }
 
-        panelNuovaArea.getChildren().addAll(new Label("Nuova Area"), txtAreaNome, metraturaRow, comboAreaTipo, btnSalvaArea, lblAreaMsg);
+        panelNuovaArea.getChildren().addAll(new Label("Nuova Area"), txtAreaNome, metraturaRow, comboAreaTipo, btnSalvaArea);
 
         // --- Sezione Tipo Area ---
         final Label lblTipoArea = new Label("Tipi di Area");
@@ -1315,35 +1376,7 @@ public class GestioneView {
         formTipoArea.setAlignment(Pos.CENTER_LEFT);
         final VBox boxTipoArea = new VBox(8, lblTipoArea, tableTipoArea, formTipoArea);
 
-        // --- Sezione Tipo Recinto ---
-        final Label lblTipoRecinto = new Label("Tipi di Recinto");
-        lblTipoRecinto.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
-        
-        tableTipoRecinto = new TableView<>();
-        tableTipoRecinto.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
-        tableTipoRecinto.setPrefHeight(150);
-        
-        final TableColumn<TipoRecintoRow, String> colTipoRecintoId = new TableColumn<>("ID");
-        colTipoRecintoId.setCellValueFactory(new PropertyValueFactory<>("idTipoRecinto"));
-        colTipoRecintoId.setMaxWidth(50);
-        final TableColumn<TipoRecintoRow, String> colTipoRecintoNome = new TableColumn<>("Nome");
-        colTipoRecintoNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
-        final TableColumn<TipoRecintoRow, String> colTipoRecintoDesc = new TableColumn<>("Descrizione");
-        colTipoRecintoDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
-        tableTipoRecinto.getColumns().addAll(colTipoRecintoId, colTipoRecintoNome, colTipoRecintoDesc);
-        
-        btnAggiungiTipoRecinto = new Button("Aggiungi");
-        btnAggiungiTipoRecinto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
-        btnRimuoviTipoRecinto = new Button("Rimuovi");
-        btnRimuoviTipoRecinto.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
-        txtTipoRecintoNome = new TextField(); txtTipoRecintoNome.setPromptText("Nome...");
-        txtTipoRecintoDesc = new TextField(); txtTipoRecintoDesc.setPromptText("Descrizione...");
-        lblTipoRecintoMsg = new Label(); lblTipoRecintoMsg.setVisible(false); lblTipoRecintoMsg.setManaged(false);
-        final HBox formTipoRecinto = new HBox(8, txtTipoRecintoNome, txtTipoRecintoDesc, btnAggiungiTipoRecinto, btnRimuoviTipoRecinto, lblTipoRecintoMsg);
-        formTipoRecinto.setAlignment(Pos.CENTER_LEFT);
-        final VBox boxTipoRecinto = new VBox(8, lblTipoRecinto, tableTipoRecinto, formTipoRecinto);
-
-        areeContent.getChildren().addAll(tableAree, btnNuovaArea, panelNuovaArea, boxTipoArea, boxTipoRecinto);
+        areeContent.getChildren().addAll(tableAree, areeActionBox, panelNuovaArea, lblAreaMsg, boxTipoArea);
         
         final ScrollPane areeScroll = new ScrollPane(areeContent);
         areeScroll.setFitToWidth(true);
@@ -1378,6 +1411,10 @@ public class GestioneView {
 
         btnNuovoRecinto = new Button("Aggiungi Recinto");
         btnNuovoRecinto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnEliminaRecinto = new Button("Elimina Recinto");
+        btnEliminaRecinto.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        btnEliminaRecinto.setDisable(true);
+        final javafx.scene.layout.HBox recintiActionBox = new javafx.scene.layout.HBox(12, btnNuovoRecinto, btnEliminaRecinto);
 
         panelNuovoRecinto = new VBox(12);
         panelNuovoRecinto.setStyle(StyleHelper.STYLE_CARD);
@@ -1405,13 +1442,44 @@ public class GestioneView {
             if (n instanceof Label) n.setStyle(StyleHelper.STYLE_LABEL);
         }
 
-        panelNuovoRecinto.getChildren().addAll(new Label("Nuovo Recinto"), nomeRecintoRow, comboRecintoArea, comboRecintoTipo, capienzaRow, btnSalvaRecinto, lblRecintoMsg);
+        panelNuovoRecinto.getChildren().addAll(new Label("Nuovo Recinto"), nomeRecintoRow, comboRecintoArea, comboRecintoTipo, capienzaRow, btnSalvaRecinto);
 
         lblTopRecintoAnimali = new Label("Recinto con più animali: -");
         lblTopRecintoAnimali.setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.PRIMARY + ";");
 
-        recintiContent.getChildren().addAll(tableRecinti, btnNuovoRecinto, panelNuovoRecinto, lblTopRecintoAnimali);
-        tabRecinti.setContent(recintiContent);
+        // --- Sezione Tipo Recinto ---
+        final Label lblTipoRecinto = new Label("Tipi di Recinto");
+        lblTipoRecinto.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableTipoRecinto = new TableView<>();
+        tableTipoRecinto.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableTipoRecinto.setPrefHeight(150);
+        
+        final TableColumn<TipoRecintoRow, String> colTipoRecintoId = new TableColumn<>("ID");
+        colTipoRecintoId.setCellValueFactory(new PropertyValueFactory<>("idTipoRecinto"));
+        colTipoRecintoId.setMaxWidth(50);
+        final TableColumn<TipoRecintoRow, String> colTipoRecintoNome = new TableColumn<>("Nome");
+        colTipoRecintoNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<TipoRecintoRow, String> colTipoRecintoDesc = new TableColumn<>("Descrizione");
+        colTipoRecintoDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
+        tableTipoRecinto.getColumns().addAll(colTipoRecintoId, colTipoRecintoNome, colTipoRecintoDesc);
+        
+        btnAggiungiTipoRecinto = new Button("Aggiungi");
+        btnAggiungiTipoRecinto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviTipoRecinto = new Button("Rimuovi");
+        btnRimuoviTipoRecinto.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtTipoRecintoNome = new TextField(); txtTipoRecintoNome.setPromptText("Nome...");
+        txtTipoRecintoDesc = new TextField(); txtTipoRecintoDesc.setPromptText("Descrizione...");
+        lblTipoRecintoMsg = new Label(); lblTipoRecintoMsg.setVisible(false); lblTipoRecintoMsg.setManaged(false);
+        final HBox formTipoRecinto = new HBox(8, txtTipoRecintoNome, txtTipoRecintoDesc, btnAggiungiTipoRecinto, btnRimuoviTipoRecinto, lblTipoRecintoMsg);
+        formTipoRecinto.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxTipoRecinto = new VBox(8, lblTipoRecinto, tableTipoRecinto, formTipoRecinto);
+
+        recintiContent.getChildren().addAll(tableRecinti, recintiActionBox, panelNuovoRecinto, lblRecintoMsg, lblTopRecintoAnimali,boxTipoRecinto);
+        final ScrollPane recintiScroll = new ScrollPane(recintiContent);
+        recintiScroll.setFitToWidth(false);
+        recintiScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        tabRecinti.setContent(recintiScroll);
 
         /* ── Assembla TabPane ────────────────────────────── */
         tabPane.getTabs().addAll(tabSaldo, tabStatistiche, tabTipiBiglietti, tabSpese, tabOrdini, tabVisite, tabTurni, tabPersonale, tabAnimali, tabClassificazione, tabAree, tabRecinti);
@@ -1573,6 +1641,18 @@ public class GestioneView {
         lblDipMsg.setVisible(true);
     }
 
+    public TableView<TipoMansioneRow> getTableTipoMansione() { return tableTipoMansione; }
+    public Button getBtnAggiungiTipoMansione() { return btnAggiungiTipoMansione; }
+    public Button getBtnRimuoviTipoMansione() { return btnRimuoviTipoMansione; }
+    public TextField getTxtTipoMansioneNome() { return txtTipoMansioneNome; }
+    public TextField getTxtTipoMansioneDesc() { return txtTipoMansioneDesc; }
+    public void showTipoMansioneMsg(final String msg, final boolean success) {
+        lblTipoMansioneMsg.setText(msg);
+        lblTipoMansioneMsg.setStyle(StyleHelper.badge(success ? StyleHelper.GREEN : StyleHelper.RED));
+        lblTipoMansioneMsg.setVisible(true);
+        lblTipoMansioneMsg.setManaged(true);
+    }
+
     public void setPanelNuovoDipendenteVisible(final boolean visible) {
         panelNuovoDipendente.setVisible(visible); panelNuovoDipendente.setManaged(visible);
     }
@@ -1623,7 +1703,9 @@ public class GestioneView {
 
     /* Tab 8 - Aree */
     public void setAree(final List<AreaRow> rows) { tableAree.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<AreaRow> getTableAree() { return tableAree; }
     public Button getBtnNuovaArea() { return btnNuovaArea; }
+    public Button getBtnEliminaArea() { return btnEliminaArea; }
     public VBox getPanelNuovaArea() { return panelNuovaArea; }
     public TextField getTxtAreaNome() { return txtAreaNome; }
     public Spinner<Integer> getSpinnerAreaMetratura() { return spinnerAreaMetratura; }
@@ -1642,6 +1724,7 @@ public class GestioneView {
     public void setRecinti(final List<RecintoRow> rows) { tableRecinti.setItems(FXCollections.observableArrayList(rows)); }
     public TableView<RecintoRow> getTableRecinti() { return tableRecinti; }
     public Button getBtnNuovoRecinto() { return btnNuovoRecinto; }
+    public Button getBtnEliminaRecinto() { return btnEliminaRecinto; }
     public VBox getPanelNuovoRecinto() { return panelNuovoRecinto; }
     public TextField getTxtRecintoNome() { return txtRecintoNome; }
     public ComboBox<String> getComboRecintoArea() { return comboRecintoArea; }

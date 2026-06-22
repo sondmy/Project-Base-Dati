@@ -167,7 +167,17 @@ public class GestioneController {
                 view.setPanelNuovoDipendenteVisible(true);
             }
         });
-        view.getBtnSalvaDipendente().setOnAction(e -> DipendenteController.handleSalvaDipendente(view));
+        view.getBtnSalvaDipendente().setOnAction(e -> {
+            DipendenteController.handleSalvaDipendente(view, editingDipendenteId);
+            editingDipendenteId = null;
+        });
+
+        // Tipo Mansione
+        view.getBtnAggiungiTipoMansione().setOnAction(e -> DipendenteController.handleAggiungiTipoMansione(view));
+        view.getBtnRimuoviTipoMansione().setOnAction(e -> DipendenteController.handleRimuoviTipoMansione(view));
+        view.getTableTipoMansione().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnRimuoviTipoMansione().setDisable(newSel == null);
+        });
 
         // Calcola ricavo totale
         view.getBtnCalcolaRicavo().setOnAction(e -> {
@@ -259,6 +269,10 @@ public class GestioneController {
             view.setPanelNuovaAreaVisible(panelAreaVisible);
         });
         view.getBtnSalvaArea().setOnAction(e -> AreeController.handleSalvaArea(view));
+        view.getBtnEliminaArea().setOnAction(e -> AreeController.handleEliminaArea(view));
+        view.getTableAree().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnEliminaArea().setDisable(newSel == null);
+        });
 
         // Toggle pannello nuovo recinto
         view.getBtnNuovoRecinto().setOnAction(e -> {
@@ -268,6 +282,7 @@ public class GestioneController {
         });
         
         view.getTableRecinti().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnEliminaRecinto().setDisable(newSel == null);
             if (newSel != null && newSel.getIdRecinto() != null) {
                 editingRecintoId = Integer.parseInt(newSel.getIdRecinto());
                 view.getTxtRecintoNome().setText(newSel.getNome());
@@ -292,6 +307,7 @@ public class GestioneController {
         });
         
         view.getBtnSalvaRecinto().setOnAction(e -> RecintoController.handleSalvaRecinto(view, editingRecintoId));
+        view.getBtnEliminaRecinto().setOnAction(e -> RecintoController.handleEliminaRecinto(view));
         
         // Tab Classificazione
         view.getBtnAggiungiStato().setOnAction(e -> ClassificazioneController.handleAggiungiStato(view));
