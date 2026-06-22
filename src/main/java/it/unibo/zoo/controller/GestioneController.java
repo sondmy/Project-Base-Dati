@@ -238,6 +238,7 @@ public class GestioneController {
             view.getDateAnimaleUscita().setValue(null);
             view.getComboAnimaleVivo().setValue(null);
             view.getComboAnimaleSpecie().setValue(null);
+            view.getComboAnimaleRecinto().setValue(null);
             
             panelAnimaleVisible = true;
             view.setPanelNuovoAnimaleVisible(panelAnimaleVisible);
@@ -257,6 +258,15 @@ public class GestioneController {
                 view.getDateAnimaleUscita().setValue(newSelection.getDataUscita() != null && !newSelection.getDataUscita().equals("-") ? LocalDate.parse(newSelection.getDataUscita(), DATE_FMT) : null);
                 view.getComboAnimaleVivo().setValue(newSelection.getVivo());
                 view.getComboAnimaleSpecie().getItems().stream().filter(s -> s.endsWith(newSelection.getSpecie())).findFirst().ifPresent(view.getComboAnimaleSpecie()::setValue);
+                
+                if (newSelection.getRecinto() != null && !newSelection.getRecinto().equals("—")) {
+                    view.getComboAnimaleRecinto().getItems().stream()
+                        .filter(r -> r.startsWith(newSelection.getRecinto().split(" - ")[0] + " -"))
+                        .findFirst()
+                        .ifPresent(view.getComboAnimaleRecinto()::setValue);
+                } else {
+                    view.getComboAnimaleRecinto().setValue(null);
+                }
                 
                 panelAnimaleVisible = true;
                 view.setPanelNuovoAnimaleVisible(true);

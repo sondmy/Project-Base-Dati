@@ -118,10 +118,19 @@ public class AnimaliController {
         final List<Animale> animali = new AnimaleDao().findAll();
         final java.util.Map<Integer, Specie> specieMap = new SpecieDao().findAll().stream()
                 .collect(Collectors.toMap(Specie::getIdSpecie, s -> s));
+        final java.util.Map<Integer, Recinto> recintoMap = new RecintoDao().findAll().stream()
+                .collect(Collectors.toMap(Recinto::getIdRecinto, r -> r));
+        final java.util.Map<Integer, Integer> animaleRecintoMap = new StoricoCollocazioneDao().findAll().stream()
+                .filter(sc -> sc.getDataFine() == null)
+                .collect(Collectors.toMap(StoricoCollocazione::getIdAnimale, StoricoCollocazione::getIdRecinto, (a, b) -> b));
 
         final List<GestioneView.AnimaleRow> rows = new ArrayList<>();
         for (final Animale a : animali) {
             final Specie s = specieMap.get(a.getIdSpecie());
+            final Integer idRecinto = animaleRecintoMap.get(a.getIdAnimale());
+            final Recinto r = idRecinto != null ? recintoMap.get(idRecinto) : null;
+            final String recintoStr = r != null ? r.getIdRecinto() + " - " + r.getNome() : "—";
+
             rows.add(new GestioneView.AnimaleRow(
                     String.valueOf(a.getIdAnimale()),
                     a.getNome(),
@@ -130,7 +139,8 @@ public class AnimaliController {
                     a.getDataArrivo() != null ? a.getDataArrivo().format(DATE_FMT) : "-",
                     a.getDataUscita() != null ? a.getDataUscita().format(DATE_FMT) : "-",
                     s != null ? s.getNomeComune() : "-",
-                    a.isVivo() ? "Vivo" : "Morto"
+                    a.isVivo() ? "Vivo" : "Morto",
+                    recintoStr
             ));
         }
         view.setAnimali(rows);
@@ -138,6 +148,11 @@ public class AnimaliController {
         view.getComboAnimaleSpecie().getItems().clear();
         for (final Specie s : new SpecieDao().findAll()) {
             view.getComboAnimaleSpecie().getItems().add(s.getIdSpecie() + " - " + s.getNomeComune());
+        }
+
+        view.getComboAnimaleRecinto().getItems().clear();
+        for (final Recinto r : new RecintoDao().findAll()) {
+            view.getComboAnimaleRecinto().getItems().add(r.getIdRecinto() + " - " + r.getNome());
         }
     }
     public static void handleSalvaAnimale(final GestioneView view, final Integer editingAnimaleId) {
@@ -149,6 +164,7 @@ public class AnimaliController {
             LocalDate dataUscita = view.getDateAnimaleUscita().getValue();
             String vivoStr = view.getComboAnimaleVivo().getValue();
             String specieStr = view.getComboAnimaleSpecie().getValue();
+            String recintoStr = view.getComboAnimaleRecinto().getValue();
             
             if(nome == null || nome.isEmpty() || sessoStr == null || specieStr == null) {
                 view.showAnimaleMsg("Nome, Sesso e Specie sono obbligatori.", false);
@@ -164,18 +180,41 @@ public class AnimaliController {
             }
             
             AnimaleDao dao = new AnimaleDao();
+            int finalId = 0;
             if (editingAnimaleId == null) {
                 Animale a = new Animale(0, nome, sesso, vivo, dataNascita, dataArrivo, dataUscita, idSpecie);
                 dao.insert(a);
+                finalId = a.getIdAnimale();
                 view.showAnimaleMsg("Animale aggiunto con successo!", true);
             } else {
                 Animale a = new Animale(editingAnimaleId, nome, sesso, vivo, dataNascita, dataArrivo, dataUscita, idSpecie);
                 dao.update(a);
+                finalId = editingAnimaleId;
                 view.showAnimaleMsg("Animale modificato con successo!", true);
+            }
+
+            // Gestione recinto
+            if (recintoStr != null && !recintoStr.isEmpty()) {
+                int idRecinto = Integer.parseInt(recintoStr.split(" - ")[0]);
+                StoricoCollocazioneDao scDao = new StoricoCollocazioneDao();
+                
+                StoricoCollocazione scAttuale = scDao.findByAnimale(finalId).stream()
+                    .filter(sc -> sc.getDataFine() == null)
+                    .findFirst().orElse(null);
+                    
+                if (scAttuale == null) {
+                    scDao.insert(new StoricoCollocazione(finalId, idRecinto, LocalDate.now(), null));
+                } else if (scAttuale.getIdRecinto() != idRecinto) {
+                    scAttuale.setDataFine(LocalDate.now());
+                    scDao.update(scAttuale);
+                    scDao.insert(new StoricoCollocazione(finalId, idRecinto, LocalDate.now(), null));
+                }
             }
             
             view.setPanelNuovoAnimaleVisible(false);
             AnimaliController.populateAnimali(view);
+            // Aggiorna anche i recinti in modo che le statistiche sul recinto più popolato si aggiornino
+            RecintoController.populateRecinti(view);
         } catch(Exception e) {
             view.showAnimaleMsg("Errore: " + e.getMessage(), false);
         }

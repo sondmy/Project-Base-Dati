@@ -196,9 +196,10 @@ public class GestioneView {
         private final String dataUscita;
         private final String specie;
         private final String vivo;
+        private final String recinto;
 
-        public AnimaleRow(final String idAnimale, final String nome, final String sesso, final String dataNascita, final String dataArrivo, final String dataUscita, final String specie, final String vivo) {
-            this.idAnimale = idAnimale; this.nome = nome; this.sesso = sesso; this.dataNascita = dataNascita; this.dataArrivo = dataArrivo; this.dataUscita = dataUscita; this.specie = specie; this.vivo = vivo;
+        public AnimaleRow(final String idAnimale, final String nome, final String sesso, final String dataNascita, final String dataArrivo, final String dataUscita, final String specie, final String vivo, final String recinto) {
+            this.idAnimale = idAnimale; this.nome = nome; this.sesso = sesso; this.dataNascita = dataNascita; this.dataArrivo = dataArrivo; this.dataUscita = dataUscita; this.specie = specie; this.vivo = vivo; this.recinto = recinto;
         }
 
         public String getIdAnimale() { return idAnimale; }
@@ -209,6 +210,7 @@ public class GestioneView {
         public String getDataUscita() { return dataUscita; }
         public String getSpecie() { return specie; }
         public String getVivo() { return vivo; }
+        public String getRecinto() { return recinto; }
     }
 
     public static class AreaRow {
@@ -466,6 +468,7 @@ public class GestioneView {
     private final DatePicker dateAnimaleUscita;
     private final ComboBox<String> comboAnimaleVivo;
     private final ComboBox<String> comboAnimaleSpecie;
+    private final ComboBox<String> comboAnimaleRecinto;
     private final Button btnSalvaAnimale;
     private final Label lblAnimaleMsg;
 
@@ -1168,7 +1171,10 @@ public class GestioneView {
             }
         });
 
-        tableAnimali.getColumns().addAll(colAnId, colAnNome, colAnSesso, colAnDataN, colAnDataA, colAnDataU, colAnSpecie, colAnVivo);
+        final TableColumn<AnimaleRow, String> colAnRecinto = new TableColumn<>("Recinto");
+        colAnRecinto.setCellValueFactory(new PropertyValueFactory<>("recinto"));
+
+        tableAnimali.getColumns().addAll(colAnId, colAnNome, colAnSesso, colAnDataN, colAnDataA, colAnDataU, colAnSpecie, colAnRecinto, colAnVivo);
 
         btnNuovoAnimale = new Button("Aggiungi / Resetta");
         btnNuovoAnimale.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
@@ -1188,12 +1194,13 @@ public class GestioneView {
         comboAnimaleVivo = new ComboBox<>(); comboAnimaleVivo.setPromptText("Stato...");
         comboAnimaleVivo.getItems().addAll("Vivo", "Morto");
         comboAnimaleSpecie = new ComboBox<>(); comboAnimaleSpecie.setPromptText("Seleziona Specie...");
+        comboAnimaleRecinto = new ComboBox<>(); comboAnimaleRecinto.setPromptText("Seleziona Recinto (Opzionale)...");
         
         btnSalvaAnimale = new Button("Salva");
         btnSalvaAnimale.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
         lblAnimaleMsg = new Label(); lblAnimaleMsg.setVisible(false);
 
-        panelNuovoAnimale.getChildren().addAll(new Label("Nuovo/Modifica Animale"), txtAnimaleNome, comboAnimaleSesso, dateAnimaleNascita, dateAnimaleArrivo, dateAnimaleUscita, comboAnimaleVivo, comboAnimaleSpecie, btnSalvaAnimale, lblAnimaleMsg);
+        panelNuovoAnimale.getChildren().addAll(new Label("Nuovo/Modifica Animale"), txtAnimaleNome, comboAnimaleSesso, dateAnimaleNascita, dateAnimaleArrivo, dateAnimaleUscita, comboAnimaleVivo, comboAnimaleSpecie, comboAnimaleRecinto, btnSalvaAnimale, lblAnimaleMsg);
 
         animaliContent.getChildren().addAll(tableAnimali, btnNuovoAnimale, panelNuovoAnimale);
         tabAnimali.setContent(animaliContent);
@@ -1691,6 +1698,7 @@ public class GestioneView {
     public DatePicker getDateAnimaleUscita() { return dateAnimaleUscita; }
     public ComboBox<String> getComboAnimaleVivo() { return comboAnimaleVivo; }
     public ComboBox<String> getComboAnimaleSpecie() { return comboAnimaleSpecie; }
+    public ComboBox<String> getComboAnimaleRecinto() { return comboAnimaleRecinto; }
     public Button getBtnSalvaAnimale() { return btnSalvaAnimale; }
     public void showAnimaleMsg(final String msg, final boolean success) {
         lblAnimaleMsg.setText(msg);

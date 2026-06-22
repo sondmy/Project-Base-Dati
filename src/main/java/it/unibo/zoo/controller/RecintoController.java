@@ -46,6 +46,37 @@ public class RecintoController {
         for (final TipoRecinto t : new TipoRecintoDao().findAll()) {
             view.getComboRecintoTipo().getItems().add(t.getIdTipoRecinto() + " - " + t.getNome());
         }
+        
+        // Calcola recinto con più animali attivi
+        try {
+            final List<it.unibo.zoo.model.entity.StoricoCollocazione> collocazioni = new it.unibo.zoo.model.jdbc.entityDao.StoricoCollocazioneDao().findAll();
+            final Map<Integer, Long> conteggioAnimali = collocazioni.stream()
+                .filter(sc -> sc.getDataFine() == null)
+                .collect(Collectors.groupingBy(it.unibo.zoo.model.entity.StoricoCollocazione::getIdRecinto, Collectors.counting()));
+                
+            Integer topRecintoId = null;
+            long maxAnimali = -1;
+            for (Map.Entry<Integer, Long> entry : conteggioAnimali.entrySet()) {
+                if (entry.getValue() > maxAnimali) {
+                    maxAnimali = entry.getValue();
+                    topRecintoId = entry.getKey();
+                }
+            }
+            
+            if (topRecintoId != null && maxAnimali > 0) {
+                final Integer finalTopId = topRecintoId;
+                Recinto topRecinto = recinti.stream().filter(r -> r.getIdRecinto() == finalTopId).findFirst().orElse(null);
+                if (topRecinto != null) {
+                    view.getLblTopRecintoAnimali().setText("Recinto più popolato: " + topRecinto.getNome() + " (" + maxAnimali + " animali)");
+                    view.getLblTopRecintoAnimali().setStyle("-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1976D2;");
+                }
+            } else {
+                view.getLblTopRecintoAnimali().setText("Recinto più popolato: Nessun animale presente");
+                view.getLblTopRecintoAnimali().setStyle("-fx-font-size: 14px; -fx-text-fill: gray;");
+            }
+        } catch (Exception e) {
+            view.getLblTopRecintoAnimali().setText("Errore nel calcolo del recinto più popolato");
+        }
     }
 
     public static void handleSalvaRecinto(final GestioneView view, final Integer editingRecintoId) {
