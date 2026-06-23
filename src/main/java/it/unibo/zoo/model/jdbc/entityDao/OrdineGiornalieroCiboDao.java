@@ -98,6 +98,7 @@ public class OrdineGiornalieroCiboDao extends AbstractCrudDao<OrdineGiornalieroC
                      "JOIN DIETA D ON S.id_specie = D.id_specie " +
                      "JOIN TIPO_CIBO TC ON D.id_tipo_cibo = TC.id_tipo_cibo " +
                      "WHERE A.vivo = true " +
+                     "AND A.data_uscita IS NULL " +
                      "GROUP BY TC.nome " +
                      "ORDER BY TC.nome";
         try (java.sql.Connection conn = it.unibo.zoo.model.jdbc.ConnectionFactory.getInstance().getConnection();
