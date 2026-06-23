@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -57,7 +59,7 @@ public class AreeController {
             
             view.showAreaMsg("Area aggiunta con successo!", true);
             view.setPanelNuovaAreaVisible(false);
-            AreeController.populateAree(view);
+            DataEventBus.getInstance().publish(DataType.AREA);
         } catch(Exception e) {
             view.showAreaMsg("Errore: " + e.getMessage(), false);
         }
@@ -68,7 +70,7 @@ public class AreeController {
         if (row != null) {
             try {
                 new AreaDao().delete(Integer.parseInt(row.getIdArea()));
-                populateAree(view);
+                DataEventBus.getInstance().publish(DataType.AREA);
                 view.showAreaMsg("Area eliminata con successo.", true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -97,8 +99,7 @@ public class AreeController {
             new TipoAreaDao().insert(entity);
             view.getTxtTipoAreaNome().clear();
             view.getTxtTipoAreaDesc().clear();
-            populateTipoArea(view);
-            populateAree(view);
+            DataEventBus.getInstance().publish(DataType.TIPO_AREA);
             view.showTipoAreaMsg("Tipo Area aggiunto con successo.", true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -111,8 +112,7 @@ public class AreeController {
         if (row != null) {
             try {
                 new TipoAreaDao().delete(Integer.parseInt(row.getIdTipoArea()));
-                populateTipoArea(view);
-                populateAree(view);
+                DataEventBus.getInstance().publish(DataType.TIPO_AREA);
                 view.showTipoAreaMsg("Tipo Area rimosso con successo.", true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -141,8 +141,7 @@ public class AreeController {
             new it.unibo.zoo.model.jdbc.entityDao.TipoRecintoDao().insert(entity);
             view.getTxtTipoRecintoNome().clear();
             view.getTxtTipoRecintoDesc().clear();
-            populateTipoRecinto(view);
-            RecintoController.populateRecinti(view);
+            DataEventBus.getInstance().publish(DataType.TIPO_RECINTO);
             view.showTipoRecintoMsg("Tipo Recinto aggiunto con successo.", true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,8 +154,7 @@ public class AreeController {
         if (row != null) {
             try {
                 new it.unibo.zoo.model.jdbc.entityDao.TipoRecintoDao().delete(Integer.parseInt(row.getIdTipoRecinto()));
-                populateTipoRecinto(view);
-                RecintoController.populateRecinti(view);
+                DataEventBus.getInstance().publish(DataType.TIPO_RECINTO);
                 view.showTipoRecintoMsg("Tipo Recinto rimosso con successo.", true);
             } catch (Exception e) {
                 e.printStackTrace();

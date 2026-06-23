@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -106,7 +108,7 @@ public class RecintoController {
             }
             
             view.setPanelNuovoRecintoVisible(false);
-            RecintoController.populateRecinti(view);
+            DataEventBus.getInstance().publish(DataType.RECINTO);
         } catch(Exception e) {
             view.showRecintoMsg("Errore: " + e.getMessage(), false);
         }
@@ -117,7 +119,7 @@ public class RecintoController {
         if (row != null) {
             try {
                 new RecintoDao().delete(Integer.parseInt(row.getIdRecinto()));
-                populateRecinti(view);
+                DataEventBus.getInstance().publish(DataType.RECINTO);
                 view.showRecintoMsg("Recinto eliminato con successo.", true);
             } catch (Exception e) {
                 e.printStackTrace();

@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -108,7 +110,7 @@ public class TurnoController {
         if (sel != null) {
             try {
                 new TurnoDao().delete(Integer.parseInt(sel.getIdTurno()));
-                TurnoController.populateTurni(view);
+                DataEventBus.getInstance().publish(DataType.TURNO);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -144,7 +146,7 @@ public class TurnoController {
             
             view.showTurnoMsg("Turno salvato con successo!", true);
             view.setPanelNuovoTurnoVisible(false);
-            TurnoController.populateTurni(view);
+            DataEventBus.getInstance().publish(DataType.TURNO);
         } catch(Exception e) {
             view.showTurnoMsg("Errore: " + e.getMessage(), false);
         }

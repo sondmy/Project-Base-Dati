@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -84,7 +86,7 @@ public class DipendenteController {
             }
             
             view.setPanelNuovoDipendenteVisible(false);
-            DipendenteController.populatePersonale(view);
+            DataEventBus.getInstance().publish(DataType.DIPENDENTE);
         } catch(Exception e) {
             view.showDipendenteMsg("Errore: " + e.getMessage(), false);
         }
@@ -103,7 +105,7 @@ public class DipendenteController {
             view.showTipoMansioneMsg("Tipo mansione aggiunto!", true);
             view.getTxtTipoMansioneNome().clear();
             view.getTxtTipoMansioneDesc().clear();
-            populatePersonale(view);
+            DataEventBus.getInstance().publish(DataType.MANSIONE);
         } catch(Exception e) {
             view.showTipoMansioneMsg("Errore: " + e.getMessage(), false);
         }
@@ -116,7 +118,7 @@ public class DipendenteController {
                 int id = Integer.parseInt(sel.getIdTipoMansione());
                 new MansioneDao().delete(id);
                 view.showTipoMansioneMsg("Tipo mansione rimosso!", true);
-                populatePersonale(view);
+                DataEventBus.getInstance().publish(DataType.MANSIONE);
             } catch (Exception e) {
                 view.showTipoMansioneMsg("Errore: " + e.getMessage(), false);
             }

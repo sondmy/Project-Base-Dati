@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -129,9 +131,8 @@ public class SpesaController {
             view.getTxtSpesaDescrizione().clear();
             view.setPanelNuovaSpesaVisible(false);
 
-            // Aggiorna sia la tab Spese che il Saldo
-            SpesaController.populateSpese(view);
-            SaldoController.populateSaldo(view);
+            // L'EventBus si occupa di aggiornare sia la tab Spese che il Saldo
+            DataEventBus.getInstance().publish(DataType.SPESA, DataType.TRANSAZIONE);
         } catch (Exception e) {
             view.showSpesaMsg("Errore: " + e.getMessage(), false);
             e.printStackTrace();

@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import it.unibo.zoo.model.entity.TipoBiglietto;
 import it.unibo.zoo.model.jdbc.entityDao.TipoBigliettoDao;
 import it.unibo.zoo.view.GestioneView;
@@ -48,7 +50,7 @@ public class TipiBigliettiController {
             view.getTxtTipoBigliettoPrezzo().clear();
             view.setPanelNuovoTipoBigliettoVisible(false);
 
-            populateTipiBiglietti(view);
+            DataEventBus.getInstance().publish(DataType.TIPO_BIGLIETTO);
         } catch (NumberFormatException ex) {
             view.showTipiBigliettiMsg("Il prezzo deve essere un numero valido.", false);
         } catch (Exception ex) {
@@ -62,7 +64,7 @@ public class TipiBigliettiController {
             try {
                 int id = Integer.parseInt(sel.getIdBiglietto());
                 new TipoBigliettoDao().delete(id);
-                populateTipiBiglietti(view);
+                DataEventBus.getInstance().publish(DataType.TIPO_BIGLIETTO);
                 view.showTipiBigliettiMsg("Tipo biglietto eliminato.", true);
             } catch (Exception ex) {
                 view.showTipiBigliettiMsg("Impossibile eliminare (potrebbe essere in uso in alcuni scontrini).", false);

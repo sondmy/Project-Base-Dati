@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import it.unibo.zoo.model.entity.Animale;
 import it.unibo.zoo.model.entity.Area;
 import it.unibo.zoo.model.entity.Habitat;
@@ -226,9 +228,7 @@ public class AnimaliController {
             }
             
             view.setPanelNuovoAnimaleVisible(false);
-            AnimaliController.populateAnimali(view);
-            // Aggiorna anche i recinti in modo che le statistiche sul recinto più popolato si aggiornino
-            RecintoController.populateRecinti(view);
+            DataEventBus.getInstance().publish(DataType.ANIMALE);
         } catch(Exception e) {
             view.showAnimaleMsg("Errore: " + e.getMessage(), false);
         }

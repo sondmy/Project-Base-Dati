@@ -7,6 +7,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import it.unibo.zoo.model.jdbc.entityDao.*;
 import java.time.LocalDate;
+import it.unibo.zoo.controller.DataEventBus.DataType;
 
 /**
  * Controller per il pannello di gestione (4 tab).
@@ -47,8 +48,8 @@ public class GestioneController {
     }
 
     private void init() {
-
         refresh();
+        registerSubscriptions();
 
         // Toggle pannello nuovo tipo biglietto
         view.getBtnNuovoTipoBiglietto().setOnAction(e -> {
@@ -286,7 +287,6 @@ public class GestioneController {
         view.getBtnSalvaSpesa().setOnAction(e -> {
             panelSpesaVisible = false;
             SpesaController.handleSalvaSpesa(view);
-            refresh();
         });
 
         // Toggle pannello nuovo animale e selezione
@@ -400,6 +400,8 @@ public class GestioneController {
         view.getBtnRimuoviFamiglia().setOnAction(e -> ClassificazioneController.handleRimuoviFamiglia(view));
         view.getBtnAggiungiSpecie().setOnAction(e -> ClassificazioneController.handleAggiungiSpecie(view));
         view.getBtnRimuoviSpecie().setOnAction(e -> ClassificazioneController.handleRimuoviSpecie(view));
+        view.getBtnAggiungiDieta().setOnAction(e -> ClassificazioneController.handleAggiungiDieta(view));
+        view.getBtnRimuoviDieta().setOnAction(e -> ClassificazioneController.handleRimuoviDieta(view));
 
         view.getTableStatoEsistenza().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             view.getBtnRimuoviStato().setDisable(newSel == null);
@@ -412,6 +414,9 @@ public class GestioneController {
         });
         view.getTableSpecie().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             view.getBtnRimuoviSpecie().setDisable(newSel == null);
+        });
+        view.getTableDieta().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnRimuoviDieta().setDisable(newSel == null);
         });
 
         // Tipi Area e Recinto
@@ -443,6 +448,63 @@ public class GestioneController {
         AreeController.populateTipoRecinto(view);
         TipiBigliettiController.populateTipiBiglietti(view);
         ClassificazioneController.populateClassificazione(view);
+    }
+
+    /**
+     * Registra tutte le sottoscrizioni all'EventBus.
+     * Ogni tipo di dato viene mappato al metodo populate*() appropriato.
+     * Quando un controller pubblica un evento, il bus notifica tutti i subscriber
+     * (incluse le dipendenze transitive), garantendo la sincronizzazione globale dei dati.
+     */
+    private void registerSubscriptions() {
+        DataEventBus bus = DataEventBus.getInstance();
+
+        // Pulisci eventuali sottoscrizioni precedenti (es. se GestioneView viene ricreata)
+        bus.unsubscribeAll();
+
+        // Tab Classificazione
+        bus.subscribe(DataType.STATO_ESISTENZA, () -> ClassificazioneController.populateStatoEsistenza(view));
+        bus.subscribe(DataType.HABITAT, () -> ClassificazioneController.populateHabitat(view));
+        bus.subscribe(DataType.FAMIGLIA_SPECIE, () -> ClassificazioneController.populateFamigliaSpecie(view));
+        bus.subscribe(DataType.SPECIE, () -> ClassificazioneController.populateSpecie(view));
+        bus.subscribe(DataType.DIETA, () -> ClassificazioneController.populateDieta(view));
+
+        // Tab Animali
+        bus.subscribe(DataType.ANIMALE, () -> AnimaliController.populateAnimali(view));
+
+        // Tab Aree
+        bus.subscribe(DataType.AREA, () -> AreeController.populateAree(view));
+        bus.subscribe(DataType.TIPO_AREA, () -> AreeController.populateTipoArea(view));
+
+        // Tab Recinti
+        bus.subscribe(DataType.RECINTO, () -> RecintoController.populateRecinti(view));
+        bus.subscribe(DataType.TIPO_RECINTO, () -> AreeController.populateTipoRecinto(view));
+
+        // Tab Personale e Mansioni
+        bus.subscribe(DataType.DIPENDENTE, () -> DipendenteController.populatePersonale(view));
+        bus.subscribe(DataType.MANSIONE, () -> DipendenteController.populatePersonale(view));
+
+        // Tab Visite
+        bus.subscribe(DataType.VISITA, () -> VisiteController.populateVisite(view));
+
+        // Tab Turni
+        bus.subscribe(DataType.TURNO, () -> TurnoController.populateTurni(view));
+
+        // Tab Ordini
+        bus.subscribe(DataType.ORDINE, () -> OrdiniController.populateOrdini(view));
+
+        // Tab Spese
+        bus.subscribe(DataType.SPESA, () -> SpesaController.populateSpese(view));
+
+        // Tab Saldo / Transazioni
+        bus.subscribe(DataType.SALDO, () -> SaldoController.populateSaldo(view));
+        bus.subscribe(DataType.TRANSAZIONE, () -> {
+            SaldoController.populateSaldo(view);
+            SaldoController.populateStatistiche(view);
+        });
+
+        // Tab Tipi Biglietti
+        bus.subscribe(DataType.TIPO_BIGLIETTO, () -> TipiBigliettiController.populateTipiBiglietti(view));
     }
 
 }

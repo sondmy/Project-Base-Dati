@@ -1,13 +1,19 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import it.unibo.zoo.model.entity.StatoEsistenza;
 import it.unibo.zoo.model.entity.Habitat;
 import it.unibo.zoo.model.entity.FamigliaSpecie;
 import it.unibo.zoo.model.entity.Specie;
+import it.unibo.zoo.model.entity.Dieta;
+import it.unibo.zoo.model.entity.TipoCibo;
 import it.unibo.zoo.model.jdbc.entityDao.StatoEsistenzaDao;
 import it.unibo.zoo.model.jdbc.entityDao.HabitatDao;
 import it.unibo.zoo.model.jdbc.entityDao.FamigliaSpecieDao;
 import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
+import it.unibo.zoo.model.jdbc.entityDao.DietaDao;
+import it.unibo.zoo.model.jdbc.entityDao.TipoCiboDao;
 import it.unibo.zoo.view.GestioneView;
 import it.unibo.zoo.view.GestioneView.StatoEsistenzaRow;
 import it.unibo.zoo.view.GestioneView.HabitatRow;
@@ -24,9 +30,10 @@ public class ClassificazioneController {
         populateHabitat(view);
         populateFamigliaSpecie(view);
         populateSpecie(view);
+        populateDieta(view);
     }
 
-    private static void populateStatoEsistenza(final GestioneView view) {
+    public static void populateStatoEsistenza(final GestioneView view) {
         StatoEsistenzaDao dao = new StatoEsistenzaDao();
         List<StatoEsistenza> list = dao.findAll();
         List<StatoEsistenzaRow> rows = list.stream()
@@ -39,7 +46,7 @@ public class ClassificazioneController {
         view.setStatoEsistenza(rows);
     }
 
-    private static void populateHabitat(final GestioneView view) {
+    public static void populateHabitat(final GestioneView view) {
         HabitatDao dao = new HabitatDao();
         List<Habitat> list = dao.findAll();
         List<HabitatRow> rows = list.stream()
@@ -52,7 +59,7 @@ public class ClassificazioneController {
         view.setHabitat(rows);
     }
 
-    private static void populateFamigliaSpecie(final GestioneView view) {
+    public static void populateFamigliaSpecie(final GestioneView view) {
         FamigliaSpecieDao dao = new FamigliaSpecieDao();
         List<FamigliaSpecie> list = dao.findAll();
         List<FamigliaSpecieRow> rows = list.stream()
@@ -76,7 +83,7 @@ public class ClassificazioneController {
             dao.insert(entity);
             view.getTxtStatoNome().clear();
             view.getTxtStatoDesc().clear();
-            populateStatoEsistenza(view);
+            DataEventBus.getInstance().publish(DataType.STATO_ESISTENZA);
             view.showStatoMsg("Stato aggiunto con successo.", true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -89,7 +96,7 @@ public class ClassificazioneController {
         if (row != null) {
             try {
                 new StatoEsistenzaDao().delete(Integer.parseInt(row.getIdStato()));
-                populateStatoEsistenza(view);
+                DataEventBus.getInstance().publish(DataType.STATO_ESISTENZA);
                 view.showStatoMsg("Stato rimosso con successo.", true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -109,7 +116,7 @@ public class ClassificazioneController {
             dao.insert(entity);
             view.getTxtHabitatNome().clear();
             view.getTxtHabitatDesc().clear();
-            populateHabitat(view);
+            DataEventBus.getInstance().publish(DataType.HABITAT);
             view.showHabitatMsg("Habitat aggiunto con successo.", true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,7 +129,7 @@ public class ClassificazioneController {
         if (row != null) {
             try {
                 new HabitatDao().delete(Integer.parseInt(row.getIdHabitat()));
-                populateHabitat(view);
+                DataEventBus.getInstance().publish(DataType.HABITAT);
                 view.showHabitatMsg("Habitat rimosso con successo.", true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -142,7 +149,7 @@ public class ClassificazioneController {
             dao.insert(entity);
             view.getTxtFamigliaNome().clear();
             view.getTxtFamigliaDesc().clear();
-            populateFamigliaSpecie(view);
+            DataEventBus.getInstance().publish(DataType.FAMIGLIA_SPECIE);
             view.showFamigliaMsg("Famiglia aggiunta con successo.", true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,7 +162,7 @@ public class ClassificazioneController {
         if (row != null) {
             try {
                 new FamigliaSpecieDao().delete(Integer.parseInt(row.getIdFamiglia()));
-                populateFamigliaSpecie(view);
+                DataEventBus.getInstance().publish(DataType.FAMIGLIA_SPECIE);
                 view.showFamigliaMsg("Famiglia rimossa con successo.", true);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -164,7 +171,7 @@ public class ClassificazioneController {
         }
     }
 
-    private static void populateSpecie(final GestioneView view) {
+    public static void populateSpecie(final GestioneView view) {
         SpecieDao dao = new SpecieDao();
         List<Specie> list = dao.findAll();
         Map<Integer, String> habMap = new HabitatDao().findAll().stream().collect(Collectors.toMap(Habitat::getIdHabitat, Habitat::getNome));
@@ -213,7 +220,7 @@ public class ClassificazioneController {
             view.getComboSpecieHabitat().setValue(null);
             view.getComboSpecieStato().setValue(null);
             view.getComboSpecieFamiglia().setValue(null);
-            populateSpecie(view);
+            DataEventBus.getInstance().publish(DataType.SPECIE);
             view.showSpecieMsg("Specie aggiunta con successo.", true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -226,11 +233,79 @@ public class ClassificazioneController {
         if (row != null) {
             try {
                 new SpecieDao().delete(Integer.parseInt(row.getIdSpecie()));
-                populateSpecie(view);
+                DataEventBus.getInstance().publish(DataType.SPECIE);
                 view.showSpecieMsg("Specie rimossa con successo.", true);
             } catch (Exception e) {
                 e.printStackTrace();
                 view.showSpecieMsg("Impossibile rimuovere (in uso).", false);
+            }
+        }
+    }
+
+    public static void populateDieta(final GestioneView view) {
+        DietaDao dao = new DietaDao();
+        List<Dieta> list = dao.findAll();
+        Map<Integer, String> specieMap = new SpecieDao().findAll().stream().collect(Collectors.toMap(Specie::getIdSpecie, s -> s.getNomeScentifico() + " (" + s.getNomeComune() + ")"));
+        Map<Integer, String> ciboMap = new TipoCiboDao().findAll().stream().collect(Collectors.toMap(TipoCibo::getIdTipoCibo, TipoCibo::getNome));
+        
+        List<GestioneView.DietaRow> rows = list.stream()
+                .map(d -> new GestioneView.DietaRow(
+                        String.valueOf(d.getIdSpecie()),
+                        String.valueOf(d.getIdTipoCibo()),
+                        specieMap.getOrDefault(d.getIdSpecie(), "—"),
+                        ciboMap.getOrDefault(d.getIdTipoCibo(), "—"),
+                        String.valueOf(d.getQuantitaKgGiorno())
+                )).collect(Collectors.toList());
+        view.setDieta(rows);
+        
+        view.getComboDietaSpecie().getItems().clear();
+        view.getComboDietaSpecie().getItems().addAll(specieMap.entrySet().stream().map(e -> e.getKey() + " - " + e.getValue()).collect(Collectors.toList()));
+        view.getComboDietaCibo().getItems().clear();
+        view.getComboDietaCibo().getItems().addAll(ciboMap.entrySet().stream().map(e -> e.getKey() + " - " + e.getValue()).collect(Collectors.toList()));
+    }
+
+    public static void handleAggiungiDieta(final GestioneView view) {
+        String speStr = view.getComboDietaSpecie().getValue();
+        String cibStr = view.getComboDietaCibo().getValue();
+        String qtaStr = view.getTxtDietaQuantita().getText();
+        
+        if (speStr == null || speStr.trim().isEmpty() || cibStr == null || cibStr.trim().isEmpty() || qtaStr == null || qtaStr.trim().isEmpty()) {
+            view.showDietaMsg("Tutti i campi sono obbligatori.", false);
+            return;
+        }
+        
+        try {
+            int idSpe = Integer.parseInt(speStr.split(" - ")[0]);
+            int idCib = Integer.parseInt(cibStr.split(" - ")[0]);
+            double qta = Double.parseDouble(qtaStr.replace(",", "."));
+            
+            DietaDao dao = new DietaDao();
+            Dieta entity = new Dieta(idSpe, idCib, qta);
+            dao.insert(entity);
+            
+            view.getComboDietaSpecie().setValue(null);
+            view.getComboDietaCibo().setValue(null);
+            view.getTxtDietaQuantita().clear();
+            DataEventBus.getInstance().publish(DataType.DIETA);
+            view.showDietaMsg("Dieta aggiunta con successo.", true);
+        } catch (NumberFormatException e) {
+            view.showDietaMsg("Quantità non valida.", false);
+        } catch (Exception e) {
+            e.printStackTrace();
+            view.showDietaMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+
+    public static void handleRimuoviDieta(final GestioneView view) {
+        GestioneView.DietaRow row = view.getTableDieta().getSelectionModel().getSelectedItem();
+        if (row != null) {
+            try {
+                new DietaDao().delete(Integer.parseInt(row.getIdSpecie()), Integer.parseInt(row.getIdCibo()));
+                DataEventBus.getInstance().publish(DataType.DIETA);
+                view.showDietaMsg("Dieta rimossa con successo.", true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                view.showDietaMsg("Impossibile rimuovere (in uso).", false);
             }
         }
     }

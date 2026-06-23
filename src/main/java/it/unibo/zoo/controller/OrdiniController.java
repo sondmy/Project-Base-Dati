@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -112,8 +114,7 @@ public class OrdiniController {
             OrdineGiornalieroCibo ordine = new OrdineGiornalieroCibo(0, LocalDate.now(), (double)qta, idFornitore, idTipoCibo, t.getIdTransazione());
             new OrdineGiornalieroCiboDao().insert(ordine);
             
-            SaldoController.populateSaldo(view);
-            OrdiniController.populateOrdini(view);
+            DataEventBus.getInstance().publish(DataType.ORDINE, DataType.TRANSAZIONE);
             view.showOrdineMsg("Ordine salvato! Costo: €" + String.format("%.2f", costoTotale), true);
         } catch(Exception e) {
             view.showOrdineMsg("Errore db: " + e.getMessage(), false);

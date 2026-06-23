@@ -1,5 +1,7 @@
 package it.unibo.zoo.controller;
 
+import it.unibo.zoo.controller.DataEventBus.DataType;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -119,7 +121,7 @@ public class VisiteController {
             
             view.showVisitaMsg("Visita registrata con successo!", true);
             view.setPanelNuovaVisitaVisible(false);
-            VisiteController.populateVisite(view);
+            DataEventBus.getInstance().publish(DataType.VISITA);
         } catch(Exception e) {
             view.showVisitaMsg("Errore: " + e.getMessage(), false);
         }

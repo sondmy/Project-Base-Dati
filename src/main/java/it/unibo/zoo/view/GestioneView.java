@@ -329,6 +329,25 @@ public class GestioneView {
         public String getFamiglia() { return famiglia; }
     }
 
+    public static class DietaRow {
+        private final String idSpecie;
+        private final String idCibo;
+        private final String nomeSpecie;
+        private final String nomeCibo;
+        private final String quantita;
+
+        public DietaRow(final String idSpecie, final String idCibo, final String nomeSpecie, final String nomeCibo, final String quantita) {
+            this.idSpecie = idSpecie; this.idCibo = idCibo; this.nomeSpecie = nomeSpecie;
+            this.nomeCibo = nomeCibo; this.quantita = quantita;
+        }
+
+        public String getIdSpecie() { return idSpecie; }
+        public String getIdCibo() { return idCibo; }
+        public String getNomeSpecie() { return nomeSpecie; }
+        public String getNomeCibo() { return nomeCibo; }
+        public String getQuantita() { return quantita; }
+    }
+
     public static class TipoAreaRow {
         private final String idTipoArea;
         private final String nome;
@@ -573,6 +592,15 @@ public class GestioneView {
     private final ComboBox<String> comboSpecieStato;
     private final ComboBox<String> comboSpecieFamiglia;
     private final Label lblSpecieMsg;
+
+    // Dieta
+    private final TableView<DietaRow> tableDieta;
+    private final Button btnAggiungiDieta;
+    private final Button btnRimuoviDieta;
+    private final ComboBox<String> comboDietaSpecie;
+    private final ComboBox<String> comboDietaCibo;
+    private final TextField txtDietaQuantita;
+    private final Label lblDietaMsg;
 
     @SuppressWarnings("unchecked")
     public GestioneView() {
@@ -1366,7 +1394,35 @@ public class GestioneView {
         formSpecie1.setAlignment(Pos.CENTER_LEFT); formSpecie2.setAlignment(Pos.CENTER_LEFT);
         final VBox boxSpecie = new VBox(8, lblSpecie, tableSpecie, formSpecie1, formSpecie2);
         
-        classificazioneContent.getChildren().addAll(boxStato, boxHabitat, boxFamiglia, boxSpecie);
+        // --- Sezione Dieta ---
+        final Label lblDieta = new Label("Dieta");
+        lblDieta.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableDieta = new TableView<>();
+        tableDieta.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableDieta.setPrefHeight(150);
+        
+        final TableColumn<DietaRow, String> colDietaSpecie = new TableColumn<>("Nome Specie");
+        colDietaSpecie.setCellValueFactory(new PropertyValueFactory<>("nomeSpecie"));
+        final TableColumn<DietaRow, String> colDietaCibo = new TableColumn<>("Cibo");
+        colDietaCibo.setCellValueFactory(new PropertyValueFactory<>("nomeCibo"));
+        final TableColumn<DietaRow, String> colDietaQuantita = new TableColumn<>("Quantità (Kg/Giorno)");
+        colDietaQuantita.setCellValueFactory(new PropertyValueFactory<>("quantita"));
+        tableDieta.getColumns().addAll(colDietaSpecie, colDietaCibo, colDietaQuantita);
+        
+        btnAggiungiDieta = new Button("Aggiungi");
+        btnAggiungiDieta.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviDieta = new Button("Rimuovi");
+        btnRimuoviDieta.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        comboDietaSpecie = new ComboBox<>(); comboDietaSpecie.setPromptText("Specie");
+        comboDietaCibo = new ComboBox<>(); comboDietaCibo.setPromptText("Cibo");
+        txtDietaQuantita = new TextField(); txtDietaQuantita.setPromptText("Quantità (es. 2.5)");
+        lblDietaMsg = new Label(); lblDietaMsg.setVisible(false); lblDietaMsg.setManaged(false);
+        final HBox formDieta = new HBox(8, comboDietaSpecie, comboDietaCibo, txtDietaQuantita, btnAggiungiDieta, btnRimuoviDieta, lblDietaMsg);
+        formDieta.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxDieta = new VBox(8, lblDieta, tableDieta, formDieta);
+        
+        classificazioneContent.getChildren().addAll(boxStato, boxHabitat, boxFamiglia, boxSpecie, boxDieta);
         
         final ScrollPane classificazioneScroll = new ScrollPane(classificazioneContent);
         classificazioneScroll.setFitToWidth(true);
@@ -1872,6 +1928,19 @@ public class GestioneView {
         lblSpecieMsg.setText(msg);
         lblSpecieMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
         lblSpecieMsg.setVisible(true); lblSpecieMsg.setManaged(true);
+    }
+
+    public void setDieta(final List<DietaRow> rows) { tableDieta.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<DietaRow> getTableDieta() { return tableDieta; }
+    public Button getBtnAggiungiDieta() { return btnAggiungiDieta; }
+    public Button getBtnRimuoviDieta() { return btnRimuoviDieta; }
+    public ComboBox<String> getComboDietaSpecie() { return comboDietaSpecie; }
+    public ComboBox<String> getComboDietaCibo() { return comboDietaCibo; }
+    public TextField getTxtDietaQuantita() { return txtDietaQuantita; }
+    public void showDietaMsg(final String msg, final boolean success) {
+        lblDietaMsg.setText(msg);
+        lblDietaMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblDietaMsg.setVisible(true); lblDietaMsg.setManaged(true);
     }
 
     /* Tipi Area e Recinto */
