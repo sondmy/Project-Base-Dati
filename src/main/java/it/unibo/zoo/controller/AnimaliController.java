@@ -1,12 +1,14 @@
 package it.unibo.zoo.controller;
 
 import it.unibo.zoo.model.entity.Animale;
+import it.unibo.zoo.model.entity.Area;
 import it.unibo.zoo.model.entity.Habitat;
 import it.unibo.zoo.model.entity.Recinto;
 import it.unibo.zoo.model.entity.Specie;
 import it.unibo.zoo.model.entity.StatoEsistenza;
 import it.unibo.zoo.model.entity.StoricoCollocazione;
 import it.unibo.zoo.model.jdbc.entityDao.AnimaleDao;
+import it.unibo.zoo.model.jdbc.entityDao.AreaDao;
 import it.unibo.zoo.model.jdbc.entityDao.HabitatDao;
 import it.unibo.zoo.model.jdbc.entityDao.RecintoDao;
 import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
@@ -34,6 +36,7 @@ public class AnimaliController {
     private final Map<Integer, Habitat> habitatMap;
     private final Map<Integer, StatoEsistenza> statoMap;
     private final Map<Integer, Recinto> recintoMap;
+    private final Map<Integer, Area> areaMap;
     private final Map<Integer, Integer> animaleRecintoMap; // idAnimale -> idRecinto (collocazione attuale)
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -49,6 +52,8 @@ public class AnimaliController {
                 .collect(Collectors.toMap(StatoEsistenza::getIdStato, s -> s));
         this.recintoMap = new RecintoDao().findAll().stream()
                 .collect(Collectors.toMap(Recinto::getIdRecinto, r -> r));
+        this.areaMap = new AreaDao().findAll().stream()
+                .collect(Collectors.toMap(Area::getIdArea, a -> a));
         // Costruisci mappa animale -> recinto corrente (collocazione senza data_fine)
         this.animaleRecintoMap = new StoricoCollocazioneDao().findAll().stream()
                 .filter(sc -> sc.getDataFine() == null)
@@ -107,9 +112,18 @@ public class AnimaliController {
             final String sesso = String.valueOf(a.getSesso());
             final Integer idRecinto = animaleRecintoMap.get(a.getIdAnimale());
             final Recinto rec = idRecinto != null ? recintoMap.get(idRecinto) : null;
-            final String recinto = rec != null ? "R" + rec.getIdRecinto() : "—";
+            final String recinto;
+            final String areaNome;
+            if (rec != null) {
+                final Area area = areaMap.get(rec.getIdArea());
+                areaNome = area != null ? area.getNome() : "—";
+                recinto = rec.getNome();
+            } else {
+                recinto = "—";
+                areaNome = "—";
+            }
 
-            rows.add(new AnimaliView.AnimaleRow(a.getNome(), nomeSpecie, sesso, habitat, stato, recinto));
+            rows.add(new AnimaliView.AnimaleRow(a.getNome(), nomeSpecie, sesso, habitat, stato, recinto, areaNome));
         }
         return rows;
     }

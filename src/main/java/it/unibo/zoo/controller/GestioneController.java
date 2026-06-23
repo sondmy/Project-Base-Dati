@@ -30,6 +30,7 @@ public class GestioneController {
     private Integer editingDipendenteId = null;
     private Integer editingTurnoId = null;
     private Integer editingRecintoId = null;
+    private Integer editingTipoBigliettoId = null;
 
     public GestioneController(final GestioneView view) {
         this.view = view;
@@ -52,13 +53,28 @@ public class GestioneController {
         // Toggle pannello nuovo tipo biglietto
         view.getBtnNuovoTipoBiglietto().setOnAction(e -> {
             panelTipiBigliettiVisible = !panelTipiBigliettiVisible;
+            if (!panelTipiBigliettiVisible) editingTipoBigliettoId = null;
+            view.getTxtTipoBigliettoNome().clear();
+            view.getTxtTipoBigliettoPrezzo().clear();
+            view.getChkTipoBigliettoAttivo().setSelected(true);
             view.setPanelNuovoTipoBigliettoVisible(panelTipiBigliettiVisible);
         });
-        view.getBtnSalvaTipoBiglietto().setOnAction(e -> TipiBigliettiController.handleSalvaTipoBiglietto(view));
+        view.getBtnSalvaTipoBiglietto().setOnAction(e -> {
+            TipiBigliettiController.handleSalvaTipoBiglietto(view, editingTipoBigliettoId);
+            editingTipoBigliettoId = null;
+        });
         view.getBtnEliminaTipoBiglietto().setOnAction(e -> TipiBigliettiController.handleEliminaTipoBiglietto(view));
 
         view.getTableTipiBiglietti().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             view.getBtnEliminaTipoBiglietto().setDisable(newSel == null);
+            if (newSel != null && newSel.getIdBiglietto() != null) {
+                editingTipoBigliettoId = Integer.parseInt(newSel.getIdBiglietto());
+                view.getTxtTipoBigliettoNome().setText(newSel.getNome());
+                view.getTxtTipoBigliettoPrezzo().setText(newSel.getPrezzo().replace("€", "").replace(",", "."));
+                view.getChkTipoBigliettoAttivo().setSelected("Sì".equals(newSel.getAttivo()));
+                panelTipiBigliettiVisible = true;
+                view.setPanelNuovoTipoBigliettoVisible(true);
+            }
         });
 
         // Toggle pannello nuovo ordine

@@ -65,25 +65,7 @@ public class BigliettiView {
             }
         });
 
-        final TableColumn<TipoBiglietto, Boolean> colAttivo = new TableColumn<>("Attivo");
-        colAttivo.setCellValueFactory(new PropertyValueFactory<>("attivo"));
-        colAttivo.setCellFactory(col -> new javafx.scene.control.TableCell<>() {
-            @Override
-            protected void updateItem(final Boolean item, final boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText("");
-                    setGraphic(null);
-                } else {
-                    final Label badge = new Label(item ? "Sì" : "No");
-                    badge.setStyle(StyleHelper.badge(item ? StyleHelper.GREEN : StyleHelper.RED));
-                    setGraphic(badge);
-                    setText(null);
-                }
-            }
-        });
-
-        table.getColumns().addAll(colNome, colDesc, colPrezzo, colAttivo);
+        table.getColumns().addAll(colNome, colDesc, colPrezzo);
 
         /* ── Form acquisto ───────────────────────────────── */
         final VBox formBox = new VBox(12);
@@ -170,12 +152,11 @@ public class BigliettiView {
      * Aggiorna la tabella con la lista di tipi biglietto.
      */
     public void setTipiBiglietto(final List<TipoBiglietto> tipi) {
-        table.setItems(FXCollections.observableArrayList(tipi));
+        final List<TipoBiglietto> attivi = tipi.stream().filter(TipoBiglietto::isAttivo).collect(java.util.stream.Collectors.toList());
+        table.setItems(FXCollections.observableArrayList(attivi));
         comboBiglietto.getItems().clear();
-        for (final TipoBiglietto t : tipi) {
-            if (t.isAttivo()) {
-                comboBiglietto.getItems().add(t.getNome());
-            }
+        for (final TipoBiglietto t : attivi) {
+            comboBiglietto.getItems().add(t.getNome());
         }
     }
 

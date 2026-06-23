@@ -251,16 +251,19 @@ public class GestioneView {
         private final String idBiglietto;
         private final String nome;
         private final String prezzo;
+        private final String attivo;
 
-        public TipiBigliettiRow(final String idBiglietto, final String nome, final String prezzo) {
+        public TipiBigliettiRow(final String idBiglietto, final String nome, final String prezzo, final String attivo) {
             this.idBiglietto = idBiglietto;
             this.nome = nome;
             this.prezzo = prezzo;
+            this.attivo = attivo;
         }
 
         public String getIdBiglietto() { return idBiglietto; }
         public String getNome() { return nome; }
         public String getPrezzo() { return prezzo; }
+        public String getAttivo() { return attivo; }
     }
 
     public static class StatoEsistenzaRow {
@@ -365,6 +368,7 @@ public class GestioneView {
     private final VBox panelNuovoTipoBiglietto;
     private final TextField txtTipoBigliettoNome;
     private final TextField txtTipoBigliettoPrezzo;
+    private final javafx.scene.control.CheckBox chkTipoBigliettoAttivo;
     private final Label lblTipiBigliettiMsg;
 
     // Tab 1 — Saldo
@@ -663,8 +667,10 @@ public class GestioneView {
         colTbNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
         final TableColumn<TipiBigliettiRow, String> colTbPrezzo = new TableColumn<>("Prezzo");
         colTbPrezzo.setCellValueFactory(new PropertyValueFactory<>("prezzo"));
+        final TableColumn<TipiBigliettiRow, String> colTbAttivo = new TableColumn<>("Attivo");
+        colTbAttivo.setCellValueFactory(new PropertyValueFactory<>("attivo"));
 
-        tableTipiBiglietti.getColumns().addAll(colTbNome, colTbPrezzo);
+        tableTipiBiglietti.getColumns().addAll(colTbNome, colTbPrezzo, colTbAttivo);
 
         panelNuovoTipoBiglietto = new VBox(12);
         panelNuovoTipoBiglietto.setPadding(new Insets(15));
@@ -677,6 +683,9 @@ public class GestioneView {
         txtTipoBigliettoPrezzo = new TextField();
         txtTipoBigliettoPrezzo.setPromptText("Prezzo (es. 15.00)");
         
+        chkTipoBigliettoAttivo = new javafx.scene.control.CheckBox("Attivo");
+        chkTipoBigliettoAttivo.setSelected(true);
+        
         btnSalvaTipoBiglietto = new Button("Salva Tipo Biglietto");
         btnSalvaTipoBiglietto.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
         
@@ -685,8 +694,8 @@ public class GestioneView {
         lblTipiBigliettiMsg.setVisible(true);
 
         panelNuovoTipoBiglietto.getChildren().addAll(
-                new Label("Crea Nuovo Tipo Biglietto"),
-                new javafx.scene.layout.HBox(10, txtTipoBigliettoNome, txtTipoBigliettoPrezzo),
+                new Label("Crea/Modifica Tipo Biglietto"),
+                new javafx.scene.layout.HBox(10, txtTipoBigliettoNome, txtTipoBigliettoPrezzo, chkTipoBigliettoAttivo),
                 btnSalvaTipoBiglietto
         );
 
@@ -1098,12 +1107,6 @@ public class GestioneView {
         txtSpesaDescrizione.setPromptText("Descrizione della spesa...");
         txtSpesaDescrizione.setMaxWidth(Double.MAX_VALUE);
 
-        final Label lblSpesaForn = new Label("Fornitore:");
-        lblSpesaForn.setStyle(StyleHelper.STYLE_LABEL);
-        comboSpesaFornitore = new ComboBox<>();
-        comboSpesaFornitore.setPromptText("Seleziona fornitore...");
-        comboSpesaFornitore.setMaxWidth(Double.MAX_VALUE);
-
         final Label lblInfoData = new Label("\u2139 La data verrà assegnata automaticamente alla data odierna.");
         lblInfoData.setStyle("-fx-font-size: 12px; -fx-text-fill: " + StyleHelper.TEXT_MUTED + "; -fx-font-style: italic;");
 
@@ -1115,7 +1118,7 @@ public class GestioneView {
         lblSpesaMsg = new Label();
         lblSpesaMsg.setVisible(false);
 
-        panelNuovaSpesa.getChildren().addAll(lblNewSpesa, lblSpesaImporto, txtSpesaImporto, lblSpesaDesc, txtSpesaDescrizione, lblSpesaForn, comboSpesaFornitore, lblInfoData, btnSalvaSpesa, lblSpesaMsg);
+        panelNuovaSpesa.getChildren().addAll(lblNewSpesa, lblSpesaImporto, txtSpesaImporto, lblSpesaDesc, txtSpesaDescrizione, lblInfoData, btnSalvaSpesa, lblSpesaMsg);
 
         speseContent.getChildren().addAll(lblFiltroSpese, filtroRow, lblElencoSpese, tableSpese, btnNuovaSpesa, panelNuovaSpesa);
 
@@ -1542,6 +1545,7 @@ public class GestioneView {
     public Button getBtnEliminaTipoBiglietto() { return btnEliminaTipoBiglietto; }
     public TextField getTxtTipoBigliettoNome() { return txtTipoBigliettoNome; }
     public TextField getTxtTipoBigliettoPrezzo() { return txtTipoBigliettoPrezzo; }
+    public javafx.scene.control.CheckBox getChkTipoBigliettoAttivo() { return chkTipoBigliettoAttivo; }
     public void setPanelNuovoTipoBigliettoVisible(boolean visible) {
         panelNuovoTipoBiglietto.setVisible(visible);
         panelNuovoTipoBiglietto.setManaged(visible);

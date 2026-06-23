@@ -15,16 +15,18 @@ public class TipiBigliettiController {
                 .map(t -> new GestioneView.TipiBigliettiRow(
                         String.valueOf(t.getIdBiglietto()),
                         t.getNome(),
-                        String.format("€%.2f", t.getPrezzo())
+                        String.format("€%.2f", t.getPrezzo()),
+                        t.isAttivo() ? "Sì" : "No"
                 ))
                 .collect(Collectors.toList());
         view.setTipiBiglietti(rows);
     }
 
-    public static void handleSalvaTipoBiglietto(GestioneView view) {
+    public static void handleSalvaTipoBiglietto(GestioneView view, Integer editingId) {
         try {
             String nome = view.getTxtTipoBigliettoNome().getText();
             String prezzoStr = view.getTxtTipoBigliettoPrezzo().getText();
+            boolean attivo = view.getChkTipoBigliettoAttivo().isSelected();
 
             if (nome == null || nome.trim().isEmpty() || prezzoStr == null || prezzoStr.trim().isEmpty()) {
                 view.showTipiBigliettiMsg("Nome e prezzo sono obbligatori.", false);
@@ -33,8 +35,13 @@ public class TipiBigliettiController {
 
             double prezzo = Double.parseDouble(prezzoStr.replace(",", "."));
 
-            TipoBiglietto nuovo = new TipoBiglietto(nome, "", prezzo, true);
-            new TipoBigliettoDao().insert(nuovo);
+            TipoBiglietto nuovo = new TipoBiglietto(nome, "", prezzo, attivo);
+            if (editingId == null) {
+                new TipoBigliettoDao().insert(nuovo);
+            } else {
+                nuovo.setIdBiglietto(editingId);
+                new TipoBigliettoDao().update(nuovo);
+            }
 
             view.showTipiBigliettiMsg("Tipo biglietto salvato con successo!", true);
             view.getTxtTipoBigliettoNome().clear();

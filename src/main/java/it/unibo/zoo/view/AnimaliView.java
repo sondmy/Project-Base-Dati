@@ -26,15 +26,17 @@ public class AnimaliView {
         private final String habitat;
         private final String statoConservazione;
         private final String recinto;
+        private final String area;
 
         public AnimaleRow(final String nome, final String specie, final String sesso,
-                          final String habitat, final String statoConservazione, final String recinto) {
+                          final String habitat, final String statoConservazione, final String recinto, final String area) {
             this.nome = nome;
             this.specie = specie;
             this.sesso = sesso;
             this.habitat = habitat;
             this.statoConservazione = statoConservazione;
             this.recinto = recinto;
+            this.area = area;
         }
 
         public String getNome() { return nome; }
@@ -43,6 +45,7 @@ public class AnimaliView {
         public String getHabitat() { return habitat; }
         public String getStatoConservazione() { return statoConservazione; }
         public String getRecinto() { return recinto; }
+        public String getArea() { return area; }
     }
 
     private final VBox root;
@@ -113,7 +116,11 @@ public class AnimaliView {
         colRecinto.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("recinto"));
         colRecinto.setMaxWidth(90);
 
-        table.getColumns().addAll(colNome, colSpecie, colSesso, colHabitat, colStato, colRecinto);
+        final TableColumn<AnimaleRow, String> colArea = new TableColumn<>("Area");
+        colArea.setCellValueFactory(new javafx.scene.control.cell.PropertyValueFactory<>("area"));
+        colArea.setMaxWidth(90);
+
+        table.getColumns().addAll(colNome, colSpecie, colSesso, colHabitat, colStato, colRecinto, colArea);
 
         root.getChildren().addAll(title, searchBox, table);
     }
