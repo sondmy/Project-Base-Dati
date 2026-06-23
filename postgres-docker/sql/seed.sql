@@ -60,8 +60,7 @@ INSERT INTO TIPO_CIBO (nome, descrizione) VALUES
 ('Carne Bianca', 'Pollo e coniglio'),
 ('Pesce', 'Pesce azzurro e crostacei'),
 ('Fieno', 'Erba essiccata per erbivori'),
-('Frutta e Verdura', 'Mix di vegetali freschi'),
-('Mangime Speciale', 'Pellet vitaminizzati per uccelli o rettili');
+('Frutta e Verdura', 'Mix di vegetali freschi');
 
 -- TIPO_FORNITURA
 INSERT INTO TIPO_FORNITURA (nome, descrizione) VALUES
@@ -202,8 +201,7 @@ INSERT INTO UTENTE (email, password_hash, data_registrazione, id_dipendente, ruo
 INSERT INTO FORNITORE (nome_azienda, descrizione, indirizzo, iban, id_tipo_fornitura) VALUES
 ('Carni Scelte S.p.A.', 'Fornitore all ingrosso di carne di prima qualità', 'Via Macelli 12, Milano', 'IT12A3456789012345678901234', 1),
 ('Agricola Verde s.r.l.', 'Produttore di fieno e vegetali bio', 'Strada Campagna 4, Lodi', 'IT98B7654321098765432109876', 1),
-('Ittica del Mare', 'Fornitore di pesce fresco e surgelato', 'Porto Commerciale 8, Genova', 'IT45C1234567890123456789012', 1),
-('VetPharma', 'Distributore di farmaci veterinari', 'Viale Salute 55, Roma', 'IT55D0000000000000000000000', 2);
+('Ittica del Mare', 'Fornitore di pesce fresco e surgelato', 'Porto Commerciale 8, Genova', 'IT45C1234567890123456789012', 1);
 
 -- FORNITORE_CIBO
 INSERT INTO FORNITORE_CIBO (id_fornitore, id_tipo_cibo, prezzo) VALUES
