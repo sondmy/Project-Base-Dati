@@ -234,7 +234,7 @@ public class GestioneController {
 
         // Filtra spese per intervallo date
         view.getBtnFiltraSpese().setOnAction(e -> {
-            SpesaController.populateSpese(view);
+            SpesaController.handleFiltraSpese(view);
         });
 
         view.getComboStatPeriodo().valueProperty().addListener((obs, oldVal, newVal) -> {

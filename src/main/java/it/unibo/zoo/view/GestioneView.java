@@ -457,7 +457,6 @@ public class GestioneView {
     private final VBox panelNuovaSpesa;
     private final TextField txtSpesaImporto;
     private final TextField txtSpesaDescrizione;
-    private final ComboBox<String> comboSpesaFornitore;
     private final Button btnSalvaSpesa;
     private final Label lblSpesaMsg;
 
