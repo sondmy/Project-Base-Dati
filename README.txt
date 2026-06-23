@@ -6,6 +6,11 @@ https://github.com/sondmy/Project-Base-Dati
 Le password per fare i login dei 4 utenti è per tutti: password123
 è anche possibile trovarla nella relazione
 
+Se si vuole avviare il progetto dal file .jar bisogna prima eseguire 
+nella root del progetto il comando (Windows) : ./gradlew shadowJar
+Successivamente per avviare il file .jar bisogna eseguire il comando 
+nella root del progetto (Windows): java -jar .\build\libs\zoo-all.jar 
+
 Project-Base-Dati
 
 REQUISITI
