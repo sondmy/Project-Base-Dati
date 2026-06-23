@@ -79,12 +79,27 @@ public class VisiteController {
 
     
 
-    public static void handleSalvaVisita(final GestioneView view) {
+    public static void handleSalvaVisita(final GestioneView view, Integer editingId) {
         try {
             String animale = view.getComboVisitaAnimale().getValue();
             String vet = view.getComboVisitaVet().getValue();
             String diagnosi = view.getTxtDiagnosi().getText();
             LocalDate data = view.getDateVisita().getValue();
+            LocalDate dataFine = view.getDateVisitaFine().getValue();
+            String note = view.getTxtVisitaNote().getText();
+            String pesoStr = view.getTxtVisitaPeso().getText();
+            
+            Double peso = null;
+            if (pesoStr != null && !pesoStr.trim().isEmpty()) {
+                try {
+                    peso = Double.parseDouble(pesoStr.replace(",", "."));
+                } catch (NumberFormatException ex) {
+                    view.showVisitaMsg("Formato peso non valido.", false);
+                    return;
+                }
+            }
+            if (diagnosi != null && diagnosi.trim().isEmpty()) diagnosi = null;
+            if (note != null && note.trim().isEmpty()) note = null;
             
             if(animale == null || vet == null || data == null) {
                 view.showVisitaMsg("Animale, Veterinario e Data sono obbligatori.", false);
@@ -94,8 +109,13 @@ public class VisiteController {
             int idAnimale = Integer.parseInt(animale.split(" - ")[0]);
             int idVet = Integer.parseInt(vet.split(" - ")[0]);
             
-            VisitaMedica v = new VisitaMedica(0, null, diagnosi, null, data, null, idAnimale, idVet);
-            new VisitaMedicaDao().insert(v);
+            VisitaMedica v = new VisitaMedica(0, peso, diagnosi, note, data, dataFine, idAnimale, idVet);
+            if (editingId == null) {
+                new VisitaMedicaDao().insert(v);
+            } else {
+                v.setIdVisita(editingId);
+                new VisitaMedicaDao().update(v);
+            }
             
             view.showVisitaMsg("Visita registrata con successo!", true);
             view.setPanelNuovaVisitaVisible(false);

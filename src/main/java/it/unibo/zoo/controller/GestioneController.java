@@ -93,7 +93,18 @@ public class GestioneController {
         // Toggle pannello nuova visita
         view.getBtnNuovaVisita().setOnAction(e -> {
             panelVisitaVisible = !panelVisitaVisible;
-            if (!panelVisitaVisible) editingVisitaId = null;
+            if (!panelVisitaVisible) {
+                editingVisitaId = null;
+            } else {
+                editingVisitaId = null;
+                view.getComboVisitaAnimale().setValue(null);
+                view.getComboVisitaVet().setValue(null);
+                view.getTxtDiagnosi().clear();
+                view.getDateVisita().setValue(LocalDate.now());
+                view.getDateVisitaFine().setValue(null);
+                view.getTxtVisitaNote().clear();
+                view.getTxtVisitaPeso().clear();
+            }
             view.setPanelNuovaVisitaVisible(panelVisitaVisible);
         });
         view.getTableVisite().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -123,7 +134,10 @@ public class GestioneController {
                 view.setPanelNuovaVisitaVisible(true);
             }
         });
-        view.getBtnSalvaVisita().setOnAction(e -> VisiteController.handleSalvaVisita(view));
+        view.getBtnSalvaVisita().setOnAction(e -> {
+            VisiteController.handleSalvaVisita(view, editingVisitaId);
+            editingVisitaId = null;
+        });
 
         // Toggle pannello nuovo turno
         view.getBtnNuovoTurno().setOnAction(e -> {
