@@ -3,6 +3,9 @@ In caso si vuole vedere il contenuto del file ma in maniera piu "leggibile"
 inoltre questo è il link del github del progetto:
 https://github.com/sondmy/Project-Base-Dati
 
+Le password per fare i login dei 4 utenti è per tutti: password123
+è anche possibile trovarla nella relazione
+
 Project-Base-Dati
 
 REQUISITI
