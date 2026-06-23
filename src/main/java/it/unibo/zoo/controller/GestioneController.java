@@ -80,6 +80,11 @@ public class GestioneController {
         // Toggle pannello nuovo ordine
         view.getBtnNuovoOrdine().setOnAction(e -> {
             panelOrdineVisible = !panelOrdineVisible;
+            if (panelOrdineVisible) {
+                view.getComboFornitore().setValue(null);
+                view.getComboTipoCibo().setValue(null);
+                try { view.getSpinnerQta().getValueFactory().setValue(1); } catch(Exception ignored) {}
+            }
             view.setPanelNuovoOrdineVisible(panelOrdineVisible);
         });
 
@@ -142,7 +147,16 @@ public class GestioneController {
         // Toggle pannello nuovo turno
         view.getBtnNuovoTurno().setOnAction(e -> {
             panelTurnoVisible = !panelTurnoVisible;
-            if (!panelTurnoVisible) editingTurnoId = null;
+            if (!panelTurnoVisible) {
+                editingTurnoId = null;
+            } else {
+                editingTurnoId = null;
+                view.getComboTurnoDip().setValue(null);
+                view.getComboTurnoArea().setValue(null);
+                view.getDateTurnoGiorno().setValue(LocalDate.now());
+                view.getComboTurnoOraInizio().setValue(null);
+                view.getComboTurnoOraFine().setValue(null);
+            }
             view.setPanelNuovoTurnoVisible(panelTurnoVisible);
         });
         view.getBtnSalvaTurno().setOnAction(e -> TurnoController.handleSalvaTurno(view));
@@ -181,7 +195,16 @@ public class GestioneController {
         // Toggle pannello nuovo dipendente
         view.getBtnNuovoDipendente().setOnAction(e -> {
             panelDipendenteVisible = !panelDipendenteVisible;
-            if (!panelDipendenteVisible) editingDipendenteId = null;
+            if (!panelDipendenteVisible) {
+                editingDipendenteId = null;
+            } else {
+                editingDipendenteId = null;
+                view.getTxtDipCf().clear();
+                view.getTxtDipNome().clear();
+                view.getTxtDipCognome().clear();
+                view.getDateDipNascita().setValue(null);
+                view.getComboDipMansione().setValue(null);
+            }
             view.setPanelNuovoDipendenteVisible(panelDipendenteVisible);
         });
         view.getTablePersonale().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
@@ -243,6 +266,10 @@ public class GestioneController {
         // Toggle pannello nuova spesa
         view.getBtnNuovaSpesa().setOnAction(e -> {
             panelSpesaVisible = !panelSpesaVisible;
+            if (panelSpesaVisible) {
+                view.getTxtSpesaImporto().clear();
+                view.getTxtSpesaDescrizione().clear();
+            }
             view.setPanelNuovaSpesaVisible(panelSpesaVisible);
         });
 
@@ -264,17 +291,20 @@ public class GestioneController {
 
         // Toggle pannello nuovo animale e selezione
         view.getBtnNuovoAnimale().setOnAction(e -> {
-            editingAnimaleId = null;
-            view.getTxtAnimaleNome().clear();
-            view.getComboAnimaleSesso().setValue(null);
-            view.getDateAnimaleNascita().setValue(null);
-            view.getDateAnimaleArrivo().setValue(null);
-            view.getDateAnimaleUscita().setValue(null);
-            view.getComboAnimaleVivo().setValue(null);
-            view.getComboAnimaleSpecie().setValue(null);
-            view.getComboAnimaleRecinto().setValue(null);
-            
-            panelAnimaleVisible = true;
+            panelAnimaleVisible = !panelAnimaleVisible;
+            if (!panelAnimaleVisible) {
+                editingAnimaleId = null;
+            } else {
+                editingAnimaleId = null;
+                view.getTxtAnimaleNome().clear();
+                view.getComboAnimaleSesso().setValue(null);
+                view.getDateAnimaleNascita().setValue(null);
+                view.getDateAnimaleArrivo().setValue(null);
+                view.getDateAnimaleUscita().setValue(null);
+                view.getComboAnimaleVivo().setValue(null);
+                view.getComboAnimaleSpecie().setValue(null);
+                view.getComboAnimaleRecinto().setValue(null);
+            }
             view.setPanelNuovoAnimaleVisible(panelAnimaleVisible);
         });
         view.getBtnSalvaAnimale().setOnAction(e -> {
@@ -321,7 +351,15 @@ public class GestioneController {
         // Toggle pannello nuovo recinto
         view.getBtnNuovoRecinto().setOnAction(e -> {
             panelRecintoVisible = !panelRecintoVisible;
-            if (!panelRecintoVisible) editingRecintoId = null;
+            if (!panelRecintoVisible) {
+                editingRecintoId = null;
+            } else {
+                editingRecintoId = null;
+                view.getTxtRecintoNome().clear();
+                view.getComboRecintoArea().setValue(null);
+                view.getComboRecintoTipo().setValue(null);
+                try { view.getSpinnerRecintoCapienza().getValueFactory().setValue(1); } catch(Exception ignored) {}
+            }
             view.setPanelNuovoRecintoVisible(panelRecintoVisible);
         });
         
