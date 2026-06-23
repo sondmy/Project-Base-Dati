@@ -3,15 +3,18 @@ package it.unibo.zoo.controller;
 import it.unibo.zoo.model.entity.StatoEsistenza;
 import it.unibo.zoo.model.entity.Habitat;
 import it.unibo.zoo.model.entity.FamigliaSpecie;
+import it.unibo.zoo.model.entity.Specie;
 import it.unibo.zoo.model.jdbc.entityDao.StatoEsistenzaDao;
 import it.unibo.zoo.model.jdbc.entityDao.HabitatDao;
 import it.unibo.zoo.model.jdbc.entityDao.FamigliaSpecieDao;
+import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
 import it.unibo.zoo.view.GestioneView;
 import it.unibo.zoo.view.GestioneView.StatoEsistenzaRow;
 import it.unibo.zoo.view.GestioneView.HabitatRow;
 import it.unibo.zoo.view.GestioneView.FamigliaSpecieRow;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ClassificazioneController {
@@ -20,6 +23,7 @@ public class ClassificazioneController {
         populateStatoEsistenza(view);
         populateHabitat(view);
         populateFamigliaSpecie(view);
+        populateSpecie(view);
     }
 
     private static void populateStatoEsistenza(final GestioneView view) {
@@ -156,6 +160,77 @@ public class ClassificazioneController {
             } catch (Exception e) {
                 e.printStackTrace();
                 view.showFamigliaMsg("Impossibile rimuovere (in uso).", false);
+            }
+        }
+    }
+
+    private static void populateSpecie(final GestioneView view) {
+        SpecieDao dao = new SpecieDao();
+        List<Specie> list = dao.findAll();
+        Map<Integer, String> habMap = new HabitatDao().findAll().stream().collect(Collectors.toMap(Habitat::getIdHabitat, Habitat::getNome));
+        Map<Integer, String> staMap = new StatoEsistenzaDao().findAll().stream().collect(Collectors.toMap(StatoEsistenza::getIdStato, StatoEsistenza::getNome));
+        Map<Integer, String> famMap = new FamigliaSpecieDao().findAll().stream().collect(Collectors.toMap(FamigliaSpecie::getIdFamigliaSpecie, FamigliaSpecie::getNome));
+        
+        List<GestioneView.SpecieRow> rows = list.stream()
+                .map(s -> new GestioneView.SpecieRow(
+                        String.valueOf(s.getIdSpecie()),
+                        s.getNomeScentifico(),
+                        s.getNomeComune(),
+                        s.getIdHabitat() != null ? habMap.getOrDefault(s.getIdHabitat(), "—") : "—",
+                        s.getIdStato() != null ? staMap.getOrDefault(s.getIdStato(), "—") : "—",
+                        s.getIdFamigliaSpecie() != null ? famMap.getOrDefault(s.getIdFamigliaSpecie(), "—") : "—"
+                )).collect(Collectors.toList());
+        view.setSpecie(rows);
+        
+        view.getComboSpecieHabitat().getItems().clear();
+        view.getComboSpecieHabitat().getItems().addAll(habMap.entrySet().stream().map(e -> e.getKey() + " - " + e.getValue()).collect(Collectors.toList()));
+        view.getComboSpecieStato().getItems().clear();
+        view.getComboSpecieStato().getItems().addAll(staMap.entrySet().stream().map(e -> e.getKey() + " - " + e.getValue()).collect(Collectors.toList()));
+        view.getComboSpecieFamiglia().getItems().clear();
+        view.getComboSpecieFamiglia().getItems().addAll(famMap.entrySet().stream().map(e -> e.getKey() + " - " + e.getValue()).collect(Collectors.toList()));
+    }
+
+    public static void handleAggiungiSpecie(final GestioneView view) {
+        String sci = view.getTxtSpecieNomeSci().getText();
+        String com = view.getTxtSpecieNomeCom().getText();
+        if (sci == null || sci.trim().isEmpty() || com == null || com.trim().isEmpty()) return;
+        
+        String habStr = view.getComboSpecieHabitat().getValue();
+        Integer idHab = habStr != null && !habStr.trim().isEmpty() ? Integer.parseInt(habStr.split(" - ")[0]) : null;
+        
+        String staStr = view.getComboSpecieStato().getValue();
+        Integer idSta = staStr != null && !staStr.trim().isEmpty() ? Integer.parseInt(staStr.split(" - ")[0]) : null;
+        
+        String famStr = view.getComboSpecieFamiglia().getValue();
+        Integer idFam = famStr != null && !famStr.trim().isEmpty() ? Integer.parseInt(famStr.split(" - ")[0]) : null;
+        
+        try {
+            SpecieDao dao = new SpecieDao();
+            Specie entity = new Specie(sci.trim(), com.trim(), idHab, idSta, idFam);
+            dao.insert(entity);
+            view.getTxtSpecieNomeSci().clear();
+            view.getTxtSpecieNomeCom().clear();
+            view.getComboSpecieHabitat().setValue(null);
+            view.getComboSpecieStato().setValue(null);
+            view.getComboSpecieFamiglia().setValue(null);
+            populateSpecie(view);
+            view.showSpecieMsg("Specie aggiunta con successo.", true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            view.showSpecieMsg("Errore: " + e.getMessage(), false);
+        }
+    }
+
+    public static void handleRimuoviSpecie(final GestioneView view) {
+        GestioneView.SpecieRow row = view.getTableSpecie().getSelectionModel().getSelectedItem();
+        if (row != null) {
+            try {
+                new SpecieDao().delete(Integer.parseInt(row.getIdSpecie()));
+                populateSpecie(view);
+                view.showSpecieMsg("Specie rimossa con successo.", true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                view.showSpecieMsg("Impossibile rimuovere (in uso).", false);
             }
         }
     }

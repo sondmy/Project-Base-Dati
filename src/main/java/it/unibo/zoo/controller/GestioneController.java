@@ -398,6 +398,8 @@ public class GestioneController {
         view.getBtnRimuoviHabitat().setOnAction(e -> ClassificazioneController.handleRimuoviHabitat(view));
         view.getBtnAggiungiFamiglia().setOnAction(e -> ClassificazioneController.handleAggiungiFamiglia(view));
         view.getBtnRimuoviFamiglia().setOnAction(e -> ClassificazioneController.handleRimuoviFamiglia(view));
+        view.getBtnAggiungiSpecie().setOnAction(e -> ClassificazioneController.handleAggiungiSpecie(view));
+        view.getBtnRimuoviSpecie().setOnAction(e -> ClassificazioneController.handleRimuoviSpecie(view));
 
         view.getTableStatoEsistenza().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             view.getBtnRimuoviStato().setDisable(newSel == null);
@@ -407,6 +409,9 @@ public class GestioneController {
         });
         view.getTableFamigliaSpecie().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
             view.getBtnRimuoviFamiglia().setDisable(newSel == null);
+        });
+        view.getTableSpecie().getSelectionModel().selectedItemProperty().addListener((obs, oldSel, newSel) -> {
+            view.getBtnRimuoviSpecie().setDisable(newSel == null);
         });
 
         // Tipi Area e Recinto

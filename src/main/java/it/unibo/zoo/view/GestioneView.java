@@ -308,6 +308,27 @@ public class GestioneView {
         public String getDescrizione() { return descrizione; }
     }
 
+    public static class SpecieRow {
+        private final String idSpecie;
+        private final String nomeScentifico;
+        private final String nomeComune;
+        private final String habitat;
+        private final String stato;
+        private final String famiglia;
+
+        public SpecieRow(final String idSpecie, final String nomeScentifico, final String nomeComune, final String habitat, final String stato, final String famiglia) {
+            this.idSpecie = idSpecie; this.nomeScentifico = nomeScentifico; this.nomeComune = nomeComune;
+            this.habitat = habitat; this.stato = stato; this.famiglia = famiglia;
+        }
+
+        public String getIdSpecie() { return idSpecie; }
+        public String getNomeScentifico() { return nomeScentifico; }
+        public String getNomeComune() { return nomeComune; }
+        public String getHabitat() { return habitat; }
+        public String getStato() { return stato; }
+        public String getFamiglia() { return famiglia; }
+    }
+
     public static class TipoAreaRow {
         private final String idTipoArea;
         private final String nome;
@@ -541,6 +562,17 @@ public class GestioneView {
     private final TextField txtFamigliaNome;
     private final TextField txtFamigliaDesc;
     private final Label lblFamigliaMsg;
+
+    // Specie
+    private final TableView<SpecieRow> tableSpecie;
+    private final Button btnAggiungiSpecie;
+    private final Button btnRimuoviSpecie;
+    private final TextField txtSpecieNomeSci;
+    private final TextField txtSpecieNomeCom;
+    private final ComboBox<String> comboSpecieHabitat;
+    private final ComboBox<String> comboSpecieStato;
+    private final ComboBox<String> comboSpecieFamiglia;
+    private final Label lblSpecieMsg;
 
     @SuppressWarnings("unchecked")
     public GestioneView() {
@@ -1296,7 +1328,45 @@ public class GestioneView {
         formFamiglia.setAlignment(Pos.CENTER_LEFT);
         final VBox boxFamiglia = new VBox(8, lblFamiglia, tableFamigliaSpecie, formFamiglia);
         
-        classificazioneContent.getChildren().addAll(boxStato, boxHabitat, boxFamiglia);
+        // --- Sezione Specie ---
+        final Label lblSpecie = new Label("Specie");
+        lblSpecie.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+        
+        tableSpecie = new TableView<>();
+        tableSpecie.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableSpecie.setPrefHeight(150);
+        
+        final TableColumn<SpecieRow, String> colSpecieId = new TableColumn<>("ID");
+        colSpecieId.setCellValueFactory(new PropertyValueFactory<>("idSpecie"));
+        colSpecieId.setMaxWidth(50);
+        final TableColumn<SpecieRow, String> colSpecieSci = new TableColumn<>("Nome Scientifico");
+        colSpecieSci.setCellValueFactory(new PropertyValueFactory<>("nomeScentifico"));
+        final TableColumn<SpecieRow, String> colSpecieCom = new TableColumn<>("Nome Comune");
+        colSpecieCom.setCellValueFactory(new PropertyValueFactory<>("nomeComune"));
+        final TableColumn<SpecieRow, String> colSpecieHab = new TableColumn<>("Habitat");
+        colSpecieHab.setCellValueFactory(new PropertyValueFactory<>("habitat"));
+        final TableColumn<SpecieRow, String> colSpecieSta = new TableColumn<>("Stato");
+        colSpecieSta.setCellValueFactory(new PropertyValueFactory<>("stato"));
+        final TableColumn<SpecieRow, String> colSpecieFam = new TableColumn<>("Famiglia");
+        colSpecieFam.setCellValueFactory(new PropertyValueFactory<>("famiglia"));
+        tableSpecie.getColumns().addAll(colSpecieId, colSpecieSci, colSpecieCom, colSpecieHab, colSpecieSta, colSpecieFam);
+        
+        btnAggiungiSpecie = new Button("Aggiungi");
+        btnAggiungiSpecie.setStyle(StyleHelper.STYLE_BTN_PRIMARY);
+        btnRimuoviSpecie = new Button("Rimuovi");
+        btnRimuoviSpecie.setStyle("-fx-background-color: " + StyleHelper.RED + "; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 6;");
+        txtSpecieNomeSci = new TextField(); txtSpecieNomeSci.setPromptText("Nome Scientifico...");
+        txtSpecieNomeCom = new TextField(); txtSpecieNomeCom.setPromptText("Nome Comune...");
+        comboSpecieHabitat = new ComboBox<>(); comboSpecieHabitat.setPromptText("Habitat");
+        comboSpecieStato = new ComboBox<>(); comboSpecieStato.setPromptText("Stato");
+        comboSpecieFamiglia = new ComboBox<>(); comboSpecieFamiglia.setPromptText("Famiglia");
+        lblSpecieMsg = new Label(); lblSpecieMsg.setVisible(false); lblSpecieMsg.setManaged(false);
+        final HBox formSpecie1 = new HBox(8, txtSpecieNomeSci, txtSpecieNomeCom, comboSpecieHabitat);
+        final HBox formSpecie2 = new HBox(8, comboSpecieStato, comboSpecieFamiglia, btnAggiungiSpecie, btnRimuoviSpecie, lblSpecieMsg);
+        formSpecie1.setAlignment(Pos.CENTER_LEFT); formSpecie2.setAlignment(Pos.CENTER_LEFT);
+        final VBox boxSpecie = new VBox(8, lblSpecie, tableSpecie, formSpecie1, formSpecie2);
+        
+        classificazioneContent.getChildren().addAll(boxStato, boxHabitat, boxFamiglia, boxSpecie);
         
         final ScrollPane classificazioneScroll = new ScrollPane(classificazioneContent);
         classificazioneScroll.setFitToWidth(true);
@@ -1787,6 +1857,21 @@ public class GestioneView {
         lblFamigliaMsg.setText(msg);
         lblFamigliaMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
         lblFamigliaMsg.setVisible(true); lblFamigliaMsg.setManaged(true);
+    }
+
+    public void setSpecie(final List<SpecieRow> rows) { tableSpecie.setItems(FXCollections.observableArrayList(rows)); }
+    public TableView<SpecieRow> getTableSpecie() { return tableSpecie; }
+    public Button getBtnAggiungiSpecie() { return btnAggiungiSpecie; }
+    public Button getBtnRimuoviSpecie() { return btnRimuoviSpecie; }
+    public TextField getTxtSpecieNomeSci() { return txtSpecieNomeSci; }
+    public TextField getTxtSpecieNomeCom() { return txtSpecieNomeCom; }
+    public ComboBox<String> getComboSpecieHabitat() { return comboSpecieHabitat; }
+    public ComboBox<String> getComboSpecieStato() { return comboSpecieStato; }
+    public ComboBox<String> getComboSpecieFamiglia() { return comboSpecieFamiglia; }
+    public void showSpecieMsg(final String msg, final boolean success) {
+        lblSpecieMsg.setText(msg);
+        lblSpecieMsg.setStyle(success ? StyleHelper.STYLE_SUCCESS_LABEL : StyleHelper.STYLE_ERROR_LABEL);
+        lblSpecieMsg.setVisible(true); lblSpecieMsg.setManaged(true);
     }
 
     /* Tipi Area e Recinto */
