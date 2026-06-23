@@ -976,19 +976,6 @@ TRANSAZIONE & movimenti economici di entrata e uscita \\
 
 \section{Schema relazionale finale}
 
-Il progetto finale, come implementato nel database PostgreSQL, adotta il seguente
-insieme di tabelle principali:
-
-\begin{itemize}[itemsep=2pt]
-    \item classificazione: \texttt{stato\_esistenza}, \texttt{habitat}, \texttt{famiglia\_specie}, \texttt{specie}, \texttt{dieta};
-    \item spazi: \texttt{tipo\_area}, \texttt{tipo\_recinto}, \texttt{area}, \texttt{recinto}, \texttt{storico\_collocazione};
-    \item personale: \texttt{mansione}, \texttt{dipendente}, \texttt{storico\_stipendio}, \texttt{turno}, \texttt{utente};
-    \item sanità: \texttt{visita\_medica};
-    \item contabilità: \texttt{categoria\_transazione}, \texttt{transazione}, \texttt{scontrino}, \texttt{dettaglio\_scontrino}, \texttt{tipo\_biglietto};
-    \item approvvigionamenti: \texttt{tipo\_cibo}, \texttt{tipo\_fornitura}, \texttt{fornitore}, \texttt{fornitore\_cibo}, \texttt{ordine\_giornaliero};
-    \item altre funzionalità: 
-\end{itemize}
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{SchemaRelazionale.png}
@@ -1258,15 +1245,15 @@ SELECT * FROM ordine_giornaliero WHERE id_transazione = ? ORDER BY data_ordine D
 traduzione {Seleziona tutti gli ordini associati a una determinata transazione finanziaria, dal più recente.}
 
 \begin{lstlisting}[style=sqlstyle]
-SELECT TC.nome AS cibo, SUM(D.quantita_kg_giorno) AS totale_kg " +
-                     "FROM ANIMALE A " +
-                     "JOIN SPECIE S ON A.id_specie = S.id_specie " +
-                     "JOIN DIETA D ON S.id_specie = D.id_specie " +
-                     "JOIN TIPO_CIBO TC ON D.id_tipo_cibo = TC.id_tipo_cibo " +
-                     "WHERE A.vivo = true " +
-                     "AND A.data_uscita IS NULL " +
-                     "GROUP BY TC.nome " +
-                     "ORDER BY TC.nome"
+SELECT TC.nome AS cibo, SUM(D.quantita_kg_giorno) AS totale_kg
+                     FROM ANIMALE A  +
+                     JOIN SPECIE S ON A.id_specie = S.id_specie
+                     JOIN DIETA D ON S.id_specie = D.id_specie 
+                     JOIN TIPO_CIBO TC ON D.id_tipo_cibo = TC.id_tipo_cibo
+                     WHERE A.vivo = true
+                     AND A.data_uscita IS NULL
+                     GROUP BY TC.nome
+                     ORDER BY TC.nome
 \end{lstlisting}
 traduzione {Seleziona il nome del cibo e la somma totale del cibo necessario al giorno, raggruppata per tipo di cibo, considerando solo gli animali vivi.}
 
