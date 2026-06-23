@@ -196,7 +196,7 @@ INSERT INTO UTENTE (email, password_hash, data_registrazione, id_dipendente, ruo
 ('admin@zoopark.it', '$2a$10$/8VMXMUHFPp5F/GVyGgw2OpmWIPEKWTmSN4.ZWhPfNVJMqhOpMzB2', '2010-01-01', 5, 'admin'),
 ('biglietteria@zoopark.it', '$2a$10$/8VMXMUHFPp5F/GVyGgw2OpmWIPEKWTmSN4.ZWhPfNVJMqhOpMzB2', '2018-06-21', 4, 'cassiere'),
 ('guardiano@zoopark.it', '$2a$10$/8VMXMUHFPp5F/GVyGgw2OpmWIPEKWTmSN4.ZWhPfNVJMqhOpMzB2', '2010-07-21', 2, 'guardiano'),
-('vet.rossi@zoopark.it', '$2a$10$/8VMXMUHFPp5F/GVyGgw2OpmWIPEKWTmSN4.ZWhPfNVJMqhOpMzB2', '2010-05-16', 1, 'veterinario');
+('veterinario@zoopark.it', '$2a$10$/8VMXMUHFPp5F/GVyGgw2OpmWIPEKWTmSN4.ZWhPfNVJMqhOpMzB2', '2010-05-16', 1, 'veterinario');
 
 -- FORNITORE
 INSERT INTO FORNITORE (nome_azienda, descrizione, indirizzo, iban, id_tipo_fornitura) VALUES
