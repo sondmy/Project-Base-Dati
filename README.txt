@@ -6,6 +6,9 @@ https://github.com/sondmy/Project-Base-Dati
 Le password per fare i login dei 4 utenti è per tutti: password123
 è anche possibile trovarla nella relazione
 
+Per far partire il progetto senza .jar bisogna eseguire nella root del
+progetto il comando (windows): ./gradlew run
+
 Se si vuole avviare il progetto dal file .jar bisogna prima eseguire 
 nella root del progetto il comando (Windows) : ./gradlew shadowJar
 Successivamente per avviare il file .jar bisogna eseguire il comando 
