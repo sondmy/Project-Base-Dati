@@ -1,14 +1,11 @@
 package it.unibo.zoo;
 
 import java.sql.Connection;
-import java.time.LocalDate;
 
 import java.util.List;
 
-import it.unibo.zoo.model.entity.Animale;
 import it.unibo.zoo.model.entity.TipoArea;
 import it.unibo.zoo.model.jdbc.ConnectionFactory;
-import it.unibo.zoo.model.jdbc.entityDao.AnimaleDao;
 import it.unibo.zoo.model.jdbc.entityDao.TipoAreaDao;
 import it.unibo.zoo.model.jdbc.entityDao.SpecieDao;
 import it.unibo.zoo.model.jdbc.entityDao.DipendenteDao;
