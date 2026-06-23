@@ -231,8 +231,7 @@ INSERT INTO TRANSAZIONE (tipo, importo, data, descrizione, id_categoria, id_uten
 ('E', 275.00, '2024-05-01', 'Incasso scontrino 2', 1, 2, NULL, 2),
 ('E', 40.00, '2024-05-02', 'Incasso scontrino 3', 1, 2, NULL, 3),
 ('U', 1500.00, '2024-05-05', 'Fattura acquisto carne', 2, 1, 1, NULL),
-('U', 800.00, '2024-05-06', 'Fattura vegetali e fieno', 2, 1, 2, NULL),
-('U', 350.00, '2024-05-10', 'Rifornimento antibiotici', 6, 1, 4, NULL);
+('U', 800.00, '2024-05-06', 'Fattura vegetali e fieno', 2, 1, 2, NULL);
 
 -- ORDINE_GIORNALIERO
 INSERT INTO ORDINE_GIORNALIERO (data_ordine, id_fornitore, id_tipo_cibo, quantita_kg, id_transazione) VALUES
