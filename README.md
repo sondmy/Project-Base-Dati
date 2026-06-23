@@ -1,8 +1,25 @@
 # Project-Base-Dati
-Creazione di un Gestionale di uno zoo come progetto per sostenere l'esame di base di dati..
 
+## Requisiti
 
-# Docker
+Prima di avviare il progetto assicurati di avere installato:
+
+- Docker Desktop (Windows/macOS) oppure Docker Engine + Docker Compose (Linux)
+- Un terminale (PowerShell, CMD, Bash, Zsh, ecc.)
+- Un browser web per accedere a pgAdmin
+
+---
+
+## Avvio rapido
+
+Per utilizzare il progetto sono necessari solamente i primi 4 passaggi descritti in questa guida:
+
+1. Verifica del file `.env`
+2. Verifica del file `docker-compose.yml`
+3. verifica dei file SQL (`init.sql` e `seed.sql`)
+4. Avvio dei container con: `docker compose up -d`
+
+I passaggi successivi (accesso a pgAdmin e configurazione della connessione) sono facoltativi e servono esclusivamente per amministrare e visualizzare il database tramite interfaccia grafica.
 
 ## Passo 1 — Verifica file .env
 
@@ -23,7 +40,7 @@ PGADMIN_PASSWORD=admin
 ```
 
 
-## Passo 2 — Crea il file `docker-compose.yml`
+## Passo 2 — Verifica il file `docker-compose.yml`
 
 Verifica che nella cartella `postgres-docker/` sia presente il file `docker-compose.yml` con il seguente contenuto:
 
@@ -78,7 +95,7 @@ Verifica che nella cartella `./postgres-docker/sql/` siano presenti i file `init
 
 ## Passo 4 — Avvia i container
 
-Apri il terminale nella root del progetto ed esegui:
+Apri il terminale nella root del progetto poi spostati dentro la cartella `./postgres-docker` ed esegui:
 
 ```bash
 docker compose up -d
@@ -163,6 +180,6 @@ Troverai tutte le tabelle create dallo script SQL.
 
 ## ⚠️ Note importanti
 
-- **Il file `init.sql` viene eseguito solo al primo avvio**, quando il volume `pgdata` è vuoto. Se il database esiste già, Postgres ignora la cartella `initdb.d`. Per forzare una reinizializzazione devi cancellare il volume con `docker compose down -v` e riavviare.
-- **Le password nel `.env`** sono solo per sviluppo locale. In produzione usa segreti gestiti (Docker Secrets, Vault, ecc.).
+- **Il file `init.sql` e `seed.sql` vengono eseguiti solamente al primo avvio**. Se il database esiste già, per forzare una reinizializzazione devi cancellare il volume con `docker compose down -v` e riavviare.
+- **Le password nel `.env`** sono solo per sviluppo locale. In produzione non dovrebbero essere pubbliche 
 - **pgAdmin** è uno strumento solo per sviluppo/amministrazione locale. Non esporlo mai su internet senza autenticazione sicura.
