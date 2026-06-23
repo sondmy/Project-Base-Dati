@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class OrdineGiornalieroCiboDao extends AbstractCrudDao<OrdineGiornalieroCibo> {
 
@@ -86,6 +88,28 @@ public class OrdineGiornalieroCiboDao extends AbstractCrudDao<OrdineGiornalieroC
 
     public List<OrdineGiornalieroCibo> findByDataOrdine(LocalDate dataOrdine) {
         return queryMany("SELECT * FROM ordine_giornaliero WHERE data_ordine = ? ORDER BY id_ordine DESC", statement -> statement.setDate(1, java.sql.Date.valueOf(dataOrdine)));
+    }
+
+    public Map<String, Double> calcolaFabbisognoGiornaliero() {
+        Map<String, Double> map = new LinkedHashMap<>();
+        String sql = "SELECT TC.nome AS cibo, SUM(D.quantita_kg_giorno) AS totale_kg " +
+                     "FROM ANIMALE A " +
+                     "JOIN SPECIE S ON A.id_specie = S.id_specie " +
+                     "JOIN DIETA D ON S.id_specie = D.id_specie " +
+                     "JOIN TIPO_CIBO TC ON D.id_tipo_cibo = TC.id_tipo_cibo " +
+                     "WHERE A.vivo = true " +
+                     "GROUP BY TC.nome " +
+                     "ORDER BY TC.nome";
+        try (java.sql.Connection conn = it.unibo.zoo.model.jdbc.ConnectionFactory.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString("cibo"), rs.getDouble("totale_kg"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return map;
     }
 
 }

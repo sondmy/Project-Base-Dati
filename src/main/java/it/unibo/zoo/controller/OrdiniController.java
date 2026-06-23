@@ -23,6 +23,14 @@ public class OrdiniController {
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
+    public static void populateFabbisogno(final GestioneView view) {
+        Map<String, Double> fabbisogno = new OrdineGiornalieroCiboDao().calcolaFabbisognoGiornaliero();
+        List<GestioneView.FabbisognoRow> rows = fabbisogno.entrySet().stream()
+                .map(e -> new GestioneView.FabbisognoRow(e.getKey(), String.format(java.util.Locale.US, "%.2f", e.getValue())))
+                .collect(Collectors.toList());
+        view.getTableFabbisogno().getItems().setAll(rows);
+    }
+
     public static void populateOrdini(final GestioneView view) {
         final List<OrdineGiornalieroCibo> ordini = new OrdineGiornalieroCiboDao().findAll();
         final Map<Integer, Fornitore> fornMap = new FornitoreDao().findAll().stream()

@@ -439,6 +439,7 @@ public class GestioneController {
         SaldoController.populateSaldo(view);
         SaldoController.populateStatistiche(view);
         OrdiniController.populateOrdini(view);
+        OrdiniController.populateFabbisogno(view);
         VisiteController.populateVisite(view);
         TurnoController.populateTurni(view);
         DipendenteController.populatePersonale(view);
@@ -469,10 +470,16 @@ public class GestioneController {
         bus.subscribe(DataType.HABITAT, () -> ClassificazioneController.populateHabitat(view));
         bus.subscribe(DataType.FAMIGLIA_SPECIE, () -> ClassificazioneController.populateFamigliaSpecie(view));
         bus.subscribe(DataType.SPECIE, () -> ClassificazioneController.populateSpecie(view));
-        bus.subscribe(DataType.DIETA, () -> ClassificazioneController.populateDieta(view));
+        bus.subscribe(DataType.DIETA, () -> {
+            ClassificazioneController.populateDieta(view);
+            OrdiniController.populateFabbisogno(view);
+        });
 
         // Tab Animali
-        bus.subscribe(DataType.ANIMALE, () -> AnimaliController.populateAnimali(view));
+        bus.subscribe(DataType.ANIMALE, () -> {
+            AnimaliController.populateAnimali(view);
+            OrdiniController.populateFabbisogno(view);
+        });
 
         // Tab Aree
         bus.subscribe(DataType.AREA, () -> AreeController.populateAree(view));

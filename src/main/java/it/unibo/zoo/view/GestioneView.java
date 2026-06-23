@@ -70,6 +70,19 @@ public class GestioneView {
         public String getQuantitaKg() { return quantitaKg; }
     }
 
+    public static class FabbisognoRow {
+        private final String cibo;
+        private final String quantita;
+
+        public FabbisognoRow(final String cibo, final String quantita) {
+            this.cibo = cibo;
+            this.quantita = quantita;
+        }
+
+        public String getCibo() { return cibo; }
+        public String getQuantita() { return quantita; }
+    }
+
     public static class VisitaRow {
         private final String idVisita;
         private final String idAnimale;
@@ -432,6 +445,7 @@ public class GestioneView {
     private final Label lblStatTotBiglietti;
 
     // Tab 2 — Ordini
+    private final TableView<FabbisognoRow> tableFabbisogno;
     private final TableView<OrdineRow> tableOrdini;
     private final VBox panelNuovoOrdine;
     private final ComboBox<String> comboFornitore;
@@ -783,6 +797,24 @@ public class GestioneView {
         final VBox ordiniContent = new VBox(16);
         ordiniContent.setPadding(new Insets(20));
 
+        final Label lblFabbisogno = new Label("Fabbisogno Giornaliero");
+        lblFabbisogno.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+
+        tableFabbisogno = new TableView<>();
+        tableFabbisogno.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
+        tableFabbisogno.setPrefHeight(150);
+
+        final TableColumn<FabbisognoRow, String> colFCibo = new TableColumn<>("Tipo Cibo");
+        colFCibo.setCellValueFactory(new PropertyValueFactory<>("cibo"));
+
+        final TableColumn<FabbisognoRow, String> colFQta = new TableColumn<>("Fabbisogno (kg)");
+        colFQta.setCellValueFactory(new PropertyValueFactory<>("quantita"));
+
+        tableFabbisogno.getColumns().addAll(colFCibo, colFQta);
+
+        final Label lblStoricoOrdini = new Label("Storico Ordini");
+        lblStoricoOrdini.setStyle("-fx-font-size: 16px; -fx-font-weight: bold; -fx-text-fill: " + StyleHelper.TEXT_MAIN + ";");
+
         tableOrdini = new TableView<>();
         tableOrdini.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_ALL_COLUMNS);
         tableOrdini.setPrefHeight(200);
@@ -844,7 +876,7 @@ public class GestioneView {
 
         panelNuovoOrdine.getChildren().addAll(lblNewOrd, comboFornitore, comboTipoCibo, qtaRow, btnSalvaOrdine, lblOrdineMsg);
 
-        ordiniContent.getChildren().addAll(tableOrdini, btnNuovoOrdine, panelNuovoOrdine);
+        ordiniContent.getChildren().addAll(lblFabbisogno, tableFabbisogno, lblStoricoOrdini, tableOrdini, btnNuovoOrdine, panelNuovoOrdine, lblOrdineMsg);
         tabOrdini.setContent(ordiniContent);
 
         /* ═══ TAB 3 — Animali in cura ════════════════════ */
@@ -1684,6 +1716,8 @@ public class GestioneView {
         panelNuovoTipoBiglietto.setVisible(visible);
         panelNuovoTipoBiglietto.setManaged(visible);
     }
+
+    public TableView<FabbisognoRow> getTableFabbisogno() { return tableFabbisogno; }
     public void showTipiBigliettiMsg(String msg, boolean success) {
         lblTipiBigliettiMsg.setText(msg);
         lblTipiBigliettiMsg.setStyle(StyleHelper.badge(success ? StyleHelper.GREEN : StyleHelper.RED));
