@@ -1257,6 +1257,19 @@ SELECT * FROM ordine_giornaliero WHERE id_transazione = ? ORDER BY data_ordine D
 \end{lstlisting}
 traduzione {Seleziona tutti gli ordini associati a una determinata transazione finanziaria, dal più recente.}
 
+\begin{lstlisting}[style=sqlstyle]
+SELECT TC.nome AS cibo, SUM(D.quantita_kg_giorno) AS totale_kg " +
+                     "FROM ANIMALE A " +
+                     "JOIN SPECIE S ON A.id_specie = S.id_specie " +
+                     "JOIN DIETA D ON S.id_specie = D.id_specie " +
+                     "JOIN TIPO_CIBO TC ON D.id_tipo_cibo = TC.id_tipo_cibo " +
+                     "WHERE A.vivo = true " +
+                     "AND A.data_uscita IS NULL " +
+                     "GROUP BY TC.nome " +
+                     "ORDER BY TC.nome"
+\end{lstlisting}
+traduzione {Seleziona il nome del cibo e la somma totale del cibo necessario al giorno, raggruppata per tipo di cibo, considerando solo gli animali vivi.}
+
 \subsubsection*{Recinto}
 \begin{lstlisting}[style=sqlstyle]
 SELECT * FROM recinto
