@@ -17,6 +17,7 @@ public class TipiBigliettiController {
                 .map(t -> new GestioneView.TipiBigliettiRow(
                         String.valueOf(t.getIdBiglietto()),
                         t.getNome(),
+                        t.getDescrizione(),
                         String.format("€%.2f", t.getPrezzo()),
                         t.isAttivo() ? "Sì" : "No"
                 ))
@@ -27,6 +28,7 @@ public class TipiBigliettiController {
     public static void handleSalvaTipoBiglietto(GestioneView view, Integer editingId) {
         try {
             String nome = view.getTxtTipoBigliettoNome().getText();
+            String desc = view.getTxtTipoBigliettoDesc().getText();
             String prezzoStr = view.getTxtTipoBigliettoPrezzo().getText();
             boolean attivo = view.getChkTipoBigliettoAttivo().isSelected();
 
@@ -37,7 +39,7 @@ public class TipiBigliettiController {
 
             double prezzo = Double.parseDouble(prezzoStr.replace(",", "."));
 
-            TipoBiglietto nuovo = new TipoBiglietto(nome, "", prezzo, attivo);
+            TipoBiglietto nuovo = new TipoBiglietto(nome, desc, prezzo, attivo);
             if (editingId == null) {
                 new TipoBigliettoDao().insert(nuovo);
             } else {
@@ -47,6 +49,7 @@ public class TipiBigliettiController {
 
             view.showTipiBigliettiMsg("Tipo biglietto salvato con successo!", true);
             view.getTxtTipoBigliettoNome().clear();
+            view.getTxtTipoBigliettoDesc().clear();
             view.getTxtTipoBigliettoPrezzo().clear();
             view.setPanelNuovoTipoBigliettoVisible(false);
 

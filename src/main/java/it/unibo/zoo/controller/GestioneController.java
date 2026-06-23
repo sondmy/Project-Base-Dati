@@ -56,6 +56,7 @@ public class GestioneController {
             panelTipiBigliettiVisible = !panelTipiBigliettiVisible;
             if (!panelTipiBigliettiVisible) editingTipoBigliettoId = null;
             view.getTxtTipoBigliettoNome().clear();
+            view.getTxtTipoBigliettoDesc().clear();
             view.getTxtTipoBigliettoPrezzo().clear();
             view.getChkTipoBigliettoAttivo().setSelected(true);
             view.setPanelNuovoTipoBigliettoVisible(panelTipiBigliettiVisible);
@@ -71,6 +72,7 @@ public class GestioneController {
             if (newSel != null && newSel.getIdBiglietto() != null) {
                 editingTipoBigliettoId = Integer.parseInt(newSel.getIdBiglietto());
                 view.getTxtTipoBigliettoNome().setText(newSel.getNome());
+                view.getTxtTipoBigliettoDesc().setText(newSel.getDescrizione() == null ? "" : newSel.getDescrizione());
                 view.getTxtTipoBigliettoPrezzo().setText(newSel.getPrezzo().replace("€", "").replace(",", "."));
                 view.getChkTipoBigliettoAttivo().setSelected("Sì".equals(newSel.getAttivo()));
                 panelTipiBigliettiVisible = true;

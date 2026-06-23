@@ -250,18 +250,21 @@ public class GestioneView {
     public static class TipiBigliettiRow {
         private final String idBiglietto;
         private final String nome;
+        private final String descrizione;
         private final String prezzo;
         private final String attivo;
 
-        public TipiBigliettiRow(final String idBiglietto, final String nome, final String prezzo, final String attivo) {
+        public TipiBigliettiRow(final String idBiglietto, final String nome, final String descrizione, final String prezzo, final String attivo) {
             this.idBiglietto = idBiglietto;
             this.nome = nome;
+            this.descrizione = descrizione;
             this.prezzo = prezzo;
             this.attivo = attivo;
         }
 
         public String getIdBiglietto() { return idBiglietto; }
         public String getNome() { return nome; }
+        public String getDescrizione() { return descrizione; }
         public String getPrezzo() { return prezzo; }
         public String getAttivo() { return attivo; }
     }
@@ -407,6 +410,7 @@ public class GestioneView {
     private final Button btnEliminaTipoBiglietto;
     private final VBox panelNuovoTipoBiglietto;
     private final TextField txtTipoBigliettoNome;
+    private final TextField txtTipoBigliettoDesc;
     private final TextField txtTipoBigliettoPrezzo;
     private final javafx.scene.control.CheckBox chkTipoBigliettoAttivo;
     private final Label lblTipiBigliettiMsg;
@@ -724,12 +728,14 @@ public class GestioneView {
 
         final TableColumn<TipiBigliettiRow, String> colTbNome = new TableColumn<>("Nome");
         colTbNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        final TableColumn<TipiBigliettiRow, String> colTbDesc = new TableColumn<>("Descrizione");
+        colTbDesc.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
         final TableColumn<TipiBigliettiRow, String> colTbPrezzo = new TableColumn<>("Prezzo");
         colTbPrezzo.setCellValueFactory(new PropertyValueFactory<>("prezzo"));
         final TableColumn<TipiBigliettiRow, String> colTbAttivo = new TableColumn<>("Attivo");
         colTbAttivo.setCellValueFactory(new PropertyValueFactory<>("attivo"));
 
-        tableTipiBiglietti.getColumns().addAll(colTbNome, colTbPrezzo, colTbAttivo);
+        tableTipiBiglietti.getColumns().addAll(colTbNome, colTbDesc, colTbPrezzo, colTbAttivo);
 
         panelNuovoTipoBiglietto = new VBox(12);
         panelNuovoTipoBiglietto.setPadding(new Insets(15));
@@ -739,6 +745,8 @@ public class GestioneView {
 
         txtTipoBigliettoNome = new TextField();
         txtTipoBigliettoNome.setPromptText("Nome (es. Intero, Ridotto)");
+        txtTipoBigliettoDesc = new TextField();
+        txtTipoBigliettoDesc.setPromptText("Descrizione");
         txtTipoBigliettoPrezzo = new TextField();
         txtTipoBigliettoPrezzo.setPromptText("Prezzo (es. 15.00)");
         
@@ -754,7 +762,7 @@ public class GestioneView {
 
         panelNuovoTipoBiglietto.getChildren().addAll(
                 new Label("Crea/Modifica Tipo Biglietto"),
-                new javafx.scene.layout.HBox(10, txtTipoBigliettoNome, txtTipoBigliettoPrezzo, chkTipoBigliettoAttivo),
+                new javafx.scene.layout.HBox(10, txtTipoBigliettoNome, txtTipoBigliettoDesc, txtTipoBigliettoPrezzo, chkTipoBigliettoAttivo),
                 btnSalvaTipoBiglietto
         );
 
@@ -1669,6 +1677,7 @@ public class GestioneView {
     public Button getBtnSalvaTipoBiglietto() { return btnSalvaTipoBiglietto; }
     public Button getBtnEliminaTipoBiglietto() { return btnEliminaTipoBiglietto; }
     public TextField getTxtTipoBigliettoNome() { return txtTipoBigliettoNome; }
+    public TextField getTxtTipoBigliettoDesc() { return txtTipoBigliettoDesc; }
     public TextField getTxtTipoBigliettoPrezzo() { return txtTipoBigliettoPrezzo; }
     public javafx.scene.control.CheckBox getChkTipoBigliettoAttivo() { return chkTipoBigliettoAttivo; }
     public void setPanelNuovoTipoBigliettoVisible(boolean visible) {
